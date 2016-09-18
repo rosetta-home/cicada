@@ -4,4 +4,4 @@ use Mix.Config
 
 config :raven_smcd, tty: "/dev/ttyUSB0"
 config :meteo_stick, tty: "/dev/ttyUSB1"
-config :logger, level: :info
+config :logger, level: :debug

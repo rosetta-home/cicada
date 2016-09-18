@@ -12,4 +12,8 @@ defmodule DeviceManager.Discovery.SmartMeter do
     {:noreply, handle_device(device, state, SmartMeter.RavenSMCD)}
   end
 
+  def handle_info({:raven, %Raven.Client.State{} = device}, state) do
+    {:noreply, state}
+  end
+
 end

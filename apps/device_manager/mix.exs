@@ -42,7 +42,7 @@ defmodule DeviceManager.Mixfile do
       {:lifx, "~> 0.1.3"},
       {:chromecast, "~> 0.1.0"},
       {:meteo_stick, "~> 0.1.0"},
-      {:raven_smcd, "~> 0.1.1"},
+      {:raven_smcd, "~> 0.1.2"},
       {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"}
     ]
   end
