@@ -1,6 +1,7 @@
 defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   use GenServer
   require Logger
+  alias Nerves.UART, as: Serial
 
   @behaviour DeviceManager.Behaviour.SmartMeter
 

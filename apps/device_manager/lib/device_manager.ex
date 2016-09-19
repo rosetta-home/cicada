@@ -1,6 +1,8 @@
 defmodule DeviceManager do
   use Application
+  require Logger
   alias DeviceManager.Discovery
+  alias Nerves.UART, as: Serial
 
   defmodule Device do
     defstruct module: nil,
@@ -20,8 +22,8 @@ defmodule DeviceManager do
       worker(Discovery.WeatherStation, []),
       worker(Discovery.SmartMeter, [])
     ]
-
     opts = [strategy: :one_for_one, name: DeviceManager.DiscoverySupervisor]
     Supervisor.start_link(children, opts)
   end
+
 end

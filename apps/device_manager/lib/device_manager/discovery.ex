@@ -34,10 +34,7 @@ defmodule DeviceManager.Discovery do
         end
       end
 
-      def init_handlers do
-        #add handlers
-        :ok
-      end
+      def init_handlers, do: :ok
 
       defoverridable [init_handlers: 0]
 

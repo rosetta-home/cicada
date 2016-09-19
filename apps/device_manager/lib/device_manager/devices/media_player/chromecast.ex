@@ -55,7 +55,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     {:noreply, %{device | state: Chromecast.state(device.pid)}}
   end
 
-  def handle_cast({:update, state}, device) do
+  def handle_cast({:update, _state}, device) do
     {:noreply, device}
   end
 

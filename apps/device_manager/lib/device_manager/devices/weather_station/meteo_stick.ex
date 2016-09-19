@@ -1,6 +1,7 @@
 defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   use GenServer
   require Logger
+  alias Nerves.UART, as: Serial
 
   @behaviour DeviceManager.Behaviour.WeatherStation
 
