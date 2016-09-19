@@ -9,6 +9,6 @@ defmodule RosettaHome.Mixfile do
   end
 
   defp deps do
-    [{:gen_stage, "~> 0.4"}]
+    []
   end
 end
