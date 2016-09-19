@@ -17,7 +17,7 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def update_state(pid, state) do
-    GenServer.cast(pid, {:update, state})
+    GenServer.call(pid, {:update, state})
   end
 
   def get_id(device) do
@@ -35,8 +35,9 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
     }}
   end
 
-  def handle_cast({:update, state}, device) do
-    {:noreply, %{device | state: state}}
+  def handle_call({:update, state}, _from, device) do
+    device = %{device | state: state}
+    {:reply, device, device}
   end
 
   def handle_call(:device, _from, device) do

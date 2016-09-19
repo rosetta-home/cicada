@@ -25,11 +25,12 @@ defmodule DeviceManager.Discovery do
             Logger.info("Got Device - #{id} :: #{inspect device}")
             {:ok, pid} = module.start_link(id, device)
             device = module.device(pid)
+            DeviceManager.Broadcaster.sync_notify(device)
             %State{state | devices: [device | state.devices]}
           true ->
             Logger.debug("Updating State - #{id} #{inspect device}")
-            module.update_state(id, device)
-            #TODO Send out notification over GenStream...
+            device = module.update_state(id, device)
+            DeviceManager.Broadcaster.sync_notify(device)
             state
         end
       end

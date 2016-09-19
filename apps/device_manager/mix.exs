@@ -43,6 +43,7 @@ defmodule DeviceManager.Mixfile do
       {:chromecast, "~> 0.1.0"},
       {:meteo_stick, "~> 0.1.1"},
       {:raven_smcd, "~> 0.1.3"},
+      {:gen_stage, "~> 0.4"},
       {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"}
     ]
   end

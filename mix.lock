@@ -5,6 +5,7 @@
   "dns": {:hex, :dns, "0.0.4", "2e347a0a03e8345bc70c6d69ed08788103a3bec81b93e4636b1b432110835436", [:mix], [{:socket, "~> 0.3.5", [hex: :socket, optional: false]}]},
   "elixir_make": {:hex, :elixir_make, "0.3.0", "285147fa943806eee82f6680b7b446b5569bcf3ee8328fa0a7c200ffc44fbaba", [:mix], []},
   "exprotobuf": {:hex, :exprotobuf, "1.1.0", "0d91a0b527abac118e03361d12eac7262299cdda3a0316fc60763557c227c890", [:mix], [{:gpb, "~> 3.24", [hex: :gpb, optional: false]}]},
+  "gen_stage": {:hex, :gen_stage, "0.5.0", "758068f3a81286e342a609d668e9624714c2e4d43cc26699ead04d1680fde6c6", [:mix], []},
   "gpb": {:hex, :gpb, "3.25.2", "92f089ecdca6d098d9a65e41e879a498436d03b9727a28f0eae62d86587575db", [:rebar, :make], []},
   "hackney": {:hex, :hackney, "1.6.1", "ddd22d42db2b50e6a155439c8811b8f6df61a4395de10509714ad2751c6da817", [:rebar3], [{:certifi, "0.4.0", [hex: :certifi, optional: false]}, {:idna, "1.2.0", [hex: :idna, optional: false]}, {:metrics, "1.0.1", [hex: :metrics, optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, optional: false]}, {:ssl_verify_fun, "1.1.0", [hex: :ssl_verify_fun, optional: false]}]},
   "httpoison": {:hex, :httpoison, "0.8.3", "b675a3fdc839a0b8d7a285c6b3747d6d596ae70b6ccb762233a990d7289ccae4", [:mix], [{:hackney, "~> 1.6.0", [hex: :hackney, optional: false]}]},
