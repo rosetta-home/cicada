@@ -36,15 +36,14 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def init({id, device}) do
     {:ok, pid} = RadioThermostat.start_link(device.url)
     r_state = RadioThermostat.state(pid)
-    device = %DeviceManager.Device{
+    {:ok, %DeviceManager.Device{
       module: RadioThermostat,
       type: :hvac,
-      pid: pid,
+      device_pid: pid,
+      interface_pid: id,
       name: device.device.friendly_name,
-      id: id,
       state: r_state
-    }
-    {:ok, device}
+    }}
   end
 
   def handle_cast({:update, state}, device) do
@@ -57,7 +56,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 
   def handle_call(:on, _from, state) do
     {:reply,
-      case state.module.set(state.pid, :fan, 1) do
+      case RadioThermostat.set(state.device_pid, :fan, 1) do
         {:ok, %{"success" => 0}} -> true
         other ->
           IO.inspect other
@@ -67,7 +66,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 
   def handle_call(:off, _from, state) do
     {:reply,
-      case state.module.set(state.pid, :fan, 0) do
+      case RadioThermostat.set(state.device_pid, :fan, 0) do
         {:ok, %{"success" => 0}} -> true
         other ->
           IO.inspect other
@@ -77,10 +76,9 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 
   def handle_call({:set_temp, temp}, _from, state) do
     {:reply,
-      case state.module.set(state.pid, :temporary_cool, temp) do
+      case RadioThermostat.set(state.device_pid, :temporary_cool, temp) do
         {:ok, %{"success" => 0}} -> true
         other ->
-          IO.inspect other
           false
       end, state}
   end

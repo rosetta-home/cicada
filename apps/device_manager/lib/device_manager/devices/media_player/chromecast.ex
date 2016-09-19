@@ -38,21 +38,20 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
 
   def init({id, device}) do
     {:ok, pid} = Chromecast.start_link(device.ip)
-    d = %DeviceManager.Device{
+    Process.send_after(self, :update_state, 1000)
+    {:ok, %DeviceManager.Device{
       module: Chromecast,
       type: :media_player,
-      pid: pid,
+      device_pid: pid,
+      interface_pid: id,
       name: device.payload["fn"],
-      id: id,
       state: %{}
-    }
-    Process.send_after(self, :update_state, 1000)
-    {:ok, d}
+    }}
   end
 
   def handle_info(:update_state, device) do
     Process.send_after(self, :update_state, 1000)
-    {:noreply, %{device | state: Chromecast.state(device.pid)}}
+    {:noreply, %{device | state: Chromecast.state(device.device_pid)}}
   end
 
   def handle_cast({:update, _state}, device) do
@@ -64,22 +63,22 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def handle_call({:play, _url}, _from, device) do
-    Chromecast.play(device.pid)
+    Chromecast.play(device.device_pid)
     {:reply, true, device}
   end
 
   def handle_call(:pause, _from, device) do
-    Chromecast.pause(device.pid)
+    Chromecast.pause(device.device_pid)
     {:reply, true, device}
   end
 
   def handle_call({:volume, volume}, _from, device) do
-    Chromecast.set_volume(device.pid, volume)
+    Chromecast.set_volume(device.device_pid, volume)
     {:reply, true, device}
   end
 
   def handle_call(:status, _from, device) do
-    Chromecast.state(device.pid)
+    Chromecast.state(device.device_pid)
     {:reply, true, device}
   end
 

@@ -1,7 +1,6 @@
 defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   use GenServer
   require Logger
-  alias Nerves.UART, as: Serial
 
   @behaviour DeviceManager.Behaviour.SmartMeter
 
@@ -38,15 +37,14 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def init({id, device}) do
-    d = %DeviceManager.Device{
-      module: Raven.Meter,
+    {:ok, %DeviceManager.Device{
+      module: Raven.Client,
       type: :smart_meter,
-      pid: device.id,
+      device_pid: device.id,
+      interface_pid: id,
       name: "Raven - #{Atom.to_string(device.id)}",
-      id: id,
       state: device
-    }
-    {:ok, d}
+    }}
   end
 
   def handle_cast({:update, state}, device) do
@@ -58,22 +56,22 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def handle_call(:demand, _from, device) do
-    Raven.Client.get_demand(device.pid)
+    Raven.Client.get_demand(device.device_pid)
     {:reply, 300, device}
   end
 
   def handle_call(:produced, _from, device) do
-    Raven.Client.get_summation(device.pid)
+    Raven.Client.get_summation(device.device_pid)
     {:reply, 300, device}
   end
 
   def handle_call(:consumed, _from, device) do
-    Raven.Client.get_summation(device.pid)
+    Raven.Client.get_summation(device.device_pid)
     {:reply, 300, device}
   end
 
   def handle_call(:price, _from, device) do
-    Raven.Client.get_price(device.pid)
+    Raven.Client.get_price(device.device_pid)
     {:reply, 300, device}
   end
 

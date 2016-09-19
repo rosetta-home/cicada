@@ -1,7 +1,6 @@
 defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   use GenServer
   require Logger
-  alias Nerves.UART, as: Serial
 
   @behaviour DeviceManager.Behaviour.WeatherStation
 
@@ -26,15 +25,14 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def init({id, device}) do
-    d = %DeviceManager.Device{
+    {:ok, %DeviceManager.Device{
       module: MeteoStick.WeatherStation,
       type: :weather_station,
-      pid: String.to_atom(device.id),
+      device_pid: String.to_atom(device.id),
+      interface_pid: id,
       name: "Weather Station: #{device.id}",
-      id: id,
       state: device
-    }
-    {:ok, d}
+    }}
   end
 
   def handle_cast({:update, state}, device) do

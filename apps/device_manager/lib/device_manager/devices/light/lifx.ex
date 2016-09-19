@@ -45,15 +45,14 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def init({id, device}) do
-    d = %DeviceManager.Device{
+    {:ok, %DeviceManager.Device{
       module: Lifx.Device,
       type: :light,
-      pid: device.id,
+      device_pid: device.id,
+      interface_pid: id,
       name: device.label,
-      id: id,
       state: device
-    }
-    {:ok, d}
+    }}
   end
 
   def handle_cast({:update, state}, device) do
@@ -70,27 +69,27 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def handle_call(:off, _from, device) do
-    Lifx.Device.off(device.pid)
+    Lifx.Device.off(device.device_pid)
     {:reply, true, device}
   end
 
   def handle_call({:hue, hue}, _from, device) do
-    Lifx.Device.set_color(device.pid, %Lifx.Protocol.HSBK{device.state.hsbk | hue: hue})
+    Lifx.Device.set_color(device.device_pid, %Lifx.Protocol.HSBK{device.state.hsbk | hue: hue})
     {:reply, true, device}
   end
 
   def handle_call({:saturation, sat}, _from, device) do
-    Lifx.Device.set_color(device.pid, %Lifx.Protocol.HSBK{device.state.hsbk | saturation: sat})
+    Lifx.Device.set_color(device.device_pid, %Lifx.Protocol.HSBK{device.state.hsbk | saturation: sat})
     {:reply, true, device}
   end
 
   def handle_call({:brightness, bright}, _from, device) do
-    Lifx.Device.set_color(device.pid, %Lifx.Protocol.HSBK{device.state.hsbk | brightness: bright})
+    Lifx.Device.set_color(device.device_pid, %Lifx.Protocol.HSBK{device.state.hsbk | brightness: bright})
     {:reply, true, device}
   end
 
   def handle_call({:kelvin, kelvin}, _from, device) do
-    Lifx.Device.set_color(device.pid, %Lifx.Protocol.HSBK{device.state.hsbk | kelvin: kelvin})
+    Lifx.Device.set_color(device.device_pid, %Lifx.Protocol.HSBK{device.state.hsbk | kelvin: kelvin})
     {:reply, true, device}
   end
 

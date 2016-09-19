@@ -7,9 +7,9 @@ defmodule DeviceManager do
   defmodule Device do
     defstruct module: nil,
       type: nil,
-      pid: nil,
+      device_pid: nil,
+      interface_pid: nil,
       name: "",
-      id: "",
       state: %{}
   end
 
