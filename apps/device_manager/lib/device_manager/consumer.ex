@@ -1,5 +1,6 @@
 defmodule DeviceManager.Consumer do
   alias Experimental.{GenStage}
+  require Logger
 
   use GenStage
 
@@ -17,7 +18,7 @@ defmodule DeviceManager.Consumer do
 
   def handle_events(events, _from, state) do
     for event <- events do
-      IO.inspect {self(), event}
+      Logger.debug "Event: #{inspect event}"
     end
     {:noreply, [], state}
   end

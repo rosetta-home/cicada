@@ -18,7 +18,7 @@ defmodule DeviceManager.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :mdns, :ssdp, :lifx, :chromecast, :meteo_stick, :raven_smcd],
+    [applications: [:logger, :mdns, :ssdp, :lifx, :chromecast, :meteo_stick, :raven_smcd, :gen_stage, :radio_thermostat],
      mod: {DeviceManager, []}]
   end
 
@@ -39,7 +39,7 @@ defmodule DeviceManager.Mixfile do
     [
       {:mdns, "~> 0.1.3"},
       {:ssdp, "~> 0.1.0"},
-      {:lifx, "~> 0.1.3"},
+      {:lifx, "~> 0.1.5"},
       {:chromecast, "~> 0.1.0"},
       {:meteo_stick, "~> 0.1.1"},
       {:raven_smcd, "~> 0.1.3"},

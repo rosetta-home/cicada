@@ -10,8 +10,6 @@ defmodule DeviceManager.BroadcastSupervisor do
     children = [
       worker(DeviceManager.Broadcaster, []),
       worker(DeviceManager.Consumer, [], id: 1),
-      worker(DeviceManager.Consumer, [], id: 2),
-      worker(DeviceManager.Consumer, [], id: 3)
     ]
     supervise(children, strategy: :one_for_one)
   end

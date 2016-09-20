@@ -4,3 +4,6 @@ use Mix.Config
 require Logger
 
 config :logger, level: :info
+
+config :meteo_stick, tty: "/dev/ttyUSB987987"
+config :raven_smcd, tty: "/dev/ttyUSB65675"
