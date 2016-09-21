@@ -4,7 +4,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
+import MediaPlayer exposing (MediaPlayer, decodeMediaPlayer)
+import Light exposing (Light, decodeLight)
 import WebSocket
+import Debug
 
 main =
   App.program
@@ -20,12 +23,13 @@ eventServer : String
 eventServer =
   "ws://localhost:8081/ws?user_id=3894298374"
 
+type alias Model =
+  { lights : List Light
+  , media_players : List MediaPlayer
+  }
+
 type alias Event =
-  { namespace : String
-  , event_type : EventType
-  , interface_pid : String
-  , device_pid : String
-  , name : Maybe String
+  { event_type : EventType
   }
 
 type EventType
@@ -38,11 +42,7 @@ type EventType
 
 event =
   succeed Event
-    |: ("module" := string)
     |: (("type" := string) `andThen` decodeEventType)
-    |: ("interface_pid" := string)
-    |: ("device_pid" := string)
-    |: (maybe ("name" := string))
 
 
 decodeEventType : String -> Decoder EventType
@@ -58,14 +58,9 @@ eventType event_type =
     "weather_station" -> WeatherStation
     _ -> Unknown
 
-
-type alias Model =
-  { events : List Event
-  }
-
 init : (Model, Cmd Msg)
 init =
-  (Model [], Cmd.none)
+  (Model [] [], Cmd.none)
 
 -- UPDATE
 
@@ -75,8 +70,19 @@ update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
     NewMessage str ->
-      case Debug.log "event" (decodeString event str) of
-        Ok evt -> ({model | events = evt :: model.events}, Cmd.none)
+      case decodeString event str of
+        Ok evt ->
+          case evt.event_type of
+            Light ->
+              case Debug.log "Light" (decodeString decodeLight str) of
+                Ok light -> ({model | lights = light :: model.lights}, Cmd.none)
+                Err _ -> (model, Cmd.none)
+            MediaPlayer ->
+              case Debug.log "MediaPlayer" (decodeString decodeMediaPlayer str) of
+                Ok media_player -> ({model | media_players = media_player :: model.media_players}, Cmd.none)
+                Err _ -> (model, Cmd.none)
+            _ -> (model, Cmd.none)
+
         Err _ -> (model, Cmd.none)
 
 -- SUBSCRIPTIONS
@@ -90,9 +96,14 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] (List.map viewMessage model.events)
-    ]
+  [ div [] (List.map viewLight model.lights)
+    , div [] (List.map viewMediaPlayer model.media_players)
+  ]
 
-viewMessage : Event -> Html Msg
-viewMessage msg =
-  div [] [ text (toString msg.event_type ++ ": " ++ msg.interface_pid) ]
+viewLight : Light -> Html Msg
+viewLight msg =
+  div [] [ text (toString msg.state.hsbk.hue ++ ": " ++ msg.interface_pid) ]
+
+viewMediaPlayer : MediaPlayer -> Html Msg
+viewMediaPlayer msg =
+  div [] [ text (toString msg.event_type ++ ": " ++ msg.name) ]

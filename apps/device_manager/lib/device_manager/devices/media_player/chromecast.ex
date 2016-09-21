@@ -29,7 +29,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def update_state(pid, state) do
-    GenServer.call({:update, state})
+    GenServer.call(pid, {:update, state})
   end
 
   def get_id(device) do
@@ -56,7 +56,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     {:noreply, device}
   end
 
-  def handle_call({:update, _state}, device) do
+  def handle_call({:update, _state}, _from, device) do
     {:reply, device, device}
   end
 

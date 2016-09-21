@@ -43,16 +43,30 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:device_event, %DeviceManager.Device{type: :light} = event}, req, state) do
-    event = %DeviceManager.Device{event | state: %{event.state | group: "", location: "", host: ""}}
+    event = %DeviceManager.Device{event | name: device_name(event), state: %{event.state | group: "", location: "", host: ""}}
+    {:reply, {:text, Poison.encode!(event)}, req, state}
+  end
+
+  def websocket_info({:device_event, %DeviceManager.Device{type: :media_player} = event}, req, state) do
+    event = %DeviceManager.Device{event | device_pid: "", state: %{event.state | ip: "", ssl: "", media_session: "", receiver_status: "", media_status: ""}}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
   def websocket_info({:device_event, event}, req, state) do
-    {:reply, {:text, Poison.encode!(event)}, req, state}
+    {:ok, req, state}
   end
 
   def websocket_info(_info, req, state) do
     {:ok, req, state}
+  end
+
+  def device_name(device) do
+    case device.name do
+      "" -> "Unknown"
+      _ ->
+        Logger.info("Light Name: #{device.name}")
+        "Unknown"
+    end
   end
 
 end
