@@ -2,6 +2,8 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Json.Decode exposing (..)
+import Json.Decode.Extra exposing ((|:))
 import WebSocket
 
 main =
@@ -14,54 +16,83 @@ main =
 
 
 -- MODEL
-echoServer : String
-echoServer =
+eventServer : String
+eventServer =
   "ws://localhost:8081/ws?user_id=3894298374"
 
+type alias Event =
+  { namespace : String
+  , event_type : EventType
+  , interface_pid : String
+  , device_pid : String
+  , name : Maybe String
+  }
+
+type EventType
+  = HVAC
+  | Light
+  | MediaPlayer
+  | SmartMeter
+  | WeatherStation
+  | Unknown
+
+event =
+  succeed Event
+    |: ("module" := string)
+    |: (("type" := string) `andThen` decodeEventType)
+    |: ("interface_pid" := string)
+    |: ("device_pid" := string)
+    |: (maybe ("name" := string))
+
+
+decodeEventType : String -> Decoder EventType
+decodeEventType event_type = succeed (eventType event_type)
+
+eventType : String -> EventType
+eventType event_type =
+  case event_type of
+    "hvac" -> HVAC
+    "light" -> Light
+    "media_player" -> MediaPlayer
+    "smart_meter" -> SmartMeter
+    "weather_station" -> WeatherStation
+    _ -> Unknown
+
+
 type alias Model =
-  { input : String
-  , messages : List String
+  { events : List Event
   }
 
 init : (Model, Cmd Msg)
 init =
-  (Model "" [], Cmd.none)
+  (Model [], Cmd.none)
 
 -- UPDATE
 
-type Msg
-  = Input String
-  | Send
-  | NewMessage String
+type Msg = NewMessage String
 
 update : Msg -> Model -> (Model, Cmd Msg)
-update msg {input, messages} =
+update msg model =
   case msg of
-    Input newInput ->
-      (Model newInput messages, Cmd.none)
-
-    Send ->
-      (Model "" messages, WebSocket.send echoServer input)
-
     NewMessage str ->
-      (Model input (str :: messages), Cmd.none)
+      case Debug.log "event" (decodeString event str) of
+        Ok evt -> ({model | events = evt :: model.events}, Cmd.none)
+        Err _ -> (model, Cmd.none)
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  WebSocket.listen echoServer NewMessage
+  WebSocket.listen eventServer NewMessage
 
 -- VIEW
 
 view : Model -> Html Msg
 view model =
   div []
-    [ div [] (List.map viewMessage model.messages)
-    , input [onInput Input] []
-    , button [onClick Send] [text "Send Message"]
+    [ div [] (List.map viewMessage model.events)
     ]
 
-viewMessage : String -> Html Msg
+viewMessage : Event -> Html Msg
 viewMessage msg =
-  div [] [ text msg ]
+  div [] [ text (toString msg.event_type ++ ": " ++ msg.interface_pid) ]
