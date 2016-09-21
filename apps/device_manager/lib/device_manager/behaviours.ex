@@ -1,4 +1,4 @@
-defmodule DeviceManager.Behaviour.AirQualityMonitor do
+defmodule DeviceManager.Behaviour.IEQ do
   @callback readings(pid) :: %{}
 end
 

@@ -13,7 +13,8 @@ defmodule DeviceManager.DiscoverySupervisor do
       worker(Discovery.Light, []),
       worker(Discovery.MediaPlayer, []),
       worker(Discovery.WeatherStation, []),
-      worker(Discovery.SmartMeter, [])
+      worker(Discovery.SmartMeter, []),
+      worker(Discovery.IEQ, [])
     ]
     supervise(children, strategy: :one_for_one)
   end
