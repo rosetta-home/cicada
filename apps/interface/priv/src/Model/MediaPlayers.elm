@@ -1,9 +1,18 @@
-module MediaPlayer exposing (..)
+module Model.MediaPlayers exposing (..)
 
 import Json.Encode
 import Json.Decode exposing ((:=))
 -- elm-package install --yes circuithub/elm-json-extra
 import Json.Decode.Extra exposing ((|:))
+
+type alias Model =
+  { devices: List MediaPlayer
+  }
+
+model : Model
+model =
+  { devices = []
+  }
 
 type alias MediaPlayer =
     { event_type : String

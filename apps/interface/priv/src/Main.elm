@@ -8,34 +8,28 @@ import Material.Button as Button
 import Material.Options exposing (css)
 import Material.Layout as Layout
 import Material.Color as Color
+import Material.Grid exposing (grid, cell, size, Device(..))
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
-import MediaPlayer exposing (MediaPlayer, decodeMediaPlayer)
-import Light exposing (Light, decodeLight)
 import Dict exposing (Dict)
 import WebSocket
 import Debug
 
-main =
-  App.program
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
-    }
+-- MediaPlayer
+import Model.MediaPlayers as MediaPlayers
+import View.MediaPlayer
+-- Lights
+import Model.Lights as Lights
+import View.Light
 
+-- Main
+import Model.Main exposing (Model, model)
+import Msg exposing (Msg)
 
 -- MODEL
 eventServer : String
 eventServer =
   "ws://localhost:8081/ws?user_id=3894298374"
-
-type alias Model =
-  { lights : List Light
-  , media_players : List MediaPlayer
-  , mdl : Material.Model
-  , selectedTab : Int
-  }
 
 type alias Event =
   { event_type : EventType
@@ -68,10 +62,6 @@ eventType event_type =
     "smart_meter" -> SmartMeter
     "weather_station" -> WeatherStation
     _ -> Unknown
-
-init : (Model, Cmd Msg)
-init =
-  (Model [] [] Material.model 0, Cmd.none)
 
 -- UPDATE
 
@@ -106,50 +96,48 @@ handleDeviceEvent payload model =
     Ok evt ->
       case evt.event_type of
         Light ->
-          ({model | lights =
-            (deviceList model.lights evt payload decodeLight)}
-          , Cmd.none)
-
+          let
+            lights = model.lights
+            new_lights = {lights | devices = (deviceList model.lights.devices evt payload Lights.decodeLight)}
+          in
+            ({model | lights = new_lights}, Cmd.none)
         MediaPlayer ->
-          ({model | media_players =
-            (deviceList model.media_players evt payload decodeMediaPlayer)}
-          , Cmd.none)
+          let
+            media_players = model.media_players
+            new_media_players = {media_players | devices = (deviceList model.media_players.devices evt payload MediaPlayers.decodeMediaPlayer)}
+          in
+            ({model | media_players = new_media_players}, Cmd.none)
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
 
 
-type Msg
-  = DeviceEvent String
-  | SelectTab Int
-  | Mdl (Material.Msg Msg)
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    DeviceEvent payload -> handleDeviceEvent payload model
-    SelectTab tab -> { model | selectedTab = tab } ! []
-    Mdl msg' -> Material.update msg' model
+    Msg.DeviceEvent payload -> handleDeviceEvent payload model
+    Msg.SelectTab tab -> { model | selectedTab = tab } ! []
+    Msg.Mdl msg -> Material.update msg model
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  WebSocket.listen eventServer DeviceEvent
+  Sub.batch
+    [ WebSocket.listen eventServer Msg.DeviceEvent
+    , Layout.subs Msg.Mdl model.mdl
+    ]
 
 -- VIEW
-
-type alias Mdl = Material.Model
 
 view : Model -> Html Msg
 view model =
   Material.Scheme.topWithScheme Color.Teal Color.LightGreen <|
-    Layout.render Mdl
-      model.mdl
+    Layout.render Msg.Mdl model.mdl
       [ Layout.fixedHeader
       , Layout.selectedTab model.selectedTab
-      , Layout.onSelectTab SelectTab
+      , Layout.onSelectTab Msg.SelectTab
       ]
-      { header = [ h1 [ style [ ( "padding", "2rem" ) ] ] [ text "Rosetta Home 2.0" ] ]
+      { header = [ h4 [ style [ ( "padding", "1rem" ) ] ] [ text "Rosetta Home 2.0" ] ]
       , drawer = []
       , tabs = ( [ text "Lights", text "Media Players" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
       , main = [ viewBody model ]
@@ -164,22 +152,18 @@ viewBody model =
 
 viewLights : Model -> Html Msg
 viewLights model =
-  div
-    [ style [ ( "padding", "2rem" ) ] ]
-    [ div [] (List.map viewLight model.lights)
-    ]
+  grid []
+    (List.map (View.Light.view model) model.lights.devices)
 
 viewMediaPlayers : Model -> Html Msg
 viewMediaPlayers model =
-  div
-    [ style [ ( "padding", "2rem" ) ] ]
-    [ div [] (List.map viewMediaPlayer model.media_players)
-    ]
+  grid []
+    (List.map (View.MediaPlayer.view model) model.media_players.devices)
 
-viewLight : Light -> Html Msg
-viewLight msg =
-  div [] [ text (toString msg.state.tx ++ ": " ++ msg.interface_pid) ]
-
-viewMediaPlayer : MediaPlayer -> Html Msg
-viewMediaPlayer msg =
-  div [] [ text (msg.interface_pid) ]
+main =
+  App.program
+    { init = ( {model | mdl = Layout.setTabsWidth 2124 model.mdl}, Layout.sub0 Msg.Mdl )
+    , view = view
+    , update = update
+    , subscriptions = subscriptions
+    }
