@@ -58,7 +58,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def handle_call(:on, _from, state) do
     {:reply,
       case RadioThermostat.set(state.device_pid, :fan, 1) do
-        {:ok, %{"success" => 0}} -> true
+        {:ok, %{"success": 0}} -> true
         other ->
           IO.inspect other
           false
@@ -68,7 +68,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def handle_call(:off, _from, state) do
     {:reply,
       case RadioThermostat.set(state.device_pid, :fan, 0) do
-        {:ok, %{"success" => 0}} -> true
+        {:ok, %{"success": 0}} -> true
         other ->
           IO.inspect other
           false
@@ -78,7 +78,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def handle_call({:set_temp, temp}, _from, state) do
     {:reply,
       case RadioThermostat.set(state.device_pid, :temporary_cool, temp) do
-        {:ok, %{"success" => 0}} -> true
+        {:ok, %{"success": 0}} -> true
         _other ->
           false
       end, state}

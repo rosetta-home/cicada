@@ -1,3 +1,43 @@
+defmodule DeviceManager.Device.MediaPlayer do
+  defmodule State do
+    defstruct ip: "0.0.0.0",
+      media_status: %{
+        current_time: 0,
+        items: [] #Item
+      },
+      receiver_status: %{
+        volume: 0,
+        applications: [] #Application
+      }
+  end
+
+  defmodule State.Image do
+    defstruct url: "",
+      width: 0,
+      height: 0
+  end
+
+  defmodule State.Item do
+    defstruct autoplay: False,
+      id: nil,
+      content_id: nil,
+      content_type: "",
+      type: "",
+      duration: 0,
+      images: [], #Image
+      title: "",
+      subtitle: ""
+  end
+
+  defmodule State.Application do
+    defstruct id: nil,
+      name: "",
+      idle: False,
+      session_id: "",
+      status: ""
+  end
+end
+
 defmodule DeviceManager.Discovery.MediaPlayer do
   use DeviceManager.Discovery
 

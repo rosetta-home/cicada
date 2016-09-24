@@ -1,7 +1,7 @@
 defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   use GenServer
   require Logger
-
+  alias DeviceManager.Device.MediaPlayer
   @behaviour DeviceManager.Behaviour.MediaPlayer
 
   def start_link(id, device) do
@@ -45,13 +45,16 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       device_pid: pid,
       interface_pid: id,
       name: device.payload["fn"],
-      state: %{}
+      state: %MediaPlayer.State{}
     }}
   end
 
   def handle_info(:update_state, device) do
     Process.send_after(self, :update_state, 1000)
-    device = %{device | state: Chromecast.state(device.device_pid)}
+    device = %{device | state:
+      Chromecast.state(device.device_pid)
+      |> map_state
+    }
     DeviceManager.Broadcaster.sync_notify(device)
     {:noreply, device}
   end
@@ -82,6 +85,46 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   def handle_call(:status, _from, device) do
     Chromecast.state(device.device_pid)
     {:reply, true, device}
+  end
+
+  def map_state(state) do
+    IO.inspect(state.media_status)
+    %MediaPlayer.State{
+      ip: state.ip |> :inet_parse.ntoa |> to_string,
+      media_status: %{
+        current_time: state.media_status["currentTime"],
+        items: Enum.map(state.media_status["items"], fn(item) ->
+          %MediaPlayer.State.Item{
+            autoplay: item["autoplay"],
+            id: item["itemId"],
+            content_id: item["media"]["contentId"],
+            content_type: item["media"]["contentType"],
+            type: item["media"]["type"],
+            duration: item["media"]["duration"],
+            images: Enum.map(item["media"]["metadata"]["images"], fn(image) ->
+              %MediaPlayer.State.Image{
+                url: image["url"],
+                width: image["width"],
+                height: image["height"]
+              }
+            end),
+            title: item["media"]["metadata"]["title"],
+            subtitle: item["media"]["metadata"]["subtitle"]
+          }
+        end)
+      },
+      receiver_status: %{
+        volume: state.receiver_status["status"]["volume"]["level"],
+        applications: Enum.map(state.receiver_status["status"]["applications"], fn(app) ->
+          %MediaPlayer.State.Application{
+            id: app["appId"],
+            name: app["displayName"],
+            idle: app["isIdleScreen"],
+            status: app["statusText"]
+          }
+        end)
+      }
+    }
   end
 
 end

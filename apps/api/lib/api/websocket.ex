@@ -39,7 +39,7 @@ defmodule API.Websocket do
 
   def websocket_info(:heartbeat, req, state) do
     Process.send_after(self, :heartbeat, 1000)
-    {:reply, {:text, Poison.encode!(%{:type => :heartbeat})}, req, state}
+    {:reply, {:text, Poison.encode!(%{type: :heartbeat})}, req, state}
   end
 
   def websocket_info({:device_event, %DeviceManager.Device{type: :light} = event}, req, state) do
@@ -48,7 +48,7 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:device_event, %DeviceManager.Device{type: :media_player} = event}, req, state) do
-    event = %DeviceManager.Device{event | device_pid: "", state: %{event.state | ip: "", ssl: "", media_session: "", receiver_status: "", media_status: ""}}
+    event = %DeviceManager.Device{event | device_pid: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 

@@ -25,7 +25,7 @@ defmodule DeviceManager.Discovery do
             Logger.info("Got Device - #{id} :: #{inspect device}")
             {:ok, pid} = module.start_link(id, device)
             device = module.device(pid)
-            DeviceManager.Broadcaster.sync_notify(device)
+            #DeviceManager.Broadcaster.sync_notify(device) We don't necessarily have any state yet. Let's wait until we know we are getting an update
             %State{state | devices: [device | state.devices]}
           true ->
             Logger.debug("Updating State - #{id} #{inspect device}")
