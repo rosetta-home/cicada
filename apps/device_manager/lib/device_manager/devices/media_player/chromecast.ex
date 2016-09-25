@@ -88,42 +88,29 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def map_state(state) do
-    IO.inspect(state.media_status)
+    item = state.media_status |> Map.get("items", []) |> Enum.at(0, %{})
+    media = item |> Map.get("media", %{})
+    metadata = media |> Map.get("metadata", %{})
+    image = metadata
+      |> Map.get("images", [])
+      |> Enum.at(0, %MediaPlayer.State.Image{})
+    app = state.receiver_status["status"] |>  Map.get("applications", []) |> Enum.at(0, %{})
+
     %MediaPlayer.State{
       ip: state.ip |> :inet_parse.ntoa |> to_string,
-      media_status: %{
-        current_time: state.media_status["currentTime"],
-        items: Enum.map(state.media_status["items"], fn(item) ->
-          %MediaPlayer.State.Item{
-            autoplay: item["autoplay"],
-            id: item["itemId"],
-            content_id: item["media"]["contentId"],
-            content_type: item["media"]["contentType"],
-            type: item["media"]["type"],
-            duration: item["media"]["duration"],
-            images: Enum.map(item["media"]["metadata"]["images"], fn(image) ->
-              %MediaPlayer.State.Image{
-                url: image["url"],
-                width: image["width"],
-                height: image["height"]
-              }
-            end),
-            title: item["media"]["metadata"]["title"],
-            subtitle: item["media"]["metadata"]["subtitle"]
-          }
-        end)
-      },
-      receiver_status: %{
-        volume: state.receiver_status["status"]["volume"]["level"],
-        applications: Enum.map(state.receiver_status["status"]["applications"], fn(app) ->
-          %MediaPlayer.State.Application{
-            id: app["appId"],
-            name: app["displayName"],
-            idle: app["isIdleScreen"],
-            status: app["statusText"]
-          }
-        end)
-      }
+      current_time:  state |> Map.get("current_time", 0),
+      content_id: item |> Map.get("content_id", 0),
+      content_type: item |> Map.get("content_type", "Unknown"),
+      duration: item |> Map.get("duration", 0),
+      autoplay: item |> Map.get("autoplay", false),
+      image: image,
+      title: metadata |> Map.get("title", ""),
+      subtitle: metadata |> Map.get("subtitle", ""),
+      volume: state.receiver_status["status"]["volume"]["level"],
+      status: app |> Map.get("statusText", ""),
+      idle: app |> Map.get("isIdleScreen", ""),
+      app_name: app |> Map.get("displayName", ""),
+      id: app |> Map.get("appId")
     }
   end
 

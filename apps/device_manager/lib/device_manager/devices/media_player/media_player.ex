@@ -1,15 +1,4 @@
 defmodule DeviceManager.Device.MediaPlayer do
-  defmodule State do
-    defstruct ip: "0.0.0.0",
-      media_status: %{
-        current_time: 0,
-        items: [] #Item
-      },
-      receiver_status: %{
-        volume: 0,
-        applications: [] #Application
-      }
-  end
 
   defmodule State.Image do
     defstruct url: "",
@@ -17,24 +6,21 @@ defmodule DeviceManager.Device.MediaPlayer do
       height: 0
   end
 
-  defmodule State.Item do
-    defstruct autoplay: False,
-      id: nil,
-      content_id: nil,
+  defmodule State do
+    defstruct ip: "0.0.0.0",
+      current_time: 0,
+      content_id: "",
       content_type: "",
-      type: "",
       duration: 0,
-      images: [], #Image
+      autoplay: false,
+      image: %State.Image{},
       title: "",
-      subtitle: ""
-  end
-
-  defmodule State.Application do
-    defstruct id: nil,
-      name: "",
+      subtitle: "",
+      volume: 0,
+      status: "",
       idle: False,
-      session_id: "",
-      status: ""
+      app_name: "",
+      id: ""
   end
 end
 

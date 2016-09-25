@@ -24,40 +24,22 @@ type alias MediaPlayer =
     }
 
 type alias MediaPlayerState =
-    { receiver_status : MediaPlayerStateReceiverStatus
-    , media_status : MediaPlayerStateMediaStatus
-    , ip : String
-    }
-
-type alias MediaPlayerStateReceiverStatus =
-    { volume : Int
-    , applications : List MediaPlayerStateApplication
-    }
-
-type alias MediaPlayerStateMediaStatus =
-    { items : List MediaPlayerStateItem
+    { ip : String
     , current_time : Float
+    , content_id: Int
+    , content_type: String
+    , duration: Maybe Float
+    , autoplay: Bool
+    , image: MediaPlayerStateImage
+    , title: String
+    , subtitle: Maybe String
+    , volume: Int
+    , status: String
+    , idle: Bool
+    , app_name: String
+    , id: String
     }
 
-type alias MediaPlayerStateItem =
-  { autoplay: Bool
-  ,  id: Int
-  ,  content_id: String
-  ,  content_type: String
-  ,  item_type: Maybe String
-  ,  duration: Maybe Float
-  ,  images: List MediaPlayerStateImage
-  ,  title: String
-  ,  subtitle: Maybe String
-  }
-
-type alias MediaPlayerStateApplication =
-  { id: String
-  ,  name: String
-  ,  idle: Bool
-  ,  session_id: String
-  ,  status: String
-  }
 
 type alias MediaPlayerStateImage =
   { width: Int
@@ -75,27 +57,23 @@ decodeMediaPlayer =
         |: ("interface_pid" := Json.Decode.string)
         |: (Json.Decode.maybe ("device_pid" := Json.Decode.string))
 
-decodeMediaPlayerItem : Json.Decode.Decoder MediaPlayerStateItem
-decodeMediaPlayerItem =
-    Json.Decode.succeed MediaPlayerStateItem
-        |: ("autoplay" := Json.Decode.bool)
-        |: ("id" := Json.Decode.int)
-        |: ("content_id" := Json.Decode.string)
+decodeMediaPlayerState : Json.Decode.Decoder MediaPlayerState
+decodeMediaPlayerState =
+    Json.Decode.succeed MediaPlayerState
+        |: ("ip" := Json.Decode.string)
+        |: ("current_time" := Json.Decode.float)
+        |: ("content_id" := Json.Decode.int)
         |: ("content_type" := Json.Decode.string)
-        |: (Json.Decode.maybe ("type" := Json.Decode.string))
         |: (Json.Decode.maybe ("duration" := Json.Decode.float))
-        |: ("images" := Json.Decode.list decodeMediaPlayerImage)
+        |: ("autoplay" := Json.Decode.bool)
+        |: ("image" := decodeMediaPlayerImage)
         |: ("title" := Json.Decode.string)
         |: (Json.Decode.maybe ("subtitle" := Json.Decode.string))
-
-decodeMediaPlayerApplication : Json.Decode.Decoder MediaPlayerStateApplication
-decodeMediaPlayerApplication =
-    Json.Decode.succeed MediaPlayerStateApplication
-        |: ("id" := Json.Decode.string)
-        |: ("name" := Json.Decode.string)
-        |: ("idle" := Json.Decode.bool)
-        |: ("session_id" := Json.Decode.string)
+        |: ("volume" := Json.Decode.int)
         |: ("status" := Json.Decode.string)
+        |: ("idle" := Json.Decode.bool)
+        |: ("app_name" := Json.Decode.string)
+        |: ("id" := Json.Decode.string)
 
 decodeMediaPlayerImage : Json.Decode.Decoder MediaPlayerStateImage
 decodeMediaPlayerImage =
@@ -103,24 +81,3 @@ decodeMediaPlayerImage =
         |: ("width" := Json.Decode.int)
         |: ("height" := Json.Decode.int)
         |: ("url" := Json.Decode.string)
-
-decodeMediaPlayerStateReceiverStatus : Json.Decode.Decoder MediaPlayerStateReceiverStatus
-decodeMediaPlayerStateReceiverStatus =
-    Json.Decode.succeed MediaPlayerStateReceiverStatus
-        |: ("volume" := Json.Decode.int)
-        |: ("applications" := Json.Decode.list decodeMediaPlayerApplication)
-
-
-
-decodeMediaPlayerStateMediaStatus : Json.Decode.Decoder MediaPlayerStateMediaStatus
-decodeMediaPlayerStateMediaStatus =
-    Json.Decode.succeed MediaPlayerStateMediaStatus
-        |: ("items" := Json.Decode.list decodeMediaPlayerItem)
-        |: ("current_time" := Json.Decode.float)
-
-decodeMediaPlayerState : Json.Decode.Decoder MediaPlayerState
-decodeMediaPlayerState =
-    Json.Decode.succeed MediaPlayerState
-        |: ("receiver_status" := decodeMediaPlayerStateReceiverStatus)
-        |: ("media_status" := decodeMediaPlayerStateMediaStatus)
-        |: ("ip" := Json.Decode.string)

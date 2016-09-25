@@ -67,7 +67,7 @@ eventType event_type =
 
 decodeDevice : Decoder a -> String -> Maybe a
 decodeDevice decoder payload =
-  case decodeString decoder payload of
+  case Debug.log "Parse" (decodeString decoder payload) of
     Ok d -> Just d
     Err _ -> Nothing
 
