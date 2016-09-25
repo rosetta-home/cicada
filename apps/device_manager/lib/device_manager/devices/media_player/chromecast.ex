@@ -91,9 +91,14 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     item = state.media_status |> Map.get("items", []) |> Enum.at(0, %{})
     media = item |> Map.get("media", %{})
     metadata = media |> Map.get("metadata", %{})
-    image = metadata
-      |> Map.get("images", [])
-      |> Enum.at(0, %MediaPlayer.State.Image{})
+    image = case state.media_status |> Map.get("backendData") do
+        nil -> metadata
+          |> Map.get("images", [])
+          |> Enum.at(0, %MediaPlayer.State.Image{})
+        data -> %MediaPlayer.State.Image{
+          url: Poison.decode!(data) |> Enum.at(0, ""),
+        }
+    end
     app = state.receiver_status["status"] |>  Map.get("applications", []) |> Enum.at(0, %{})
 
     %MediaPlayer.State{
@@ -103,7 +108,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       content_type: item |> Map.get("content_type", "Unknown"),
       duration: item |> Map.get("duration", 0),
       autoplay: item |> Map.get("autoplay", false),
-      image: image,
+      image: Map.merge(%MediaPlayer.State.Image{}, image),
       title: metadata |> Map.get("title", ""),
       subtitle: metadata |> Map.get("subtitle", ""),
       volume: state.receiver_status["status"]["volume"]["level"],

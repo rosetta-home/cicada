@@ -23,15 +23,22 @@ white =
 
 view : Model -> MediaPlayer -> Material.Grid.Cell Msg
 view model media_player =
-  cell [ Material.Grid.size All 4 ]
-    [
-      Card.view
-        [ Color.background (Color.color Color.LightBlue Color.S400)
-        ]
-        [ Card.title [] [ Card.head [ white ] [ text media_player.name ] ]
-        , Card.text [ Card.expand ]  [] -- Filler
-        , Card.actions
-            [ Card.border
+  let
+    url = "url('" ++ media_player.state.image.url ++ "') center / cover"
+  in
+    cell [ Material.Grid.size All 4 ]
+      [
+        Card.view
+          [ css "width" "400px"
+          , Color.background (Color.color Color.LightBlue Color.S400)
+          ]
+          [ Card.title [] [ Card.head [ white ] [ text media_player.state.title ] ]
+          ,  Card.media
+              [ css "background" url
+              , css "height" "225px"
+              ]
+              []
+          , Card.actions [ Card.border
             -- Modify flexbox to accomodate small text in action block
             , css "display" "flex"
             , css "justify-content" "space-between"
@@ -39,10 +46,10 @@ view model media_player =
             , css "padding" "8px 16px 8px 16px"
             , white
             ]
-            [ Options.span [ Typography.caption, Typography.contrast 0.87 ] [ text media_player.interface_pid ]
+            [ Options.span [ Typography.caption, Typography.contrast 0.87 ] [ text media_player.name ]
             , Button.render Msg.Mdl [1] model.mdl
-                [ Button.icon, Button.ripple ]
-                [ Icon.i "phone" ]
+              [ Button.icon, Button.ripple ]
+              [ Icon.i "play_arrow" ]
             ]
-        ]
+          ]
       ]
