@@ -43,11 +43,26 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:device_event, %DeviceManager.Device{type: :light} = event}, req, state) do
-    event = %DeviceManager.Device{event | name: device_name(event), state: %{event.state | group: "", location: "", host: ""}}
+    event = %DeviceManager.Device{event | device_pid: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
   def websocket_info({:device_event, %DeviceManager.Device{type: :media_player} = event}, req, state) do
+    event = %DeviceManager.Device{event | device_pid: ""}
+    {:reply, {:text, Poison.encode!(event)}, req, state}
+  end
+
+  def websocket_info({:device_event, %DeviceManager.Device{type: :ieq} = event}, req, state) do
+    event = %DeviceManager.Device{event | device_pid: ""}
+    {:reply, {:text, Poison.encode!(event)}, req, state}
+  end
+
+  def websocket_info({:device_event, %DeviceManager.Device{type: :weather_station} = event}, req, state) do
+    event = %DeviceManager.Device{event | device_pid: ""}
+    {:reply, {:text, Poison.encode!(event)}, req, state}
+  end
+
+  def websocket_info({:device_event, %DeviceManager.Device{type: :hvac} = event}, req, state) do
     event = %DeviceManager.Device{event | device_pid: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end

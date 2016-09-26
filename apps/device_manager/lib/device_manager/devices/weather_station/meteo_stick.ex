@@ -24,6 +24,10 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
     :"MeteoStick-#{device.id}"
   end
 
+  def map_state(state) do
+    Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
+  end
+
   def init({id, device}) do
     {:ok, %DeviceManager.Device{
       module: MeteoStick.WeatherStation,
@@ -36,8 +40,8 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def handle_call({:update, state}, _from, device) do
-    device = %{device | state: state}
-    {:reply, device, device}
+    state = state |> map_state
+    {:reply, state, %DeviceManager.Device{device | state: state}}
   end
 
   def handle_call(:device, _from, device) do

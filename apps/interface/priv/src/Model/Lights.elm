@@ -32,17 +32,16 @@ type alias LightStateHsbk =
   }
 
 type alias LightState =
-  { tx : Int
+  { host : String
+  , ip_port : Int
+  , label : String
+  , power : Int
   , signal : Float
   , rx : Int
-  , power : Int
-  , ip_port : Int
-  , location : String
-  , label : String
-  , id : String
+  , tx : Int
   , hsbk : LightStateHsbk
-  , host : String
   , group : String
+  , location : String
   }
 
 decodeLight : Json.Decode.Decoder Light
@@ -66,17 +65,16 @@ decodeLightStateHsbk =
 decodeLightState : Json.Decode.Decoder LightState
 decodeLightState =
   Json.Decode.succeed LightState
-  |: ("tx" := Json.Decode.int)
+  |: ("host" := Json.Decode.string)
+  |: ("port" := Json.Decode.int)
+  |: ("label" := Json.Decode.string)
+  |: ("power" := Json.Decode.int)
   |: ("signal" := Json.Decode.float)
   |: ("rx" := Json.Decode.int)
-  |: ("power" := Json.Decode.int)
-  |: ("port" := Json.Decode.int)
-  |: ("location" := Json.Decode.string)
-  |: ("label" := Json.Decode.string)
-  |: ("id" := Json.Decode.string)
+  |: ("tx" := Json.Decode.int)
   |: ("hsbk" := decodeLightStateHsbk)
-  |: ("host" := Json.Decode.string)
   |: ("group" := Json.Decode.string)
+  |: ("location" := Json.Decode.string)
 
 encodeLight : Light -> Json.Encode.Value
 encodeLight record =
@@ -108,7 +106,6 @@ encodeLightState record =
   , ("port",  Json.Encode.int <| record.ip_port)
   , ("location",  Json.Encode.string <| record.location)
   , ("label",  Json.Encode.string <| record.label)
-  , ("id",  Json.Encode.string <| record.id)
   , ("hsbk",  encodeLightStateHsbk <| record.hsbk)
   , ("host",  Json.Encode.string <| record.host)
   , ("group",  Json.Encode.string <| record.group)

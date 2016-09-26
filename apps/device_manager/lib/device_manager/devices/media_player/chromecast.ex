@@ -36,57 +36,6 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     :"Chromecast-#{device.payload["id"]}"
   end
 
-  def init({id, device}) do
-    {:ok, pid} = Chromecast.start_link(device.ip)
-    Process.send_after(self, :update_state, 1000)
-    {:ok, %DeviceManager.Device{
-      module: Chromecast,
-      type: :media_player,
-      device_pid: pid,
-      interface_pid: id,
-      name: device.payload["fn"],
-      state: %MediaPlayer.State{}
-    }}
-  end
-
-  def handle_info(:update_state, device) do
-    Process.send_after(self, :update_state, 1000)
-    device = %{device | state:
-      Chromecast.state(device.device_pid)
-      |> map_state
-    }
-    DeviceManager.Broadcaster.sync_notify(device)
-    {:noreply, device}
-  end
-
-  def handle_call({:update, _state}, _from, device) do
-    {:reply, device, device}
-  end
-
-  def handle_call(:device, _from, device) do
-    {:reply, device, device}
-  end
-
-  def handle_call({:play, _url}, _from, device) do
-    Chromecast.play(device.device_pid)
-    {:reply, true, device}
-  end
-
-  def handle_call(:pause, _from, device) do
-    Chromecast.pause(device.device_pid)
-    {:reply, true, device}
-  end
-
-  def handle_call({:volume, volume}, _from, device) do
-    Chromecast.set_volume(device.device_pid, volume)
-    {:reply, true, device}
-  end
-
-  def handle_call(:status, _from, device) do
-    Chromecast.state(device.device_pid)
-    {:reply, true, device}
-  end
-
   def map_state(state) do
     item = state.media_status |> Map.get("items", []) |> Enum.at(0, %{})
     media = item |> Map.get("media", %{})
@@ -117,6 +66,56 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       app_name: app |> Map.get("displayName", ""),
       id: app |> Map.get("appId")
     }
+  end
+
+  def init({id, device}) do
+    {:ok, pid} = Chromecast.start_link(device.ip)
+    Process.send_after(self, :update_state, 1000)
+    {:ok, %DeviceManager.Device{
+      module: Chromecast,
+      type: :media_player,
+      device_pid: pid,
+      interface_pid: id,
+      name: device.payload["fn"],
+      state: %MediaPlayer.State{}
+    }}
+  end
+
+  def handle_info(:update_state, device) do
+    Process.send_after(self, :update_state, 1000)
+    device = %DeviceManager.Device{device | state:
+      Chromecast.state(device.device_pid) |> map_state
+    }
+    DeviceManager.Broadcaster.sync_notify(device)
+    {:noreply, device}
+  end
+
+  def handle_call({:update, state}, _from, device) do
+    {:reply, device.state, device}
+  end
+
+  def handle_call(:device, _from, device) do
+    {:reply, device, device}
+  end
+
+  def handle_call({:play, _url}, _from, device) do
+    Chromecast.play(device.device_pid)
+    {:reply, true, device}
+  end
+
+  def handle_call(:pause, _from, device) do
+    Chromecast.pause(device.device_pid)
+    {:reply, true, device}
+  end
+
+  def handle_call({:volume, volume}, _from, device) do
+    Chromecast.set_volume(device.device_pid, volume)
+    {:reply, true, device}
+  end
+
+  def handle_call(:status, _from, device) do
+    Chromecast.state(device.device_pid)
+    {:reply, true, device}
   end
 
 end

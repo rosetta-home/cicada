@@ -41,7 +41,7 @@ defmodule DeviceManager.Mixfile do
       {:ssdp, "~> 0.1.0"},
       {:lifx, "~> 0.1.5"},
       {:chromecast, "~> 0.1.0"},
-      {:meteo_stick, "~> 0.1.1"},
+      {:meteo_stick, "~> 0.1.2"},
       {:raven_smcd, "~> 0.1.3"},
       {:ieq_gateway, "~> 0.1.0"},
       {:gen_stage, "~> 0.4"},

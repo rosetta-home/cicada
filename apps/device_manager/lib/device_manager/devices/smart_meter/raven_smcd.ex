@@ -36,6 +36,10 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
     :"RavenSMCD-#{Atom.to_string(device.id)}"
   end
 
+  def map_state(state) do
+    state
+  end
+
   def init({id, device}) do
     {:ok, %DeviceManager.Device{
       module: Raven.Client,
@@ -48,8 +52,8 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def handle_call({:update, state}, _from, device) do
-    device = %{device | state: state}
-    {:reply, device, device}
+    state = state |> map_state
+    {:reply, state, %DeviceManager.Device{device | state: state}}
   end
 
   def handle_call(:device, _from, device) do

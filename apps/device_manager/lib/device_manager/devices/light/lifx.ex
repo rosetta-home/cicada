@@ -44,6 +44,26 @@ defmodule DeviceManager.Device.Light.Lifx do
     :"Lifx-#{Atom.to_string(device.id)}"
   end
 
+  def map_state(state) do
+    %DeviceManager.Device.Light.State{
+      host: state.host |> :inet_parse.ntoa |> to_string,
+      port: state.port,
+      label: state.label,
+      power: state.power,
+      signal: state.signal,
+      rx: state.rx,
+      tx: state.tx,
+      hsbk: %DeviceManager.Device.Light.State.HSBK{
+        hue: state.hsbk.hue,
+        saturation: state.hsbk.saturation,
+        brightness: state.hsbk.brightness,
+        kelvin: state.hsbk.kelvin
+      },
+      group: state.group.label,
+      location: state.location.label
+    }
+  end
+
   def init({id, device}) do
     {:ok, %DeviceManager.Device{
       module: Lifx.Device,
@@ -56,8 +76,8 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def handle_call({:update, state}, _from, device) do
-    device = %{device | state: state}
-    {:reply, device, device}
+    state = state |> map_state
+    {:reply, state, %DeviceManager.Device{device | name: device.state.label, state: state}}
   end
 
   def handle_call(:device, _from, device) do

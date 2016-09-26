@@ -24,6 +24,10 @@ defmodule DeviceManager.Device.IEQ.Sensor do
     :"Sensor-#{device.id}"
   end
 
+  def map_state(state) do
+    Map.merge(%DeviceManager.Device.IEQ.State{}, state)
+  end
+
   def init({id, device}) do
     {:ok, %DeviceManager.Device{
       module: IEQGateway.IEQStation,
@@ -31,13 +35,13 @@ defmodule DeviceManager.Device.IEQ.Sensor do
       device_pid: device.id,
       interface_pid: id,
       name: Atom.to_string(device.id),
-      state: device
+      state: map_state(device)
     }}
   end
 
   def handle_call({:update, state}, _from, device) do
-    device = %{device | state: state}
-    {:reply, device, device}
+    state = state |> map_state
+    {:reply, state, %DeviceManager.Device{device | state: state}}
   end
 
   def handle_call(:device, _from, device) do
