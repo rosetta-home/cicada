@@ -40,6 +40,9 @@ eventServer : String
 eventServer =
   "ws://localhost:8081/ws?user_id=3894298374"
 
+historyLength : Int
+historyLength = 30
+
 type alias Event =
   { event_type : EventType
   , interface_pid: String
@@ -82,24 +85,46 @@ decodeDevice decoder payload =
     Ok d -> Just d
     Err _ -> Nothing
 
-deviceList : List { a | interface_pid: String} ->
-  Event
-  -> String
-  -> Decoder { a | interface_pid: String }
+deviceList : List { a | interface_pid: String }
+  -> { a | interface_pid: String }
   -> List { a | interface_pid: String}
-deviceList list evt payload decoder =
-  case List.any (\d -> d.interface_pid == evt.interface_pid) list of
+deviceList list device =
+  case List.any (\d -> d.interface_pid == device.interface_pid) list of
     True ->
-      List.map (\device ->
-        case device.interface_pid == evt.interface_pid of
-          True -> case decodeDevice decoder payload of
-            Just d -> d
-            Nothing -> device
-          False -> device
+      List.map (\d ->
+        case d.interface_pid == device.interface_pid of
+          True -> device
+          False -> d
       ) list
-    False -> case decodeDevice decoder payload of
-      Just d -> d :: list
-      Nothing -> list
+    False ->
+      device :: list
+
+updateHistory : { b | state: a, interface_pid: String } -> Dict String (List a) -> Dict String (List a)
+updateHistory device history =
+  case Dict.get device.interface_pid history of
+    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength (device.state :: h))) history
+    Nothing -> Dict.insert device.interface_pid [device.state] history
+
+updateModel : { c
+    | devices : List { b | interface_pid : String, state : a }
+    , history : Dict String (List a)
+  }
+  -> String
+  -> Decoder { b | state : a, interface_pid: String }
+  -> { c
+    | devices : List { b | state : a, interface_pid : String }
+    , history : Dict String (List a)
+  }
+updateModel model payload decoder =
+  let
+    ( devices, history ) = case decodeDevice decoder payload of
+      Just d ->
+        ( deviceList model.devices d
+        , updateHistory d model.history
+        )
+      Nothing -> ( model.devices, model.history )
+  in
+    {model | devices = devices, history = history}
 
 handleDeviceEvent : String -> Model -> (Model, Cmd Msg)
 handleDeviceEvent payload model =
@@ -108,34 +133,29 @@ handleDeviceEvent payload model =
       case evt.event_type of
         Light ->
           let
-            lights = model.lights
-            new_lights = {lights | devices = (deviceList model.lights.devices evt payload Lights.decodeLight)}
+            lights = updateModel model.lights payload Lights.decodeLight
           in
-            ({model | lights = new_lights}, Cmd.none)
+            ({model | lights = lights}, Cmd.none)
         MediaPlayer ->
           let
-            media_players = model.media_players
-            new_media_players = {media_players | devices = (deviceList model.media_players.devices evt payload MediaPlayers.decodeMediaPlayer)}
+            media_players = updateModel model.media_players payload MediaPlayers.decodeMediaPlayer
           in
-            ({model | media_players = new_media_players}, Cmd.none)
+            ({model | media_players = media_players}, Cmd.none)
         IEQ ->
           let
-            ieq = model.ieq
-            new_ieq = {ieq | devices = (deviceList model.ieq.devices evt payload IEQ.decodeIEQ)}
+            ieq = updateModel model.ieq payload IEQ.decodeIEQ
           in
-            ({model | ieq = new_ieq}, Cmd.none)
+            ({model | ieq = ieq}, Cmd.none)
         WeatherStation ->
           let
-            weather_stations = model.weather_stations
-            new_weather_stations = {weather_stations | devices = (deviceList model.weather_stations.devices evt payload WeatherStations.decodeWeatherStation)}
+            weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation
           in
-            ({model | weather_stations = new_weather_stations}, Cmd.none)
+            ({model | weather_stations = weather_stations}, Cmd.none)
         HVAC ->
           let
-            hvac = model.hvac
-            new_hvac = {hvac | devices = (deviceList model.hvac.devices evt payload HVAC.decodeHVAC)}
+            hvac = updateModel model.hvac payload HVAC.decodeHVAC
           in
-            ({model | hvac = new_hvac}, Cmd.none)
+            ({model | hvac = hvac}, Cmd.none)
 
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
@@ -169,7 +189,7 @@ view model =
       ]
       { header = [ h4 [ style [ ( "padding", "1rem" ) ] ] [ text "Rosetta Home 2.0" ] ]
       , drawer = []
-      , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "HVAC" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
+      , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "_____" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
       , main = [ addMeta, viewBody model ]
       }
 

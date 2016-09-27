@@ -16,36 +16,58 @@ import Material.Options as Options exposing (Style)
 import Model.IEQ exposing (IEQ)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
+import Date exposing (Date)
+import Time exposing (Time)
+import Chart.LineChart as LineChart
+import Dict exposing (Dict)
 
 
 type alias Mdl = Material.Model
+
+--line_chart_data =
+--  [ ( Date.fromTime 1448928000000, 2 )
+--  , ( Date.fromTime 1451606400000, 2 )
+--  , ( Date.fromTime 1454284800000, 1 )
+--  , ( Date.fromTime 1456790400000, 1 )
+--  ]
 
 white : Options.Property c m
 white =
   Color.text Color.white
 
+now : Int
+now = 1475006518000
+
 view : Model -> IEQ -> Material.Grid.Cell Msg
 view model ieq =
-  cell [ Material.Grid.size All 4 ]
-    [
-      Card.view
-        [ Color.background (Color.color Color.LightBlue Color.S400)
+  let
+    co2 = case Dict.get ieq.interface_pid model.ieq.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.co2 )) (List.reverse list))
+      Nothing -> []
+    voc = case Dict.get ieq.interface_pid model.ieq.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.voc )) (List.reverse list))
+      Nothing -> []
+    temp = case Dict.get ieq.interface_pid model.ieq.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.temperature )) (List.reverse list))
+      Nothing -> []
+    humidity = case Dict.get ieq.interface_pid model.ieq.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.humidity )) (List.reverse list))
+      Nothing -> []
+  in
+    cell [ Material.Grid.size All 4 ]
+      [
+        Card.view
+          [ Color.background (Color.color Color.LightBlue Color.S400)
+          , css "max-width" "380px"
+          ]
+          [ Card.title [ white ] [ text ieq.name ]
+          , Card.media
+            [ css "background" "none"
+            , css "padding-left" "25px"
+            ] [ LineChart.view co2
+              , LineChart.view voc
+              , LineChart.view temp
+              , LineChart.view humidity
+              ]
+          ]
         ]
-        [ Card.title [] [ Card.head [ white ] [ text ieq.name ] ]
-        , Card.text [ Card.expand ]  [] -- Filler
-        , Card.actions
-            [ Card.border
-            -- Modify flexbox to accomodate small text in action block
-            , css "display" "flex"
-            , css "justify-content" "space-between"
-            , css "align-items" "center"
-            , css "padding" "8px 16px 8px 16px"
-            , white
-            ]
-            [ Options.span [ Typography.caption, Typography.contrast 0.87 ] [ text ((toString ieq.state.voc) ++ " : " ++ (toString ieq.state.co2)) ]
-            , Button.render Msg.Mdl [1] model.mdl
-                [ Button.icon, Button.ripple ]
-                [ Icon.i "phone" ]
-            ]
-        ]
-      ]

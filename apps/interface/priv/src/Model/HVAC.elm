@@ -5,14 +5,17 @@ import Json.Encode
 import Json.Decode exposing ((:=))
 -- elm-package install --yes circuithub/elm-json-extra
 import Json.Decode.Extra exposing ((|:))
+import Dict exposing (Dict)
 
 type alias Model =
   { devices: List HVAC
+  , history: Dict String (List HVACState)
   }
 
 model : Model
 model =
   { devices = []
+  , history = Dict.empty
   }
 
 type alias HVAC =
