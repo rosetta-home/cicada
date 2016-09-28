@@ -95,7 +95,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     device = %DeviceManager.Device{device | state:
       RadioThermostat.state(device.device_pid) |> map_state
     }
-    Process.send_after(self, :update_state, 10000)
+    Process.send_after(self, :update_state, 60000)
     DeviceManager.Broadcaster.sync_notify(device)
     {:noreply, device}
   end

@@ -37,10 +37,20 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def map_state(state) do
-    state
+    %DeviceManager.Device.SmartMeter.State{
+      connection_status: state.connection_status.status,
+      channel: state.connection_status.channel,
+      meter_mac_id: state.connection_status.meter_mac_id,
+      signal: state.connection_status.link_strength,
+      meter_type: state.meter_info.meter_type,
+      price: state.price.price,
+      kw_delivered: state.summation.kw_delivered,
+      kw_received: state.summation.kw_received
+    }
   end
 
   def init({id, device}) do
+    Process.send_after(self, :fake_data, 1000)
     {:ok, %DeviceManager.Device{
       module: Raven.Client,
       type: :smart_meter,
@@ -49,6 +59,13 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
       name: "Raven - #{Atom.to_string(device.id)}",
       state: device
     }}
+  end
+
+  def handle_info(:fake_data, device) do
+    Process.send_after(self, :fake_data, 1000)
+    device = %DeviceManager.Device{device | state: %{ device.state | kw_received: :rand.uniform(400), kw_delivered: :rand.uniform(200)} }
+    DeviceManager.Broadcaster.sync_notify(device)
+    {:noreply, device}
   end
 
   def handle_call({:update, state}, _from, device) do

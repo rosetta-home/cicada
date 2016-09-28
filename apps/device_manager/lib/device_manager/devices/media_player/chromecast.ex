@@ -37,16 +37,24 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def map_state(state) do
-    item = state.media_status |> Map.get("items", []) |> Enum.at(0, %{})
-    media = item |> Map.get("media", %{})
+    item = case state.media_status |> Map.get("items") do
+      nil -> state.media_status |> Map.get("media", %{})
+      items -> items |> Enum.at(0, %{})
+    end
+    media = case item |> Map.get("media") do
+      nil -> item
+      media -> media
+    end
     metadata = media |> Map.get("metadata", %{})
-    image = case state.media_status |> Map.get("backendData") do
-        nil -> metadata
-          |> Map.get("images", [])
-          |> Enum.at(0, %MediaPlayer.State.Image{})
-        data -> %MediaPlayer.State.Image{
-          url: Poison.decode!(data) |> Enum.at(0, ""),
-        }
+    images = metadata |> Map.get("images")
+    image = case images do
+      nil ->
+        case state.media_status |> Map.get("backendData") do
+          nil -> %{}
+          data ->
+            %{"url": Poison.decode!(data) |> Enum.at(0, "")}
+        end
+      i -> i |> Enum.at(0, %{})
     end
     app = state.receiver_status["status"] |>  Map.get("applications", []) |> Enum.at(0, %{})
 
@@ -57,7 +65,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       content_type: item |> Map.get("content_type", "Unknown"),
       duration: item |> Map.get("duration", 0),
       autoplay: item |> Map.get("autoplay", false),
-      image: Map.merge(%MediaPlayer.State.Image{}, image),
+      image: %MediaPlayer.State.Image{ url: Map.get(image, "url", Map.get(image, :url, "")) },
       title: metadata |> Map.get("title", ""),
       subtitle: metadata |> Map.get("subtitle", ""),
       volume: state.receiver_status["status"]["volume"]["level"],

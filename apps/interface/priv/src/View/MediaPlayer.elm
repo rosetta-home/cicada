@@ -16,6 +16,7 @@ import Material.Options as Options exposing (Style)
 import Model.MediaPlayers exposing (MediaPlayer)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
+import String
 import Util.Layout exposing(card)
 
 white : Options.Property c m
@@ -34,5 +35,9 @@ view model media_player =
           ]
           [ ]
       ]
+    title = if String.isEmpty media_player.state.title then
+      media_player.name
+    else
+      media_player.state.title
   in
-    card media_player.name "" content []
+    card title "" content []

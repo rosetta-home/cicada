@@ -42,27 +42,7 @@ defmodule API.Websocket do
     {:reply, {:text, Poison.encode!(%{type: :heartbeat})}, req, state}
   end
 
-  def websocket_info({:device_event, %DeviceManager.Device{type: :light} = event}, req, state) do
-    event = %DeviceManager.Device{event | device_pid: ""}
-    {:reply, {:text, Poison.encode!(event)}, req, state}
-  end
-
-  def websocket_info({:device_event, %DeviceManager.Device{type: :media_player} = event}, req, state) do
-    event = %DeviceManager.Device{event | device_pid: ""}
-    {:reply, {:text, Poison.encode!(event)}, req, state}
-  end
-
-  def websocket_info({:device_event, %DeviceManager.Device{type: :ieq} = event}, req, state) do
-    event = %DeviceManager.Device{event | device_pid: ""}
-    {:reply, {:text, Poison.encode!(event)}, req, state}
-  end
-
-  def websocket_info({:device_event, %DeviceManager.Device{type: :weather_station} = event}, req, state) do
-    event = %DeviceManager.Device{event | device_pid: ""}
-    {:reply, {:text, Poison.encode!(event)}, req, state}
-  end
-
-  def websocket_info({:device_event, %DeviceManager.Device{type: :hvac} = event}, req, state) do
+  def websocket_info({:device_event, %DeviceManager.Device{} = event}, req, state) do
     event = %DeviceManager.Device{event | device_pid: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end

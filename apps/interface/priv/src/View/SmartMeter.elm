@@ -1,4 +1,4 @@
-module View.WeatherStation exposing(..)
+module View.SmartMeter exposing(..)
 
 import Html exposing (..)
 import Html.App as App
@@ -14,7 +14,7 @@ import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
 import Material.Elevation as Elevation
-import Model.WeatherStations exposing (WeatherStation)
+import Model.SmartMeters exposing (SmartMeter)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import Util.Layout exposing(card)
@@ -31,21 +31,21 @@ white : Options.Property c m
 white =
   Color.text Color.white
 
-view : Model -> WeatherStation -> Material.Grid.Cell Msg
-view model weather_station =
+view : Model -> SmartMeter -> Material.Grid.Cell Msg
+view model smart_meter =
   let
-    indoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.indoor_temperature )) (List.reverse list))
+    delivered = case Dict.get smart_meter.interface_pid model.smart_meters.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.kw_delivered )) (List.reverse list))
       Nothing -> []
-    outdoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.indoor_temperature )) (List.reverse list))
+    received = case Dict.get smart_meter.interface_pid model.smart_meters.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.kw_received )) (List.reverse list))
       Nothing -> []
     content =
-      [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (LineChart.view indoor_temp)
-      , viewGraph "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (LineChart.view outdoor_temp)
+      [ viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (LineChart.view delivered)
+      , viewGraph "KW Received" (toString smart_meter.state.kw_received) (LineChart.view received)
       ]
   in
-    card weather_station.name "" content [ css "height" "450px" ]
+    card smart_meter.name "" content [ css "height" "450px" ]
 
 viewGraph : String -> String -> Html a -> Html a
 viewGraph header subheader graph =

@@ -30,6 +30,9 @@ import View.HVAC
 -- WeatherStations
 import Model.WeatherStations as WeatherStations
 import View.WeatherStation
+-- SmartMeters
+import Model.SmartMeters as SmartMeters
+import View.SmartMeter
 
 -- Main
 import Model.Main exposing (Model, model)
@@ -151,6 +154,11 @@ handleDeviceEvent payload model =
             weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation
           in
             ({model | weather_stations = weather_stations}, Cmd.none)
+        SmartMeter ->
+          let
+            smart_meters = updateModel model.smart_meters payload SmartMeters.decodeSmartMeter
+          in
+            ({model | smart_meters = smart_meters}, Cmd.none)
         HVAC ->
           let
             hvac = updateModel model.hvac payload HVAC.decodeHVAC
@@ -184,13 +192,12 @@ view model =
   Material.Scheme.topWithScheme Color.Teal Color.LightGreen <|
     Layout.render Msg.Mdl model.mdl
       [ Layout.fixedHeader
-      , Layout.waterfall True
       , Layout.selectedTab model.selectedTab
       , Layout.onSelectTab Msg.SelectTab
       ]
       { header = [ h4 [ style [ ( "padding", "1rem" ) ] ] [ text "Rosetta Home 2.0" ] ]
       , drawer = []
-      , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "_____" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
+      , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
       , main = [ addMeta, viewBody model ]
       }
 
@@ -206,7 +213,8 @@ viewBody model =
     2 -> viewIEQ model
     3 -> viewWeatherStations model
     4 -> viewHVAC model
-    5 -> viewHVAC model
+    5 -> viewSmartMeters model
+    6 -> viewSmartMeters model
     _ -> text "404"
 
 viewLights : Model -> Html Msg
@@ -223,6 +231,11 @@ viewWeatherStations : Model -> Html Msg
 viewWeatherStations model =
   grid []
     (List.map (View.WeatherStation.view model) model.weather_stations.devices)
+
+viewSmartMeters : Model -> Html Msg
+viewSmartMeters model =
+  grid []
+    (List.map (View.SmartMeter.view model) model.smart_meters.devices)
 
 viewIEQ : Model -> Html Msg
 viewIEQ model =
