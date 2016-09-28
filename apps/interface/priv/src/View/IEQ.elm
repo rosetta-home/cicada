@@ -20,6 +20,7 @@ import Date exposing (Date)
 import Time exposing (Time)
 import Chart.LineChart as LineChart
 import Dict exposing (Dict)
+import Util.Layout exposing(card)
 
 
 type alias Mdl = Material.Model
@@ -53,21 +54,20 @@ view model ieq =
     humidity = case Dict.get ieq.interface_pid model.ieq.history of
       Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.humidity )) (List.reverse list))
       Nothing -> []
+    content =
+      [ viewGraph "CO2" (toString ieq.state.co2) (LineChart.view co2)
+      , viewGraph "VOC" (toString ieq.state.voc) (LineChart.view voc)
+      , viewGraph "Temperature" (toString ieq.state.temperature) (LineChart.view temp)
+      , viewGraph "Humidity" (toString ieq.state.humidity) (LineChart.view humidity)
+      ]
   in
-    cell [ Material.Grid.size All 4 ]
-      [
-        Card.view
-          [ Color.background (Color.color Color.LightBlue Color.S400)
-          , css "max-width" "380px"
-          ]
-          [ Card.title [ white ] [ text ieq.name ]
-          , Card.media
-            [ css "background" "none"
-            , css "padding-left" "25px"
-            ] [ LineChart.view co2
-              , LineChart.view voc
-              , LineChart.view temp
-              , LineChart.view humidity
-              ]
-          ]
-        ]
+    card ieq.name "" content [ css "height" "750px" ]
+
+viewGraph : String -> String -> Html a -> Html a
+viewGraph header subheader graph =
+  Options.div []
+    [ Options.styled span [ white ] [ text (header ++ " : ") ]
+    , Options.styled span [ Typography.caption, white ] [ text subheader ]
+    , Options.styled br [ ] [ ]
+    , graph
+    ]

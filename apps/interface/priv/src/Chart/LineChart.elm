@@ -17,7 +17,7 @@ import String
 
 w : Float
 w =
-    300
+    375
 
 
 h : Float
@@ -27,7 +27,7 @@ h =
 
 padding : Float
 padding =
-    30
+    35
 
 
 view : List ( Date, Float ) -> Svg msg
@@ -45,18 +45,18 @@ view model =
 
         min = case List.minimum values of
           Just m -> m
-          Nothing -> 0
+          Nothing -> 1
 
         max = case List.maximum values of
           Just m -> m
-          Nothing -> 1000
+          Nothing -> 1
         xScale : ContinuousTimeScale
         xScale =
             Scale.time ( start, end ) ( 0, w - 2 * padding )
 
         yScale : ContinuousScale
         yScale =
-            Scale.linear ( min, max ) ( h - 2 * padding, 0 )
+            Scale.linear ( (min-1), max ) ( h - 2 * padding, 0 )
 
         opts : Axis.Options a
         opts =
@@ -64,7 +64,7 @@ view model =
 
         xAxis : Svg msg
         xAxis =
-            Axis.axis { opts | orientation = Axis.Bottom, tickCount = 10 } xScale
+            Axis.axis { opts | orientation = Axis.Bottom, tickCount = 5 } xScale
 
         yAxis : Svg msg
         yAxis =
@@ -94,6 +94,6 @@ view model =
             , g [ transform ("translate(" ++ toString (padding - 1) ++ ", " ++ toString padding ++ ")") ]
                 [ yAxis ]
             , g [ transform ("translate(" ++ toString padding ++ ", " ++ toString padding ++ ")"), class "series" ]
-                [ Svg.path [ d line, stroke "black", strokeWidth "3px", fill "none" ] []
+                [ Svg.path [ d line, stroke "black", strokeWidth "2px", fill "none" ] []
                 ]
             ]

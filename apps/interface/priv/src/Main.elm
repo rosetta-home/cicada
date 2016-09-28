@@ -184,6 +184,7 @@ view model =
   Material.Scheme.topWithScheme Color.Teal Color.LightGreen <|
     Layout.render Msg.Mdl model.mdl
       [ Layout.fixedHeader
+      , Layout.waterfall True
       , Layout.selectedTab model.selectedTab
       , Layout.onSelectTab Msg.SelectTab
       ]

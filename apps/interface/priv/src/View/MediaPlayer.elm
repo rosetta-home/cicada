@@ -16,6 +16,7 @@ import Material.Options as Options exposing (Style)
 import Model.MediaPlayers exposing (MediaPlayer)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
+import Util.Layout exposing(card)
 
 white : Options.Property c m
 white =
@@ -25,31 +26,13 @@ view : Model -> MediaPlayer -> Material.Grid.Cell Msg
 view model media_player =
   let
     url = "url('" ++ media_player.state.image.url ++ "') center / cover"
-  in
-    cell [ Material.Grid.size All 4 ]
-      [
-        Card.view
-          [ css "width" "400px"
-          , Color.background (Color.color Color.LightBlue Color.S400)
+    content =
+      [ Options.div
+          [ css "background" url
+          , css "width" "100%"
+          , css "height" "80%"
           ]
-          [ Card.title [] [ Card.head [ white ] [ text media_player.state.title ] ]
-          ,  Card.media
-              [ css "background" url
-              , css "height" "225px"
-              ]
-              []
-          , Card.actions [ Card.border
-            -- Modify flexbox to accomodate small text in action block
-            , css "display" "flex"
-            , css "justify-content" "space-between"
-            , css "align-items" "center"
-            , css "padding" "8px 16px 8px 16px"
-            , white
-            ]
-            [ Options.span [ Typography.caption, Typography.contrast 0.87 ] [ text media_player.name ]
-            , Button.render Msg.Mdl [1] model.mdl
-              [ Button.icon, Button.ripple ]
-              [ Icon.i "play_arrow" ]
-            ]
-          ]
+          [ ]
       ]
+  in
+    card media_player.name "" content []
