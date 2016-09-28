@@ -40,12 +40,16 @@ view model smart_meter =
     received = case Dict.get smart_meter.interface_pid model.smart_meters.history of
       Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.kw_received )) (List.reverse list))
       Nothing -> []
+    demand = case Dict.get smart_meter.interface_pid model.smart_meters.history of
+      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.kw )) (List.reverse list))
+      Nothing -> []
     content =
-      [ viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (LineChart.view delivered)
+      [ viewGraph "Demand" (toString smart_meter.state.kw) (LineChart.view demand)
+      , viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (LineChart.view delivered)
       , viewGraph "KW Received" (toString smart_meter.state.kw_received) (LineChart.view received)
       ]
   in
-    card smart_meter.name "" content [ css "height" "450px" ]
+    card smart_meter.name "" content [ css "height" "550px" ]
 
 viewGraph : String -> String -> Html a -> Html a
 viewGraph header subheader graph =

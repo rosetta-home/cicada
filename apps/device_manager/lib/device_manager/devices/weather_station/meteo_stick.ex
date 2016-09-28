@@ -35,7 +35,7 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
       device_pid: String.to_atom(device.id),
       interface_pid: id,
       name: "Weather Station: #{device.id}",
-      state: device
+      state: device |> map_state
     }}
   end
 

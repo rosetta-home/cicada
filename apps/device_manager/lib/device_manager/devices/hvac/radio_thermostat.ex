@@ -80,7 +80,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def init({id, device}) do
     {:ok, pid} = RadioThermostat.start_link(device.url)
     Process.send_after(self, :update_state, 1000)
-    r_state = RadioThermostat.state(pid)
+    r_state = RadioThermostat.state(pid) |> map_state
     {:ok, %DeviceManager.Device{
       module: RadioThermostat,
       type: :hvac,

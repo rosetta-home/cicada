@@ -72,7 +72,7 @@ defmodule DeviceManager.Device.Light.Lifx do
       device_pid: device.id,
       interface_pid: id,
       name: device.label,
-      state: device
+      state: device |> map_state
     }}
   end
 

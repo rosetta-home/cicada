@@ -34,6 +34,7 @@ type alias SmartMeterState =
     , meter_mac_id : String
     , kw_received : Float
     , kw_delivered : Float
+    , kw: Float
     , connection_status : String
     , channel : String
     }
@@ -57,6 +58,7 @@ decodeSmartMeterState =
         |: ("meter_mac_id" := Json.Decode.string)
         |: ("kw_received" := Json.Decode.float)
         |: ("kw_delivered" := Json.Decode.float)
+        |: ("kw" := Json.Decode.float)
         |: ("connection_status" := Json.Decode.string)
         |: ("channel" := Json.Decode.string)
 
