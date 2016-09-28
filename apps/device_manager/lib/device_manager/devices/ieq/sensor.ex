@@ -29,6 +29,7 @@ defmodule DeviceManager.Device.IEQ.Sensor do
   end
 
   def init({id, device}) do
+    Process.send_after(self, :add_voice_controls, 100)
     {:ok, %DeviceManager.Device{
       module: IEQGateway.IEQStation,
       type: :ieq,
@@ -37,6 +38,31 @@ defmodule DeviceManager.Device.IEQ.Sensor do
       name: Atom.to_string(device.id),
       state: map_state(device)
     }}
+  end
+
+  def handle_info(:add_voice_controls, device) do
+    VoiceControl.Client.add_handler("WHAT IS VEEOHSEE", 1)
+    VoiceControl.Client.add_handler("WHAT IS HUMIDTY", 2)
+    VoiceControl.Client.add_handler("WHAT IS TEMPERATURE", 3)
+    {:noreply, device}
+  end
+
+  def handle_info({:voice_callback, 1}, device) do
+    Logger.info "Got Callback 1"
+    VoiceControl.Client.say "#{device.state.voc} pee pee be"
+    {:noreply, device}
+  end
+
+  def handle_info({:voice_callback, 2}, device) do
+    Logger.info "Got Callback 2"
+    VoiceControl.Client.say "#{device.state.humidity} percent"
+    {:noreply, device}
+  end
+
+  def handle_info({:voice_callback, 3}, device) do
+    Logger.info "Got Callback 3"
+    VoiceControl.Client.say "#{device.state.temperature} degrees"
+    {:noreply, device}
   end
 
   def handle_call({:update, state}, _from, device) do

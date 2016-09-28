@@ -16,6 +16,7 @@
   "meteo_stick": {:hex, :meteo_stick, "0.1.3", "cff7a16e9f0bed701960d642c31ca4de1a74cd9cf8e56960d10a66a808116808", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},
+  "movi": {:hex, :movi, "0.1.1", "6f17b9f86d3d75b5e8ac566c97522fb3c3f9ab71bdfd47b4571538cefbcd0210", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},
   "nerves_uart": {:hex, :nerves_uart, "0.1.1", "32e6186b1a1b1d744631126df0b6c4049ddde5b04bc0303de29ab86a2edf60a2", [:mix, :make], [{:elixir_make, "~> 0.3", [hex: :elixir_make, optional: false]}]},
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []},
   "radio_thermostat": {:git, "https://github.com/NationalAssociationOfRealtors/radio_thermostat.git", "1f6a6b87597db7a2310c5cb3369b9cb48b7ce61a", []},

@@ -45,7 +45,8 @@ defmodule DeviceManager.Mixfile do
       {:raven_smcd, "~> 0.1.4"},
       {:ieq_gateway, "~> 0.1.1"},
       {:gen_stage, "~> 0.4"},
-      {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"}
+      {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"},
+      {:voice_control, in_umbrella: true},
     ]
   end
 end

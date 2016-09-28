@@ -65,6 +65,7 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def init({id, device}) do
+    Process.send_after(self, :add_voice_controls, 100)
     {:ok, %DeviceManager.Device{
       module: Lifx.Device,
       type: :light,
@@ -73,6 +74,24 @@ defmodule DeviceManager.Device.Light.Lifx do
       name: device.label,
       state: device
     }}
+  end
+
+  def handle_info(:add_voice_controls, device) do
+    VoiceControl.Client.add_handler("TURN LIGHTS ON", 1)
+    VoiceControl.Client.add_handler("TURN LIGHTS OFF", 2)
+    {:noreply, device}
+  end
+
+  def handle_info({:voice_callback, 1}, device) do
+    Logger.info "Got Callback 1"
+    Lifx.Device.on(device.device_pid)
+    {:noreply, device}
+  end
+
+  def handle_info({:voice_callback, 2}, device) do
+    Logger.info "Got Callback 2"
+    Lifx.Device.off(device.device_pid)
+    {:noreply, device}
   end
 
   def handle_call({:update, state}, _from, device) do
@@ -85,7 +104,7 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def handle_call(:on, _from, device) do
-    Lifx.Device.on(device.pid)
+    Lifx.Device.on(device.device_pid)
     {:reply, true, device}
   end
 
