@@ -5,7 +5,9 @@ defmodule Interface.TCPServer do
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", :cowboy_static, {:priv_file, :interface, "index.html"}}
+          {"/", :cowboy_static, {:priv_file, :interface, "index.html"}},
+          {"/static/[...]", :cowboy_static, {:priv_dir,  :interface, "static"}},
+
         ]}
       ])
       {:ok, _} = :cowboy.start_http(:interface_http,

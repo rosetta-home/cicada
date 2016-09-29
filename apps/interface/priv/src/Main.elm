@@ -7,7 +7,9 @@ import Material.Scheme
 import Material.Button as Button
 import Material.Options exposing (css)
 import Material.Layout as Layout
+import Material.Icon as Icon
 import Material.Color as Color
+import Material.Progress as Loading
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
@@ -41,7 +43,7 @@ import Msg exposing (Msg)
 -- MODEL
 eventServer : String
 eventServer =
-  "ws://localhost:8081/ws?user_id=3894298374"
+  "ws://rosetta.local:8081/ws?user_id=3894298374"
 
 historyLength : Int
 historyLength = 30
@@ -187,65 +189,84 @@ subscriptions model =
 
 -- VIEW
 
+stylesheet : String -> Html a
+stylesheet url =
+  let
+    tag = "link"
+    attrs =
+      [ attribute "rel" "stylesheet"
+      , attribute "property" "stylesheet"
+      , attribute "href" url
+      ]
+    children = []
+  in
+    node tag attrs children
+
+script : String -> Html a
+script url =
+  let
+    tag = "script"
+    attrs =
+      [ attribute "defer" ""
+      , attribute "src" url
+      ]
+    children = []
+  in
+    node tag attrs children
+
+header : List (Html Msg)
+header =
+  [ Layout.row
+    [ css "padding" "10px"
+    , Color.background (Color.color Color.BlueGrey Color.S700)
+    ]
+    [ h5 [] [ text "Rosetta Home 2.0" ]]
+  ]
+
 view : Model -> Html Msg
 view model =
-  Material.Scheme.topWithScheme Color.Teal Color.LightGreen <|
-    Layout.render Msg.Mdl model.mdl
-      [ Layout.fixedHeader
-      , Layout.selectedTab model.selectedTab
-      , Layout.onSelectTab Msg.SelectTab
-      ]
-      { header = [ h4 [ style [ ( "padding", "1rem" ) ] ] [ text "Rosetta Home 2.0" ] ]
-      , drawer = []
-      , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.Teal Color.S400) ] )
-      , main = [ addMeta, viewBody model ]
-      }
+  Layout.render Msg.Mdl model.mdl
+    [ Layout.fixedHeader
+    , Layout.selectedTab model.selectedTab
+    , Layout.onSelectTab Msg.SelectTab
+    ]
+    { header = header
+    , drawer = []
+    , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.BlueGrey Color.S500) ] )
+    , main = List.concat [ addMeta, [viewBody model] ]
+    }
 
-addMeta : Html Msg
+--<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500|Roboto+Mono|Roboto+Condensed:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+--<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+--<link rel="stylesheet" href="https://code.getmdl.io/1.2.0/material.min.css" />
+addMeta : List (Html a)
 addMeta =
-  node "meta" [ name "viewport", content "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" ] []
+  [ node "meta" [ name "viewport", content "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" ] []
+  , stylesheet "/static/font-face.css"
+  , stylesheet "/static/mdl/material.min.css"
+  , script "/static/mdl/material.min.js"
+  ]
+
 
 viewBody : Model -> Html Msg
 viewBody model =
   case model.selectedTab of
-    0 -> viewLights model
-    1 -> viewMediaPlayers model
-    2 -> viewIEQ model
-    3 -> viewWeatherStations model
-    4 -> viewHVAC model
-    5 -> viewSmartMeters model
-    6 -> viewSmartMeters model
+    0 -> displayTab model model.lights View.Light.view
+    1 -> displayTab model model.media_players View.MediaPlayer.view
+    2 -> displayTab model model.ieq View.IEQ.view
+    3 -> displayTab model model.weather_stations View.WeatherStation.view
+    4 -> displayTab model model.hvac View.HVAC.view
+    5 -> displayTab model model.smart_meters View.SmartMeter.view
+    6 -> displayTab model model.smart_meters View.SmartMeter.view
     _ -> text "404"
 
-viewLights : Model -> Html Msg
-viewLights model =
-  grid []
-    (List.map (View.Light.view model) model.lights.devices)
 
-viewMediaPlayers : Model -> Html Msg
-viewMediaPlayers model =
-  grid []
-    (List.map (View.MediaPlayer.view model) model.media_players.devices)
-
-viewWeatherStations : Model -> Html Msg
-viewWeatherStations model =
-  grid []
-    (List.map (View.WeatherStation.view model) model.weather_stations.devices)
-
-viewSmartMeters : Model -> Html Msg
-viewSmartMeters model =
-  grid []
-    (List.map (View.SmartMeter.view model) model.smart_meters.devices)
-
-viewIEQ : Model -> Html Msg
-viewIEQ model =
-  grid []
-    (List.map (View.IEQ.view model) model.ieq.devices)
-
-viewHVAC : Model -> Html Msg
-viewHVAC model =
-  grid []
-    (List.map (View.HVAC.view model) model.hvac.devices)
+displayTab : Model -> { a | devices: List b } -> (Model -> b -> Material.Grid.Cell c) -> Html c
+displayTab model typ view =
+  if List.length typ.devices == 0 then
+    grid [] [ cell [ Material.Grid.size All 4 ] [ Loading.indeterminate ] ]
+  else
+    grid [] (List.map (view model) typ.devices)
 
 main =
   App.program

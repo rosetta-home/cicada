@@ -32,12 +32,12 @@ card header subhead content styles =
     styles = List.concat
       [ styles
         , [ Material.Grid.size All 4
-        , Color.background (Color.color Color.LightBlue Color.S400)
-        , css "height" "300px"
-        , css "padding" "13px"
-        , css "border-radius" "2px"
-        , Elevation.e3
-        ]
+          , Color.background (Color.color Color.BlueGrey Color.S400)
+          , css "height" "300px"
+          , css "padding" "13px"
+          , css "border-radius" "2px"
+          , Elevation.e3
+          ]
       ]
   in
     cell styles c
