@@ -20,6 +20,10 @@ white : Options.Property c m
 white =
   Color.text Color.white
 
+lime : Options.Property c m
+lime =
+  Color.background (Color.color Color.Lime Color.A700)
+
 card : String -> String -> List (Html a) -> List (Style a) -> Material.Grid.Cell a
 card header subhead content styles =
   let
@@ -41,3 +45,16 @@ card header subhead content styles =
       ]
   in
     cell styles c
+
+viewGraph : String -> String -> Html a -> Html a
+viewGraph header subheader graph =
+  Options.div []
+    [ Options.styled span [ white ] [ text (header ++ " : ") ]
+    , Options.styled span
+      [ Typography.caption
+      , lime
+      , css "padding" "5px"
+      ] [ text subheader ]
+    , Options.styled br [ ] [ ]
+    , graph
+    ]

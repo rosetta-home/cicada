@@ -2,6 +2,7 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Time exposing (Time, second)
 import Material
 import Material.Scheme
 import Material.Button as Button
@@ -10,7 +11,9 @@ import Material.Layout as Layout
 import Material.Icon as Icon
 import Material.Color as Color
 import Material.Progress as Loading
+import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
+import Material.Options as Options exposing (Style)
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
 import Dict exposing (Dict)
@@ -47,6 +50,10 @@ eventServer =
 
 historyLength : Int
 historyLength = 30
+
+white : Options.Property c m
+white =
+  Color.text Color.white
 
 type alias Event =
   { event_type : EventType
@@ -104,32 +111,47 @@ deviceList list device =
     False ->
       device :: list
 
-updateHistory : { b | state: a, interface_pid: String } -> Dict String (List a) -> Dict String (List a)
-updateHistory device history =
+updateHistory : { b | state: a, interface_pid: String }
+  -> Dict String (List (Time, { b | state : a, interface_pid : String }))
+  -> Time
+  -> Dict String (List (Time, { b | state : a, interface_pid : String }))
+updateHistory device history time =
   case Dict.get device.interface_pid history of
-    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength (device.state :: h))) history
-    Nothing -> Dict.insert device.interface_pid [device.state] history
+    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength ((time, device) :: h))) history
+    Nothing -> Dict.insert device.interface_pid [(time, device)] history
 
 updateModel : { c
     | devices : List { b | interface_pid : String, state : a }
-    , history : Dict String (List a)
+    , history : Dict String (List (Time, { b | interface_pid : String, state : a }))
   }
   -> String
   -> Decoder { b | state : a, interface_pid: String }
+  -> Time
   -> { c
     | devices : List { b | state : a, interface_pid : String }
-    , history : Dict String (List a)
+    , history : Dict String (List (Time, { b | interface_pid : String, state : a }))
   }
-updateModel model payload decoder =
+updateModel model payload decoder time =
   let
     ( devices, history ) = case decodeDevice decoder payload of
       Just d ->
         ( deviceList model.devices d
-        , updateHistory d model.history
+        , updateHistory d model.history time
         )
       Nothing -> ( model.devices, model.history )
   in
     {model | devices = devices, history = history}
+
+updateLastHistory : { a | history : Dict String (List (Time, b)) } -> Time -> { a | history : Dict String (List (Time, b)) }
+updateLastHistory model time =
+  let
+    history = Dict.map (\k list ->
+      case List.head list of
+        Just (t, device) -> List.take historyLength ((time, device) :: list)
+        Nothing -> list
+    ) model.history
+  in
+    { model | history = history }
 
 handleDeviceEvent : String -> Model -> (Model, Cmd Msg)
 handleDeviceEvent payload model =
@@ -138,32 +160,32 @@ handleDeviceEvent payload model =
       case evt.event_type of
         Light ->
           let
-            lights = updateModel model.lights payload Lights.decodeLight
+            lights = updateModel model.lights payload Lights.decodeLight model.time
           in
             ({model | lights = lights}, Cmd.none)
         MediaPlayer ->
           let
-            media_players = updateModel model.media_players payload MediaPlayers.decodeMediaPlayer
+            media_players = updateModel model.media_players payload MediaPlayers.decodeMediaPlayer model.time
           in
             ({model | media_players = media_players}, Cmd.none)
         IEQ ->
           let
-            ieq = updateModel model.ieq payload IEQ.decodeIEQ
+            ieq = updateModel model.ieq payload IEQ.decodeIEQ model.time
           in
             ({model | ieq = ieq}, Cmd.none)
         WeatherStation ->
           let
-            weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation
+            weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation model.time
           in
             ({model | weather_stations = weather_stations}, Cmd.none)
         SmartMeter ->
           let
-            smart_meters = updateModel model.smart_meters payload SmartMeters.decodeSmartMeter
+            smart_meters = updateModel model.smart_meters payload SmartMeters.decodeSmartMeter model.time
           in
             ({model | smart_meters = smart_meters}, Cmd.none)
         HVAC ->
           let
-            hvac = updateModel model.hvac payload HVAC.decodeHVAC
+            hvac = updateModel model.hvac payload HVAC.decodeHVAC model.time
           in
             ({model | hvac = hvac}, Cmd.none)
 
@@ -174,9 +196,24 @@ handleDeviceEvent payload model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Msg.DeviceEvent payload -> handleDeviceEvent payload model
+    Msg.DeviceEvent payload ->
+      if model.time > 0 then
+        handleDeviceEvent payload model
+      else
+        (model, Cmd.none)
     Msg.SelectTab tab -> { model | selectedTab = tab } ! []
     Msg.Mdl msg -> Material.update msg model
+    Msg.Tick time ->
+      let
+        hvac = updateLastHistory model.hvac time
+        ieq = updateLastHistory model.ieq time
+        lights = updateLastHistory model.lights time
+        mp = updateLastHistory model.media_players time
+        sm = updateLastHistory model.smart_meters time
+        ws = updateLastHistory model.weather_stations time
+      in
+        ({ model | time = time, hvac = hvac, ieq = ieq, lights = lights, media_players = mp, smart_meters = sm, weather_stations = ws }, Cmd.none)
+
 
 -- SUBSCRIPTIONS
 
@@ -185,6 +222,7 @@ subscriptions model =
   Sub.batch
     [ WebSocket.listen eventServer Msg.DeviceEvent
     , Layout.subs Msg.Mdl model.mdl
+    , Time.every second Msg.Tick
     ]
 
 -- VIEW
@@ -214,13 +252,15 @@ script url =
   in
     node tag attrs children
 
-header : List (Html Msg)
-header =
+header : Model -> List (Html Msg)
+header model =
   [ Layout.row
     [ css "padding" "10px"
     , Color.background (Color.color Color.BlueGrey Color.S700)
     ]
-    [ h5 [] [ text "Rosetta Home 2.0" ]]
+    [ h5 [] [ text "Rosetta Home 2.0" ]
+    , Options.styled span [ Typography.caption, Typography.contrast 0.87, white ] [ text (toString model.time) ]
+    ]
   ]
 
 view : Model -> Html Msg
@@ -230,7 +270,7 @@ view model =
     , Layout.selectedTab model.selectedTab
     , Layout.onSelectTab Msg.SelectTab
     ]
-    { header = header
+    { header = header model
     , drawer = []
     , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.BlueGrey Color.S500) ] )
     , main = List.concat [ addMeta, [viewBody model] ]
@@ -270,7 +310,7 @@ displayTab model typ view =
 
 main =
   App.program
-    { init = ( {model | mdl = Layout.setTabsWidth 600 model.mdl}, Layout.sub0 Msg.Mdl )
+    { init = {model | mdl = Layout.setTabsWidth 600 model.mdl} ! [Layout.sub0 Msg.Mdl]
     , view = view
     , update = update
     , subscriptions = subscriptions

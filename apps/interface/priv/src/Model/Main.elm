@@ -1,6 +1,7 @@
 module Model.Main exposing (..)
 
 import Material
+import Time exposing (Time)
 import Model.Lights as Lights
 import Model.MediaPlayers as MediaPlayers
 import Model.WeatherStations as WeatherStations
@@ -15,6 +16,7 @@ type alias Model =
   , weather_stations: WeatherStations.Model
   , hvac: HVAC.Model
   , smart_meters: SmartMeters.Model
+  , time: Time
   , mdl : Material.Model
   , selectedTab : Int
   }
@@ -27,6 +29,7 @@ model =
   , weather_stations = WeatherStations.model
   , hvac = HVAC.model
   , smart_meters = SmartMeters.model
+  , time = 0
   , mdl = Material.model
   , selectedTab = 0
   }

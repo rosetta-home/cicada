@@ -17,28 +17,23 @@ import Material.Elevation as Elevation
 import Model.WeatherStations exposing (WeatherStation)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
-import Util.Layout exposing(card)
+import Util.Layout exposing(card, viewGraph)
 import Date exposing (Date)
+import Time exposing (Time)
 import Chart.LineChart as LineChart
 import Dict exposing (Dict)
 
 type alias Mdl = Material.Model
 
-now : Int
-now = 1475006518000
-
-white : Options.Property c m
-white =
-  Color.text Color.white
-
 view : Model -> WeatherStation -> Material.Grid.Cell Msg
 view model weather_station =
   let
+    now = round (Time.inMilliseconds model.time)
     indoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.indoor_temperature )) (List.reverse list))
+      Just list -> List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.indoor_temperature )) (List.reverse list)
       Nothing -> []
     outdoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.indoor_temperature )) (List.reverse list))
+      Just list -> List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.outdoor_temperature )) (List.reverse list)
       Nothing -> []
     content =
       [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (LineChart.view indoor_temp)
@@ -46,12 +41,3 @@ view model weather_station =
       ]
   in
     card weather_station.name "" content [ css "height" "450px" ]
-
-viewGraph : String -> String -> Html a -> Html a
-viewGraph header subheader graph =
-  Options.div []
-    [ Options.styled span [ white ] [ text (header ++ " : ") ]
-    , Options.styled span [ Typography.caption, white ] [ text subheader ]
-    , Options.styled br [ ] [ ]
-    , graph
-    ]

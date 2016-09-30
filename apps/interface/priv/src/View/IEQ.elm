@@ -20,7 +20,7 @@ import Date exposing (Date)
 import Time exposing (Time)
 import Chart.LineChart as LineChart
 import Dict exposing (Dict)
-import Util.Layout exposing(card)
+import Util.Layout exposing(card, viewGraph)
 
 
 type alias Mdl = Material.Model
@@ -36,23 +36,21 @@ white : Options.Property c m
 white =
   Color.text Color.white
 
-now : Int
-now = 1475006518000
 
 view : Model -> IEQ -> Material.Grid.Cell Msg
 view model ieq =
   let
     co2 = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.co2 )) (List.reverse list))
+      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.co2 )) (List.reverse list))
       Nothing -> []
     voc = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.voc )) (List.reverse list))
+      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.voc )) (List.reverse list))
       Nothing -> []
     temp = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.temperature )) (List.reverse list))
+      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.temperature )) (List.reverse list))
       Nothing -> []
     humidity = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i state -> ( Date.fromTime (toFloat (now+(i*20000))), state.humidity )) (List.reverse list))
+      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.humidity )) (List.reverse list))
       Nothing -> []
     content =
       [ viewGraph "CO2" (toString ieq.state.co2) (LineChart.view co2)
@@ -62,12 +60,3 @@ view model ieq =
       ]
   in
     card ieq.name "" content [ css "height" "750px" ]
-
-viewGraph : String -> String -> Html a -> Html a
-viewGraph header subheader graph =
-  Options.div []
-    [ Options.styled span [ white ] [ text (header ++ " : ") ]
-    , Options.styled span [ Typography.caption, white ] [ text subheader ]
-    , Options.styled br [ ] [ ]
-    , graph
-    ]

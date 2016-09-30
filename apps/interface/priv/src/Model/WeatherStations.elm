@@ -6,10 +6,11 @@ import Json.Decode exposing ((:=))
 -- elm-package install --yes circuithub/elm-json-extra
 import Json.Decode.Extra exposing ((|:))
 import Dict exposing (Dict)
+import Time exposing (Time)
 
 type alias Model =
   { devices: List WeatherStation
-  , history: Dict String (List WeatherStationState)
+  , history: Dict String (List (Time, WeatherStation))
   }
 
 model : Model

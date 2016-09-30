@@ -21,20 +21,23 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def get_id(device) do
-    :"MeteoStick-#{device.id}"
+    :"MeteoStick-#{Atom.to_string(device.id)}"
   end
 
   def map_state(state) do
-    Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
+    Logger.info "#{inspect state}"
+    state = Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
+    Logger.info "#{inspect state}"
+    state
   end
 
   def init({id, device}) do
     {:ok, %DeviceManager.Device{
       module: MeteoStick.WeatherStation,
       type: :weather_station,
-      device_pid: String.to_atom(device.id),
+      device_pid: device.id,
       interface_pid: id,
-      name: "Weather Station: #{device.id}",
+      name: Atom.to_string(device.id),
       state: device |> map_state
     }}
   end

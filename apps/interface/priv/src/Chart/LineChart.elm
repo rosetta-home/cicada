@@ -86,7 +86,7 @@ view model =
         line : String
         line =
             List.map lineGenerator model
-                |> Shape.line Shape.monotoneInXCurve
+                |> Shape.line Shape.linearCurve
     in
         svg [ width (toString w ++ "px"), height (toString h ++ "px") ]
             [ g [ transform ("translate(" ++ toString (padding - 1) ++ ", " ++ toString (h - padding) ++ ")") ]
