@@ -14,6 +14,7 @@ defmodule API.Websocket do
     {user_id, req} = :cowboy_req.qs_val("user_id", req)
     Process.send_after(self, :heartbeat, 1000)
     API.DeviceConsumer.start_link(self)
+    API.DataConsumer.start_link(self)
     {:ok, req, %State{user_id: user_id}}
   end
 
@@ -49,6 +50,10 @@ defmodule API.Websocket do
 
   def websocket_info({:device_event, event}, req, state) do
     {:ok, req, state}
+  end
+
+  def websocket_info({:data_event, %{} = event}, req, state) do
+    {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
   def websocket_info(_info, req, state) do

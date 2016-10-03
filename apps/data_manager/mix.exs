@@ -1,8 +1,8 @@
-defmodule Api.Mixfile do
+defmodule DataManager.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :api,
+    [app: :data_manager,
      version: "0.1.0",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
@@ -19,8 +19,8 @@ defmodule Api.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy],
-      mod: {API, []}
+      applications: [:logger, :elixometer],
+      mod: {DataManager, []}
     ]
   end
 
@@ -39,10 +39,10 @@ defmodule Api.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:device_manager, in_umbrella: true},
-      {:data_manager, in_umbrella: true},
+      {:exometer_core, "~> 1.4", override: true},
+      {:elixometer, "~> 1.2.1"},
       {:gen_stage, "~> 0.4"},
-      {:cowboy, "~> 1.0"}
+      {:device_manager, in_umbrella: true},
     ]
   end
 end
