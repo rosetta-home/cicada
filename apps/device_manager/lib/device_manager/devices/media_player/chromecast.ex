@@ -56,7 +56,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
         end
       i -> i |> Enum.at(0, %{})
     end
-    app = state.receiver_status["status"] |>  Map.get("applications", []) |> Enum.at(0, %{})
+    app = Map.get(state.receiver_status, "status", %{}) |>  Map.get("applications", []) |> Enum.at(0, %{})
 
     %MediaPlayer.State{
       ip: state.ip |> :inet_parse.ntoa |> to_string,

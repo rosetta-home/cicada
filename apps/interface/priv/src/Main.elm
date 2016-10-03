@@ -49,7 +49,7 @@ eventServer =
   "ws://rosetta.local:8081/ws?user_id=3894298374"
 
 historyLength : Int
-historyLength = 30
+historyLength = 120
 
 white : Options.Property c m
 white =

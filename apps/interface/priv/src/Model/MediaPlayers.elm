@@ -37,7 +37,7 @@ type alias MediaPlayerState =
     , image: MediaPlayerStateImage
     , title: String
     , subtitle: Maybe String
-    , volume: Int
+    , volume: Float
     , status: String
     , idle: Bool
     , app_name: String
@@ -73,7 +73,7 @@ decodeMediaPlayerState =
         |: ("image" := decodeMediaPlayerImage)
         |: ("title" := Json.Decode.string)
         |: (Json.Decode.maybe ("subtitle" := Json.Decode.string))
-        |: ("volume" := Json.Decode.int)
+        |: ("volume" := Json.Decode.float)
         |: ("status" := Json.Decode.string)
         |: ("idle" := Json.Decode.bool)
         |: ("app_name" := Json.Decode.string)

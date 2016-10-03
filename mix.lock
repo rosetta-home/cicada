@@ -19,7 +19,7 @@
   "movi": {:hex, :movi, "0.1.1", "6f17b9f86d3d75b5e8ac566c97522fb3c3f9ab71bdfd47b4571538cefbcd0210", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},
   "nerves_uart": {:hex, :nerves_uart, "0.1.1", "32e6186b1a1b1d744631126df0b6c4049ddde5b04bc0303de29ab86a2edf60a2", [:mix, :make], [{:elixir_make, "~> 0.3", [hex: :elixir_make, optional: false]}]},
   "poison": {:hex, :poison, "2.2.0", "4763b69a8a77bd77d26f477d196428b741261a761257ff1cf92753a0d4d24a63", [:mix], []},
-  "radio_thermostat": {:git, "https://github.com/NationalAssociationOfRealtors/radio_thermostat.git", "1f6a6b87597db7a2310c5cb3369b9cb48b7ce61a", []},
+  "radio_thermostat": {:git, "https://github.com/NationalAssociationOfRealtors/radio_thermostat.git", "1358efb71f923327ef3f9ed2aa89dfe4e37202ee", []},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
   "raven_smcd": {:hex, :raven_smcd, "0.1.5", "133051ee183df384708bff0664f8e2a49790bdfc136fd64141ddccebd2926a56", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}, {:sweet_xml, "~> 0.6.1", [hex: :sweet_xml, optional: false]}]},
   "socket": {:hex, :socket, "0.3.5", "6c23772e7eda60f129f36dd69a61930aab18ae9b8d74d7f767c85355cf0b585d", [:mix], []},
