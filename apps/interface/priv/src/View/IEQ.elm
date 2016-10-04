@@ -40,23 +40,25 @@ white =
 view : Model -> IEQ -> Material.Grid.Cell Msg
 view model ieq =
   let
-    co2 = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.co2 )) (List.reverse list))
-      Nothing -> []
-    voc = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.voc )) (List.reverse list))
-      Nothing -> []
-    temp = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.temperature )) (List.reverse list))
-      Nothing -> []
-    humidity = case Dict.get ieq.interface_pid model.ieq.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.humidity )) (List.reverse list))
-      Nothing -> []
+    co2 = LineChart.getHistory ieq.interface_pid model.ieq.history .co2
+    voc = LineChart.getHistory ieq.interface_pid model.ieq.history .voc
+    temp = LineChart.getHistory ieq.interface_pid model.ieq.history .temperature
+    humidity = LineChart.getHistory ieq.interface_pid model.ieq.history .humidity
+    light = LineChart.getHistory ieq.interface_pid model.ieq.history .light
+    co = LineChart.getHistory ieq.interface_pid model.ieq.history .co
+    pressure = LineChart.getHistory ieq.interface_pid model.ieq.history .pressure
+    sound = LineChart.getHistory ieq.interface_pid model.ieq.history .sound
+    rssi = LineChart.getHistory ieq.interface_pid model.ieq.history .rssi
     content =
       [ viewGraph "CO2" (toString ieq.state.co2) (LineChart.view co2)
       , viewGraph "VOC" (toString ieq.state.voc) (LineChart.view voc)
       , viewGraph "Temperature" (toString ieq.state.temperature) (LineChart.view temp)
       , viewGraph "Humidity" (toString ieq.state.humidity) (LineChart.view humidity)
+      , viewGraph "Light" (toString ieq.state.light) (LineChart.view light)
+      , viewGraph "CO" (toString ieq.state.co) (LineChart.view co)
+      , viewGraph "Pressure" (toString ieq.state.pressure) (LineChart.view pressure)
+      , viewGraph "Sound" (toString ieq.state.sound) (LineChart.view sound)
+      , viewGraph "RSSI" (toString ieq.state.rssi) (LineChart.view rssi)
       ]
   in
-    card ieq.name "" content [ css "height" "750px" ]
+    card ieq.name "" content [ css "height" "1650px" ]

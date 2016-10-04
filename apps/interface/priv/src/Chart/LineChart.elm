@@ -1,9 +1,5 @@
 module Chart.LineChart exposing (..)
 
-{-| This module shows how to build a simple line and area chart using some of
-the primitives provided in this library.
--}
-
 import Visualization.Scale as Scale exposing (ContinuousScale, ContinuousTimeScale)
 import Visualization.Axis as Axis
 import Visualization.List as List
@@ -13,22 +9,27 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Date exposing (Date)
 import String
-
+import Dict exposing (Dict)
+import Time exposing (Time)
+import Date exposing (Date)
 
 w : Float
 w =
     375
 
-
 h : Float
 h =
     150
-
 
 padding : Float
 padding =
     35
 
+getHistory : String -> Dict String (List (Date, { b | state : a })) -> (a -> e) -> List (Date, e)
+getHistory interface_pid history get =
+  case Dict.get interface_pid history of
+    Just list -> List.map (\(time, d) -> ( time, (get d.state) )) (List.reverse list)
+    Nothing -> []
 
 view : List ( Date, Float ) -> Svg msg
 view model =

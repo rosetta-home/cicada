@@ -32,16 +32,9 @@ white =
 view : Model -> SmartMeter -> Material.Grid.Cell Msg
 view model smart_meter =
   let
-    now = round (Time.inMilliseconds model.time)
-    delivered = case Dict.get smart_meter.interface_pid model.smart_meters.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.kw_delivered )) (List.reverse list))
-      Nothing -> []
-    received = case Dict.get smart_meter.interface_pid model.smart_meters.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.kw_received )) (List.reverse list))
-      Nothing -> []
-    demand = case Dict.get smart_meter.interface_pid model.smart_meters.history of
-      Just list -> (List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.kw )) (List.reverse list))
-      Nothing -> []
+    delivered = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_delivered
+    received = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_received
+    demand = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw
     content =
       [ viewGraph "Demand" (toString smart_meter.state.kw) (LineChart.view demand)
       , viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (LineChart.view delivered)

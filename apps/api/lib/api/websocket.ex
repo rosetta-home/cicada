@@ -53,7 +53,8 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:data_event, %{} = event}, req, state) do
-    {:reply, {:text, Poison.encode!(event)}, req, state}
+    {:ok, req, state}
+    #{:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
   def websocket_info(_info, req, state) do

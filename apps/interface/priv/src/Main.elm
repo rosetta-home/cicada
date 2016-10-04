@@ -3,6 +3,7 @@ import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time exposing (Time, second)
+import Date exposing (Date)
 import Material
 import Material.Scheme
 import Material.Button as Button
@@ -93,7 +94,7 @@ eventType event_type =
 
 decodeDevice : Decoder a -> String -> Maybe a
 decodeDevice decoder payload =
-  case Debug.log "Parse" (decodeString decoder payload) of
+  case decodeString decoder payload of
     Ok d -> Just d
     Err _ -> Nothing
 
@@ -112,24 +113,24 @@ deviceList list device =
       device :: list
 
 updateHistory : { b | state: a, interface_pid: String }
-  -> Dict String (List (Time, { b | state : a, interface_pid : String }))
+  -> Dict String (List (Date, { b | state : a, interface_pid : String }))
   -> Time
-  -> Dict String (List (Time, { b | state : a, interface_pid : String }))
+  -> Dict String (List (Date, { b | state : a, interface_pid : String }))
 updateHistory device history time =
   case Dict.get device.interface_pid history of
-    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength ((time, device) :: h))) history
-    Nothing -> Dict.insert device.interface_pid [(time, device)] history
+    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength ((Date.fromTime time, device) :: h))) history
+    Nothing -> Dict.insert device.interface_pid [(Date.fromTime time, device)] history
 
 updateModel : { c
     | devices : List { b | interface_pid : String, state : a }
-    , history : Dict String (List (Time, { b | interface_pid : String, state : a }))
+    , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
   -> String
   -> Decoder { b | state : a, interface_pid: String }
   -> Time
   -> { c
     | devices : List { b | state : a, interface_pid : String }
-    , history : Dict String (List (Time, { b | interface_pid : String, state : a }))
+    , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
 updateModel model payload decoder time =
   let
@@ -142,12 +143,12 @@ updateModel model payload decoder time =
   in
     {model | devices = devices, history = history}
 
-updateLastHistory : { a | history : Dict String (List (Time, b)) } -> Time -> { a | history : Dict String (List (Time, b)) }
+updateLastHistory : { a | history : Dict String (List (Date, b)) } -> Time -> { a | history : Dict String (List (Date, b)) }
 updateLastHistory model time =
   let
     history = Dict.map (\k list ->
       case List.head list of
-        Just (t, device) -> List.take historyLength ((time, device) :: list)
+        Just (t, device) -> List.take historyLength ((Date.fromTime time, device) :: list)
         Nothing -> list
     ) model.history
   in
@@ -205,14 +206,24 @@ update msg model =
     Msg.Mdl msg -> Material.update msg model
     Msg.Tick time ->
       let
-        hvac = updateLastHistory model.hvac time
+        --hvac = updateLastHistory model.hvac time
         ieq = updateLastHistory model.ieq time
-        lights = updateLastHistory model.lights time
-        mp = updateLastHistory model.media_players time
+        --lights = updateLastHistory model.lights time
+        --mp = updateLastHistory model.media_players time
         sm = updateLastHistory model.smart_meters time
         ws = updateLastHistory model.weather_stations time
       in
-        ({ model | time = time, hvac = hvac, ieq = ieq, lights = lights, media_players = mp, smart_meters = sm, weather_stations = ws }, Cmd.none)
+        (
+          { model | time = time
+          --, hvac = hvac
+          , ieq = ieq
+          --, lights = lights
+          --, media_players = mp
+          , smart_meters = sm
+          , weather_stations = ws
+          }
+        , Cmd.none
+        )
 
 
 -- SUBSCRIPTIONS

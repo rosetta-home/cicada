@@ -25,9 +25,7 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def map_state(state) do
-    Logger.info "#{inspect state}"
     state = Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
-    Logger.info "#{inspect state}"
     state
   end
 

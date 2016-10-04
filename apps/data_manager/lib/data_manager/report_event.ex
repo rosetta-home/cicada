@@ -3,17 +3,17 @@ defmodule DataManager.Report.Event do
   require Logger
 
   def exometer_init(opts) do
-    Logger.info("Report Options: #{inspect opts}")
+    #Logger.info("Report Options: #{inspect opts}")
     {:ok, {}}
   end
 
   def exometer_subscribe(metric, datapoint, interval, state) do
-    Logger.info("Report Subscribe: #{inspect metric} - #{inspect datapoint} - #{inspect interval} - #{inspect state}")
+    #Logger.info("Report Subscribe: #{inspect metric} - #{inspect datapoint} - #{inspect interval} - #{inspect state}")
     {:ok, state}
   end
 
   def exometer_subscribe(metric, datapoint, interval, extra, state) do
-    Logger.info("Report Subscribe: #{inspect metric} - #{inspect datapoint} - #{inspect interval} - #{inspect extra} - #{inspect state}")
+    #Logger.info("Report Subscribe: #{inspect metric} - #{inspect datapoint} - #{inspect interval} - #{inspect extra} - #{inspect state}")
     {:ok, state}
   end
 
@@ -29,17 +29,17 @@ defmodule DataManager.Report.Event do
   end
 
   def exometer_report(metric, datapoint, state) do
-    Logger.info("Report Report: #{inspect metric} - #{inspect datapoint} - #{inspect state}")
+    #Logger.info("Report Report: #{inspect metric} - #{inspect datapoint} - #{inspect state}")
     {:ok, state}
   end
 
   def exometer_unsubscribe(metric, datapoint, state) do
-    Logger.info("Report Unsubscribe: #{inspect metric} - #{inspect datapoint} - #{inspect state}")
+    #Logger.info("Report Unsubscribe: #{inspect metric} - #{inspect datapoint} - #{inspect state}")
     {:ok, state}
   end
 
   def exometer_report_bulk(found, extra, state) do
-    Logger.info("Report Report Bulk: #{inspect found} - #{inspect extra} - #{inspect state}")
+    #Logger.info("Report Report Bulk: #{inspect found} - #{inspect extra} - #{inspect state}")
     {:ok, state}
   end
 

@@ -28,16 +28,19 @@ type alias Mdl = Material.Model
 view : Model -> WeatherStation -> Material.Grid.Cell Msg
 view model weather_station =
   let
-    now = round (Time.inMilliseconds model.time)
-    indoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.indoor_temperature )) (List.reverse list)
-      Nothing -> []
-    outdoor_temp = case Dict.get weather_station.interface_pid model.weather_stations.history of
-      Just list -> List.indexedMap (\i (time, d) -> ( Date.fromTime time, d.state.outdoor_temperature )) (List.reverse list)
-      Nothing -> []
+    indoor_temp = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .indoor_temperature
+    outdoor_temp = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .outdoor_temperature
+    humidity = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .humidity
+    pressure = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .pressure
+    rain = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .rain
+    uv = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .uv
     content =
       [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (LineChart.view indoor_temp)
       , viewGraph "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (LineChart.view outdoor_temp)
+      , viewGraph "Humidity" (toString weather_station.state.humidity) (LineChart.view humidity)
+      , viewGraph "Pressure" (toString weather_station.state.outdoor_temperature) (LineChart.view pressure)
+      , viewGraph "Rain" (toString weather_station.state.outdoor_temperature) (LineChart.view rain)
+      , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (LineChart.view uv)
       ]
   in
-    card weather_station.name "" content [ css "height" "450px" ]
+    card weather_station.name "" content [ css "height" "1200px" ]

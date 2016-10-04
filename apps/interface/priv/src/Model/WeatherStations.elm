@@ -7,10 +7,11 @@ import Json.Decode exposing ((:=))
 import Json.Decode.Extra exposing ((|:))
 import Dict exposing (Dict)
 import Time exposing (Time)
+import Date exposing (Date)
 
 type alias Model =
   { devices: List WeatherStation
-  , history: Dict String (List (Time, WeatherStation))
+  , history: Dict String (List (Date, WeatherStation))
   }
 
 model : Model
