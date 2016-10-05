@@ -10,7 +10,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List Light
+  { devices: List LightInterface
   , history: Dict String (List (Date, Light))
   }
 
@@ -18,6 +18,16 @@ model : Model
 model =
   { devices = []
   , history = Dict.empty
+  }
+
+interface : Light -> LightInterface
+interface light =
+  (LightInterface False Nothing light)
+
+type alias LightInterface =
+  { on: Bool
+  , selected : Maybe String
+  , device : Light
   }
 
 type alias Light =
@@ -49,15 +59,16 @@ type alias LightState =
   , location : String
   }
 
-decodeLight : Json.Decode.Decoder Light
-decodeLight =
+decodePacket : Json.Decode.Decoder Light
+decodePacket =
   Json.Decode.succeed Light
-    |: ("type" := Json.Decode.string)
-    |: ("state" := decodeLightState)
-    |: ("name" := Json.Decode.string)
-    |: ("module" := Json.Decode.string)
-    |: ("interface_pid" := Json.Decode.string)
-    |: ("device_pid" := Json.Decode.string)
+  |: ("type" := Json.Decode.string)
+  |: ("state" := decodeLightState)
+  |: ("name" := Json.Decode.string)
+  |: ("module" := Json.Decode.string)
+  |: ("interface_pid" := Json.Decode.string)
+  |: ("device_pid" := Json.Decode.string)
+
 
 decodeLightStateHsbk : Json.Decode.Decoder LightStateHsbk
 decodeLightStateHsbk =

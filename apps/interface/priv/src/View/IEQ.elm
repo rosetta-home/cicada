@@ -13,7 +13,7 @@ import Material.Icon as Icon
 import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
-import Model.IEQ exposing (IEQ)
+import Model.IEQ exposing (IEQ, IEQInterface)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import Date exposing (Date)
@@ -22,9 +22,10 @@ import Chart.LineChart as LineChart
 import Dict exposing (Dict)
 import Util.Layout exposing(card, viewGraph, grey)
 
-view : Model -> IEQ -> Material.Grid.Cell Msg
-view model ieq =
+view : Model -> IEQInterface -> Material.Grid.Cell Msg
+view model ieq_interface =
   let
+    ieq = ieq_interface.device
     co2 = LineChart.getHistory ieq.interface_pid model.ieq.history .co2
     voc = LineChart.getHistory ieq.interface_pid model.ieq.history .voc
     temp = LineChart.getHistory ieq.interface_pid model.ieq.history .temperature

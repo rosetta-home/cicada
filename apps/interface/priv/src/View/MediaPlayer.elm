@@ -13,20 +13,16 @@ import Material.Icon as Icon
 import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
-import Model.MediaPlayers exposing (MediaPlayer)
+import Model.MediaPlayers exposing (MediaPlayer, MediaPlayerInterface)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import String
 import Util.Layout exposing(card, grey)
 
-white : Options.Property c m
-white =
-  Color.text Color.white
-
-view : Model -> MediaPlayer -> Material.Grid.Cell Msg
+view : Model -> MediaPlayerInterface -> Material.Grid.Cell Msg
 view model media_player =
   let
-    url = "url('" ++ media_player.state.image.url ++ "') center / cover"
+    url = "url('" ++ media_player.device.state.image.url ++ "') center / cover"
     content =
       [ Options.div
           [ css "background" url
@@ -35,9 +31,9 @@ view model media_player =
           ]
           [ ]
       ]
-    title = if String.isEmpty media_player.state.title then
-      media_player.name
+    title = if String.isEmpty media_player.device.state.title then
+      media_player.device.name
     else
-      media_player.state.title
+      media_player.device.state.title
   in
     card title "" content grey []

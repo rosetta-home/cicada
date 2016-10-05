@@ -14,7 +14,7 @@ import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
 import Material.Elevation as Elevation
-import Model.SmartMeters exposing (SmartMeter)
+import Model.SmartMeters exposing (SmartMeter, SmartMeterInterface)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import Util.Layout exposing(card, viewGraph, grey)
@@ -29,9 +29,10 @@ white : Options.Property c m
 white =
   Color.text Color.white
 
-view : Model -> SmartMeter -> Material.Grid.Cell Msg
-view model smart_meter =
+view : Model -> SmartMeterInterface -> Material.Grid.Cell Msg
+view model smart_meter_i =
   let
+    smart_meter = smart_meter_i.device
     delivered = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_delivered
     received = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_received
     demand = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw

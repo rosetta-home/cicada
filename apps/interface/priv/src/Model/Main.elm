@@ -19,6 +19,7 @@ type alias Model =
   , time: Time
   , mdl : Material.Model
   , selectedTab : Int
+  , selected : Maybe String
   }
 
 model : Model
@@ -30,6 +31,7 @@ model =
   , hvac = HVAC.model
   , smart_meters = SmartMeters.model
   , time = 0
+  , selected = Nothing
   , mdl = Material.model
   , selectedTab = 0
   }

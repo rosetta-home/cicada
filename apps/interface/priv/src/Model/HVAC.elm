@@ -10,7 +10,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List HVAC
+  { devices: List HVACInterface
   , history: Dict String (List (Date, HVAC))
   }
 
@@ -18,6 +18,14 @@ model : Model
 model =
   { devices = []
   , history = Dict.empty
+  }
+
+interface : HVAC -> HVACInterface
+interface hvac =
+  (HVACInterface hvac)
+
+type alias HVACInterface =
+  { device : HVAC
   }
 
 type alias HVAC =
@@ -39,8 +47,8 @@ type alias HVACState =
     , fan_mode : String
     }
 
-decodeHVAC : Json.Decode.Decoder HVAC
-decodeHVAC =
+decodePacket : Json.Decode.Decoder HVAC
+decodePacket =
     Json.Decode.succeed HVAC
         |: ("type" := Json.Decode.string)
         |: ("state" := decodeHVACState)

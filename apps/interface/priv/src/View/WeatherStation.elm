@@ -14,7 +14,7 @@ import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
 import Material.Elevation as Elevation
-import Model.WeatherStations exposing (WeatherStation)
+import Model.WeatherStations exposing (WeatherStation, WeatherStationInterface)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import Util.Layout exposing(card, viewGraph, grey)
@@ -25,9 +25,10 @@ import Dict exposing (Dict)
 
 type alias Mdl = Material.Model
 
-view : Model -> WeatherStation -> Material.Grid.Cell Msg
-view model weather_station =
+view : Model -> WeatherStationInterface -> Material.Grid.Cell Msg
+view model weather_station_i =
   let
+    weather_station = weather_station_i.device
     indoor_temp = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .indoor_temperature
     outdoor_temp = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .outdoor_temperature
     humidity = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .humidity

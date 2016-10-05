@@ -10,7 +10,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List SmartMeter
+  { devices: List SmartMeterInterface
   , history: Dict String (List (Date, SmartMeter))
   }
 
@@ -18,6 +18,14 @@ model : Model
 model =
   { devices = []
   , history = Dict.empty
+  }
+
+interface : SmartMeter -> SmartMeterInterface
+interface sm =
+  (SmartMeterInterface sm)
+
+type alias SmartMeterInterface =
+  { device : SmartMeter
   }
 
 type alias SmartMeter =

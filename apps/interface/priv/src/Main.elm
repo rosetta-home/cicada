@@ -15,6 +15,7 @@ import Material.Progress as Loading
 import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
+import Material.Menu as Menu
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
 import Dict exposing (Dict)
@@ -92,49 +93,52 @@ eventType event_type =
 
 -- UPDATE
 
-decodeDevice : Decoder a -> String -> Maybe a
-decodeDevice decoder payload =
+decodeDevice : Decoder a -> (a -> b) -> String -> Maybe b
+decodeDevice decoder interface payload =
   case Debug.log "Device" (decodeString decoder payload) of
-    Ok d -> Just d
+    Ok d -> Just (interface d)
     Err _ -> Nothing
 
-deviceList : List { a | interface_pid: String }
-  -> { a | interface_pid: String }
-  -> List { a | interface_pid: String}
+deviceList : List { d | device : { a | interface_pid: String }}
+  -> { d | device : { a | interface_pid: String }}
+  -> List { d | device : { a | interface_pid: String }}
 deviceList list device =
-  case List.any (\d -> d.interface_pid == device.interface_pid) list of
+  case List.any (\d -> d.device.interface_pid == device.device.interface_pid) list of
     True ->
       List.map (\d ->
-        case d.interface_pid == device.interface_pid of
+        case d.device.interface_pid == device.device.interface_pid of
           True -> device
           False -> d
       ) list
     False ->
       device :: list
 
-updateHistory : { b | state: a, interface_pid: String }
+updateHistory : { d | device : { b | state: a, interface_pid: String }}
   -> Dict String (List (Date, { b | state : a, interface_pid : String }))
   -> Time
   -> Dict String (List (Date, { b | state : a, interface_pid : String }))
 updateHistory device history time =
-  case Dict.get device.interface_pid history of
-    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength ((Date.fromTime time, device) :: h))) history
-    Nothing -> Dict.insert device.interface_pid [(Date.fromTime time, device)] history
+  case Dict.get device.device.interface_pid history of
+    Just h -> Dict.update device.device.interface_pid (\l -> Just (List.take historyLength ((Date.fromTime time, device.device) :: h))) history
+    Nothing -> Dict.insert device.device.interface_pid [(Date.fromTime time, device.device)] history
 
 updateModel : { c
-    | devices : List { b | interface_pid : String, state : a }
+    | devices : List { d | device : { b | interface_pid : String, state : a }}
     , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
   -> String
-  -> Decoder { b | state : a, interface_pid: String }
+  -> Decoder { b | state : a, interface_pid : String }
+  -> ( { b | interface_pid : String, state : a }
+    -> { d | device : { b | interface_pid : String, state : a } }
+  )
   -> Time
   -> { c
-    | devices : List { b | state : a, interface_pid : String }
+    | devices : List { d | device : { b | state : a, interface_pid : String }}
     , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
-updateModel model payload decoder time =
+updateModel model payload decoder interface time =
   let
-    ( devices, history ) = case decodeDevice decoder payload of
+    ( devices, history ) = case decodeDevice decoder interface payload of
       Just d ->
         ( deviceList model.devices d
         , updateHistory d model.history time
@@ -161,32 +165,32 @@ handleDeviceEvent payload model =
       case evt.event_type of
         Light ->
           let
-            lights = updateModel model.lights payload Lights.decodeLight model.time
+            lights = updateModel model.lights payload Lights.decodePacket Lights.interface model.time
           in
             ({model | lights = lights}, Cmd.none)
         MediaPlayer ->
           let
-            media_players = updateModel model.media_players payload MediaPlayers.decodeMediaPlayer model.time
+            media_players = updateModel model.media_players payload MediaPlayers.decodeMediaPlayer MediaPlayers.interface model.time
           in
             ({model | media_players = media_players}, Cmd.none)
         IEQ ->
           let
-            ieq = updateModel model.ieq payload IEQ.decodeIEQ model.time
+            ieq = updateModel model.ieq payload IEQ.decodeIEQ IEQ.interface model.time
           in
             ({model | ieq = ieq}, Cmd.none)
         WeatherStation ->
           let
-            weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation model.time
+            weather_stations = updateModel model.weather_stations payload WeatherStations.decodeWeatherStation WeatherStations.interface model.time
           in
             ({model | weather_stations = weather_stations}, Cmd.none)
         SmartMeter ->
           let
-            smart_meters = updateModel model.smart_meters payload SmartMeters.decodeSmartMeter model.time
+            smart_meters = updateModel model.smart_meters payload SmartMeters.decodeSmartMeter SmartMeters.interface model.time
           in
             ({model | smart_meters = smart_meters}, Cmd.none)
         HVAC ->
           let
-            hvac = updateModel model.hvac payload HVAC.decodeHVAC model.time
+            hvac = updateModel model.hvac payload HVAC.decodePacket HVAC.interface model.time
           in
             ({model | hvac = hvac}, Cmd.none)
 
@@ -204,6 +208,11 @@ update msg model =
         (model, Cmd.none)
     Msg.SelectTab tab -> { model | selectedTab = tab } ! []
     Msg.Mdl msg -> Material.update msg model
+    Msg.Select item ->
+      ( { model | selected = Just item }
+      , Cmd.none
+      )
+
     Msg.Tick time ->
       let
         --hvac = updateLastHistory model.hvac time
@@ -234,6 +243,7 @@ subscriptions model =
     [ WebSocket.listen eventServer Msg.DeviceEvent
     , Layout.subs Msg.Mdl model.mdl
     , Time.every second Msg.Tick
+    , Menu.subs Msg.Mdl model.mdl
     ]
 
 -- VIEW

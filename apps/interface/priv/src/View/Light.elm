@@ -4,23 +4,45 @@ import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Material
-import Material.Button as Button
-import Material.Options exposing (css)
-import Material.Color as Color
-import Material.Card as Card
-import Material.Icon as Icon
-import Material.Typography as Typography
-import Material.Options as Options exposing (Style)
-import Material.Grid exposing (grid, cell, size, Device(..))
-import Material.Elevation as Elevation
-import Model.Lights exposing (Light)
-import Model.Main exposing (Model)
-import Msg exposing (Msg)
-import Util.Layout exposing(card)
+import Set exposing (Set)
+import String
 
+import Material
+import Material.Grid exposing (grid, cell, size, Device(..))
+import Material.Color as Color
+import Material.Button as Button
+import Material.Icon as Icon
+import Material.Menu as Menu
+import Material.Options as Options exposing (Style, cs, css, div, nop, when)
+
+import Model.Lights exposing (Light, LightInterface)
+import Model.Main exposing (Model)
+
+import Util.Layout exposing(card)
+import Msg exposing (Msg)
 
 type alias Mdl = Material.Model
+
+type alias Align =
+  ( String, Menu.Property Msg )
+
+menu : Model -> LightInterface -> Html Msg.Msg
+menu model light =
+  Menu.render Msg.Mdl [1] model.mdl
+    [ Menu.topLeft, Menu.ripple ]
+    [ Menu.item
+      [ Menu.onSelect (Msg.Select "Some item") ]
+      [ text "Some item" ]
+    , Menu.item
+      [ Menu.onSelect (Msg.Select "Some item"), Menu.divider ]
+      [ text "Another item" ]
+    , Menu.item
+      [ Menu.onSelect (Msg.Select "Some item"), Menu.disabled ]
+      [ text "Disabled item" ]
+    , Menu.item
+      [ Menu.onSelect (Msg.Select "Some item") ]
+      [ text "Yet another item" ]
+    ]
 
 convertToHSL : Int -> Int -> Int -> Options.Property c m
 convertToHSL hue sat bright =
@@ -40,18 +62,19 @@ white : Options.Property c m
 white =
   Color.text Color.white
 
-view : Model -> Light -> Material.Grid.Cell Msg
+view : Model -> LightInterface -> Material.Grid.Cell Msg.Msg
 view model light =
   let
     content =
       [ Button.render Msg.Mdl [1] model.mdl
           [ Button.icon, Button.ripple ]
           [ Icon.i "phone" ]
+        , menu model light
       ]
-    hsbk = light.state.hsbk
-    col = if light.state.power == 0 then
+    hsbk = light.device.state.hsbk
+    col = if light.device.state.power == 0 then
       css "background" "hsla(0, 0%, 0%, 1.0)"
     else
       convertToHSL hsbk.hue hsbk.saturation hsbk.brightness
   in
-    card light.name (toString light.state.tx) content col []
+    card light.device.name (toString light.device.state.tx) content col []

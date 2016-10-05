@@ -9,7 +9,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List MediaPlayer
+  { devices: List MediaPlayerInterface
   , history: Dict String (List (Date, MediaPlayer))
   }
 
@@ -19,31 +19,39 @@ model =
   , history = Dict.empty
   }
 
+interface : MediaPlayer -> MediaPlayerInterface
+interface mp =
+  (MediaPlayerInterface mp)
+
+type alias MediaPlayerInterface =
+  { device : MediaPlayer
+  }
+
 type alias MediaPlayer =
-    { event_type : String
-    , state : MediaPlayerState
-    , name : String
-    , namespace : String
-    , interface_pid : String
-    , device_pid : Maybe String
-    }
+  { event_type : String
+  , state : MediaPlayerState
+  , name : String
+  , namespace : String
+  , interface_pid : String
+  , device_pid : Maybe String
+  }
 
 type alias MediaPlayerState =
-    { ip : String
-    , current_time : Float
-    , content_id: Int
-    , content_type: String
-    , duration: Maybe Float
-    , autoplay: Bool
-    , image: MediaPlayerStateImage
-    , title: String
-    , subtitle: Maybe String
-    , volume: Float
-    , status: String
-    , idle: Bool
-    , app_name: String
-    , id: String
-    }
+  { ip : String
+  , current_time : Float
+  , content_id: Int
+  , content_type: String
+  , duration: Maybe Float
+  , autoplay: Bool
+  , image: MediaPlayerStateImage
+  , title: String
+  , subtitle: Maybe String
+  , volume: Float
+  , status: String
+  , idle: Bool
+  , app_name: String
+  , id: String
+  }
 
 
 type alias MediaPlayerStateImage =
@@ -54,13 +62,13 @@ type alias MediaPlayerStateImage =
 
 decodeMediaPlayer : Json.Decode.Decoder MediaPlayer
 decodeMediaPlayer =
-    Json.Decode.succeed MediaPlayer
-        |: ("type" := Json.Decode.string)
-        |: ("state" := decodeMediaPlayerState)
-        |: ("name" := Json.Decode.string)
-        |: ("module" := Json.Decode.string)
-        |: ("interface_pid" := Json.Decode.string)
-        |: (Json.Decode.maybe ("device_pid" := Json.Decode.string))
+  Json.Decode.succeed MediaPlayer
+    |: ("type" := Json.Decode.string)
+    |: ("state" := decodeMediaPlayerState)
+    |: ("name" := Json.Decode.string)
+    |: ("module" := Json.Decode.string)
+    |: ("interface_pid" := Json.Decode.string)
+    |: (Json.Decode.maybe ("device_pid" := Json.Decode.string))
 
 decodeMediaPlayerState : Json.Decode.Decoder MediaPlayerState
 decodeMediaPlayerState =

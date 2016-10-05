@@ -7,5 +7,4 @@ type Msg
   = DeviceEvent String
   | SelectTab Int
   | Tick Time
-  | Select String
   | Mdl (Material.Msg Msg)

@@ -10,7 +10,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List WeatherStation
+  { devices: List WeatherStationInterface
   , history: Dict String (List (Date, WeatherStation))
   }
 
@@ -18,6 +18,14 @@ model : Model
 model =
   { devices = []
   , history = Dict.empty
+  }
+
+interface : WeatherStation -> WeatherStationInterface
+interface ws =
+  (WeatherStationInterface ws)
+
+type alias WeatherStationInterface =
+  { device : WeatherStation
   }
 
 type alias WeatherStation =

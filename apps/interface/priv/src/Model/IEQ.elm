@@ -10,7 +10,7 @@ import Time exposing (Time)
 import Date exposing (Date)
 
 type alias Model =
-  { devices: List IEQ
+  { devices: List IEQInterface
   , history: Dict String (List (Date, IEQ))
   }
 
@@ -18,6 +18,14 @@ model : Model
 model =
   { devices = []
   , history = Dict.empty
+  }
+
+interface : IEQ -> IEQInterface
+interface ieq =
+  (IEQInterface ieq)
+
+type alias IEQInterface =
+  { device : IEQ
   }
 
 type alias IEQ =
