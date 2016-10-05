@@ -4,6 +4,8 @@ defmodule DeviceManager.Device.Light.Lifx do
 
   @behaviour DeviceManager.Behaviour.Light
 
+  alias Lifx.Protocol.HSBK
+
   def start_link(id, %Lifx.Device.State{} = device) do
     GenServer.start_link(__MODULE__, {id, device}, name: id)
   end
@@ -44,6 +46,10 @@ defmodule DeviceManager.Device.Light.Lifx do
     :"Lifx-#{Atom.to_string(device.id)}"
   end
 
+  def hue(hsbk), do: round((hsbk.hue/65535) * 360)
+  def saturation(hsbk), do: round((hsbk.saturation/65535) * 100)
+  def brightness(hsbk), do: round((hsbk.brightness/65535) * 100)
+
   def map_state(state) do
     %DeviceManager.Device.Light.State{
       host: state.host |> :inet_parse.ntoa |> to_string,
@@ -54,9 +60,9 @@ defmodule DeviceManager.Device.Light.Lifx do
       rx: state.rx,
       tx: state.tx,
       hsbk: %DeviceManager.Device.Light.State.HSBK{
-        hue: state.hsbk.hue,
-        saturation: state.hsbk.saturation,
-        brightness: state.hsbk.brightness,
+        hue: state.hsbk |> hue,
+        saturation: state.hsbk  |> saturation,
+        brightness: state.hsbk  |> brightness,
         kelvin: state.hsbk.kelvin
       },
       group: state.group.label,

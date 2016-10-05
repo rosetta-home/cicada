@@ -39,8 +39,7 @@ defmodule DataManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:exometer_core, "~> 1.4", override: true},
-      {:elixometer, "~> 1.2.1"},
+      {:elixometer, github: "pinterest/elixometer"},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
     ]

@@ -22,6 +22,20 @@ import Util.Layout exposing(card)
 
 type alias Mdl = Material.Model
 
+convertToHSL : Int -> Int -> Int -> Options.Property c m
+convertToHSL hue sat bright =
+  let
+    l = ( 2 - ((toFloat sat) / 100) ) * ( (toFloat bright) / 2 )
+    l_mult = if l < 50 then
+      l * 2
+    else
+      200 - l * 2
+    h = hue
+    s = (toFloat sat) * ( (toFloat bright) / l_mult )
+  in
+    css "background" ("hsla(" ++ (toString h) ++ ", " ++ (toString s) ++ "%, " ++ (toString l) ++ "%, 0.85)")
+
+
 white : Options.Property c m
 white =
   Color.text Color.white
@@ -34,5 +48,10 @@ view model light =
           [ Button.icon, Button.ripple ]
           [ Icon.i "phone" ]
       ]
+    hsbk = light.state.hsbk
+    col = if light.state.power == 0 then
+      css "background" "hsla(0, 0%, 0%, 1.0)"
+    else
+      convertToHSL hsbk.hue hsbk.saturation hsbk.brightness
   in
-    card light.name (toString light.state.tx) content []
+    card light.name (toString light.state.tx) content col []

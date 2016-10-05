@@ -16,14 +16,7 @@ import Material.Options as Options exposing (Style)
 import Model.HVAC exposing (HVAC)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
-import Util.Layout exposing(card)
-
-
-type alias Mdl = Material.Model
-
-white : Options.Property c m
-white =
-  Color.text Color.white
+import Util.Layout exposing(card, grey)
 
 view : Model -> HVAC -> Material.Grid.Cell Msg
 view model hvac =
@@ -34,4 +27,4 @@ view model hvac =
           [ Icon.i "phone" ]
       ]
   in
-    card hvac.name ((toString hvac.state.temperature) ++ " : " ++ (toString hvac.state.state)) content []
+    card hvac.name ((toString hvac.state.temperature) ++ " : " ++ (toString hvac.state.state)) content grey []

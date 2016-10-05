@@ -20,22 +20,7 @@ import Date exposing (Date)
 import Time exposing (Time)
 import Chart.LineChart as LineChart
 import Dict exposing (Dict)
-import Util.Layout exposing(card, viewGraph)
-
-
-type alias Mdl = Material.Model
-
---line_chart_data =
---  [ ( Date.fromTime 1448928000000, 2 )
---  , ( Date.fromTime 1451606400000, 2 )
---  , ( Date.fromTime 1454284800000, 1 )
---  , ( Date.fromTime 1456790400000, 1 )
---  ]
-
-white : Options.Property c m
-white =
-  Color.text Color.white
-
+import Util.Layout exposing(card, viewGraph, grey)
 
 view : Model -> IEQ -> Material.Grid.Cell Msg
 view model ieq =
@@ -61,4 +46,4 @@ view model ieq =
       , viewGraph "RSSI" (toString ieq.state.rssi) (LineChart.view rssi)
       ]
   in
-    card ieq.name "" content [ css "height" "1650px" ]
+    card ieq.name "" content grey [ css "height" "1650px" ]

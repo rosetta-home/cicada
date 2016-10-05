@@ -17,7 +17,7 @@ import Material.Elevation as Elevation
 import Model.SmartMeters exposing (SmartMeter)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
-import Util.Layout exposing(card, viewGraph)
+import Util.Layout exposing(card, viewGraph, grey)
 import Date exposing (Date)
 import Time exposing (Time)
 import Chart.LineChart as LineChart
@@ -41,4 +41,4 @@ view model smart_meter =
       , viewGraph "KW Received" (toString smart_meter.state.kw_received) (LineChart.view received)
       ]
   in
-    card smart_meter.name "" content [ css "height" "550px" ]
+    card smart_meter.name "" content grey [ css "height" "550px" ]

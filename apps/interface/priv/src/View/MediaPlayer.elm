@@ -17,7 +17,7 @@ import Model.MediaPlayers exposing (MediaPlayer)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
 import String
-import Util.Layout exposing(card)
+import Util.Layout exposing(card, grey)
 
 white : Options.Property c m
 white =
@@ -40,4 +40,4 @@ view model media_player =
     else
       media_player.state.title
   in
-    card title "" content []
+    card title "" content grey []

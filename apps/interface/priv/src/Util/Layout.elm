@@ -24,8 +24,12 @@ lime : Options.Property c m
 lime =
   Color.background (Color.color Color.Lime Color.A700)
 
-card : String -> String -> List (Html a) -> List (Style a) -> Material.Grid.Cell a
-card header subhead content styles =
+grey : Options.Property c m
+grey =
+  Color.background (Color.color Color.BlueGrey Color.S400)
+
+card : String -> String -> List (Html a) -> Style a -> List (Style a) -> Material.Grid.Cell a
+card header subhead content background styles =
   let
     c = List.concat
       [ [ Options.styled p [ Typography.title, white ] [ text header ]
@@ -36,7 +40,7 @@ card header subhead content styles =
     styles = List.concat
       [ styles
         , [ Material.Grid.size All 4
-          , Color.background (Color.color Color.BlueGrey Color.S400)
+          , background
           , css "height" "300px"
           , css "padding" "13px"
           , css "border-radius" "2px"

@@ -17,7 +17,7 @@ import Material.Elevation as Elevation
 import Model.WeatherStations exposing (WeatherStation)
 import Model.Main exposing (Model)
 import Msg exposing (Msg)
-import Util.Layout exposing(card, viewGraph)
+import Util.Layout exposing(card, viewGraph, grey)
 import Date exposing (Date)
 import Time exposing (Time)
 import Chart.LineChart as LineChart
@@ -43,4 +43,4 @@ view model weather_station =
       , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (LineChart.view uv)
       ]
   in
-    card weather_station.name "" content [ css "height" "1200px" ]
+    card weather_station.name "" content grey [ css "height" "1200px" ]
