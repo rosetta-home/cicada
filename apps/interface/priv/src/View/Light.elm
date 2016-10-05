@@ -19,29 +19,26 @@ import Model.Lights exposing (Light, LightInterface)
 import Model.Main exposing (Model)
 
 import Util.Layout exposing(card)
-import Msg exposing (Msg)
-
-type alias Mdl = Material.Model
+import Msg exposing(Msg)
 
 type alias Align =
-  ( String, Menu.Property Msg )
+  ( String, Menu.Property Msg.Msg )
 
-menu : Model -> LightInterface -> Html Msg.Msg
+menu : Model -> LightInterface -> Html Msg
 menu model light =
   Menu.render Msg.Mdl [1] model.mdl
-    [ Menu.topLeft, Menu.ripple ]
+    [ Menu.bottomRight
+    , Menu.ripple
+    , css "position" "absolute"
+    , css "right" "16px"
+    , css "top" "16px"
+    ]
     [ Menu.item
-      [ Menu.onSelect (Msg.Select "Some item") ]
-      [ text "Some item" ]
+      [ Menu.onSelect (Msg.ToggleLight light) ]
+      [ text "Toggle" ]
     , Menu.item
-      [ Menu.onSelect (Msg.Select "Some item"), Menu.divider ]
-      [ text "Another item" ]
-    , Menu.item
-      [ Menu.onSelect (Msg.Select "Some item"), Menu.disabled ]
-      [ text "Disabled item" ]
-    , Menu.item
-      [ Menu.onSelect (Msg.Select "Some item") ]
-      [ text "Yet another item" ]
+      [ Menu.onSelect (Msg.ToggleLight light) ]
+      [ text "Color" ]
     ]
 
 convertToHSL : Int -> Int -> Int -> Options.Property c m
@@ -65,12 +62,7 @@ white =
 view : Model -> LightInterface -> Material.Grid.Cell Msg.Msg
 view model light =
   let
-    content =
-      [ Button.render Msg.Mdl [1] model.mdl
-          [ Button.icon, Button.ripple ]
-          [ Icon.i "phone" ]
-        , menu model light
-      ]
+    content = [ menu model light ]
     hsbk = light.device.state.hsbk
     col = if light.device.state.power == 0 then
       css "background" "hsla(0, 0%, 0%, 1.0)"

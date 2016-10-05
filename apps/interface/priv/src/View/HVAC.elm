@@ -15,7 +15,7 @@ import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
 import Model.HVAC exposing (HVAC, HVACInterface)
 import Model.Main exposing (Model)
-import Msg exposing (Msg)
+import Msg exposing(Msg)
 import Util.Layout exposing(card, grey)
 
 view : Model -> HVACInterface -> Material.Grid.Cell Msg

@@ -1,6 +1,5 @@
 module Model.Lights exposing (..)
 
-import Msg exposing (Msg)
 import Json.Encode
 import Json.Decode exposing ((:=))
 -- elm-package install --yes circuithub/elm-json-extra
@@ -22,7 +21,13 @@ model =
 
 interface : Light -> LightInterface
 interface light =
-  (LightInterface False Nothing light)
+  let
+    on = if light.state.power == 0 then
+      False
+    else
+      True
+  in
+    (LightInterface on Nothing light)
 
 type alias LightInterface =
   { on: Bool

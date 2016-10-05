@@ -1,6 +1,5 @@
 module Model.HVAC exposing (..)
 
-import Msg exposing (Msg)
 import Json.Encode
 import Json.Decode exposing ((:=))
 -- elm-package install --yes circuithub/elm-json-extra

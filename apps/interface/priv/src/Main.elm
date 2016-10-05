@@ -28,6 +28,7 @@ import View.MediaPlayer
 -- Lights
 import Model.Lights as Lights
 import View.Light
+import Update.Light
 -- IEQ
 import Model.IEQ as IEQ
 import View.IEQ
@@ -43,7 +44,7 @@ import View.SmartMeter
 
 -- Main
 import Model.Main exposing (Model, model)
-import Msg exposing (Msg)
+import Msg exposing(Msg)
 
 -- MODEL
 eventServer : String
@@ -197,10 +198,14 @@ handleDeviceEvent payload model =
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
 
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    Msg.ToggleLight light ->
+      let
+        (lights, cmd) = Update.Light.update msg model.lights
+      in
+        ({ model | lights = lights}, cmd)
     Msg.DeviceEvent payload ->
       if model.time > 0 then
         handleDeviceEvent payload model
@@ -208,11 +213,6 @@ update msg model =
         (model, Cmd.none)
     Msg.SelectTab tab -> { model | selectedTab = tab } ! []
     Msg.Mdl msg -> Material.update msg model
-    Msg.Select item ->
-      ( { model | selected = Just item }
-      , Cmd.none
-      )
-
     Msg.Tick time ->
       let
         --hvac = updateLastHistory model.hvac time

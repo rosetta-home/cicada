@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Material
 import Material.Button as Button
-import Material.Options exposing (css)
+import Material.Options exposing (css, cs)
 import Material.Color as Color
 import Material.Card as Card
 import Material.Icon as Icon
@@ -32,17 +32,26 @@ card : String -> String -> List (Html a) -> Style a -> List (Style a) -> Materia
 card header subhead content background styles =
   let
     c = List.concat
-      [ [ Options.styled p [ Typography.title, white ] [ text header ]
-        , Options.styled p [ Typography.caption, Typography.contrast 0.87, white ] [ text subhead ]
+      [ [ Options.styled p
+          [ Typography.title
+          , white
+          , css "margin" "13px"
+          ] [ text header ]
+        , Options.styled p
+          [ Typography.caption
+          , Typography.contrast 0.87
+          , white
+          , css "margin" "13px"
+          ] [ text subhead ]
         ]
         , content
       ]
     styles = List.concat
       [ styles
         , [ Material.Grid.size All 4
+          , cs "background"
           , background
           , css "height" "300px"
-          , css "padding" "13px"
           , css "border-radius" "2px"
           , Elevation.e3
           ]
