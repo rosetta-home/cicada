@@ -21,10 +21,11 @@ model =
 
 interface : WeatherStation -> WeatherStationInterface
 interface ws =
-  (WeatherStationInterface ws)
+  (WeatherStationInterface ws 0)
 
 type alias WeatherStationInterface =
   { device : WeatherStation
+  , id : Int
   }
 
 type alias WeatherStation =

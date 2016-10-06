@@ -21,10 +21,11 @@ model =
 
 interface : MediaPlayer -> MediaPlayerInterface
 interface mp =
-  (MediaPlayerInterface mp)
+  (MediaPlayerInterface mp 0)
 
 type alias MediaPlayerInterface =
   { device : MediaPlayer
+  , id : Int
   }
 
 type alias MediaPlayer =

@@ -21,10 +21,11 @@ model =
 
 interface : IEQ -> IEQInterface
 interface ieq =
-  (IEQInterface ieq)
+  (IEQInterface ieq 0)
 
 type alias IEQInterface =
   { device : IEQ
+  , id : Int
   }
 
 type alias IEQ =

@@ -18,6 +18,7 @@ import Material.Options as Options exposing (Style)
 import Material.Menu as Menu
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
+import Util.MouseEvents exposing (relPos)
 import Dict exposing (Dict)
 import WebSocket
 import Debug
@@ -96,20 +97,20 @@ eventType event_type =
 
 decodeDevice : Decoder a -> (a -> b) -> String -> Maybe b
 decodeDevice decoder interface payload =
-  case Debug.log "Device" (decodeString decoder payload) of
+  case (decodeString decoder payload) of
     Ok d -> Just (interface d)
     Err _ -> Nothing
 
-deviceList : List { d | device : { a | interface_pid: String }}
-  -> { d | device : { a | interface_pid: String }}
-  -> List { d | device : { a | interface_pid: String }}
+deviceList : List { d | id : Int, device : { a | interface_pid: String }}
+  -> { d | id : Int, device : { a | interface_pid: String }}
+  -> List { d | id : Int, device : { a | interface_pid: String }}
 deviceList list device =
   case List.any (\d -> d.device.interface_pid == device.device.interface_pid) list of
     True ->
-      List.map (\d ->
+      List.indexedMap (\i d ->
         case d.device.interface_pid == device.device.interface_pid of
-          True -> device
-          False -> d
+          True -> { device | id = i }
+          False -> { d | id = i }
       ) list
     False ->
       device :: list
@@ -124,17 +125,16 @@ updateHistory device history time =
     Nothing -> Dict.insert device.device.interface_pid [(Date.fromTime time, device.device)] history
 
 updateModel : { c
-    | devices : List { d | device : { b | interface_pid : String, state : a }}
+    | devices : List { d | id : Int, device : { b | interface_pid : String, state : a }}
     , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
   -> String
   -> Decoder { b | state : a, interface_pid : String }
   -> ( { b | interface_pid : String, state : a }
-    -> { d | device : { b | interface_pid : String, state : a } }
+    -> { d | id : Int, device : { b | interface_pid : String, state : a } }
   )
   -> Time
-  -> { c
-    | devices : List { d | device : { b | state : a, interface_pid : String }}
+  -> { c | devices : List { d | id : Int, device : { b | state : a, interface_pid : String }}
     , history : Dict String (List (Date, { b | interface_pid : String, state : a }))
   }
 updateModel model payload decoder interface time =
@@ -201,6 +201,16 @@ handleDeviceEvent payload model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
+    Msg.GetColor event ->
+      let
+        ev = Debug.log "OK" (relPos event)
+      in
+        (model, Cmd.none)
+    Msg.GotColor color ->
+      let
+        m = Debug.log "OK" color
+      in
+        (model, Cmd.none)
     Msg.ToggleLight light ->
       let
         (lights, cmd) = Update.Light.update msg model.lights

@@ -21,10 +21,11 @@ model =
 
 interface : HVAC -> HVACInterface
 interface hvac =
-  (HVACInterface hvac)
+  (HVACInterface hvac 0)
 
 type alias HVACInterface =
   { device : HVAC
+  , id : Int
   }
 
 type alias HVAC =

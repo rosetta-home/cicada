@@ -21,10 +21,11 @@ model =
 
 interface : SmartMeter -> SmartMeterInterface
 interface sm =
-  (SmartMeterInterface sm)
+  (SmartMeterInterface sm 0)
 
 type alias SmartMeterInterface =
   { device : SmartMeter
+  , id : Int
   }
 
 type alias SmartMeter =

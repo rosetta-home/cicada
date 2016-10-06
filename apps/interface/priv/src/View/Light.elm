@@ -19,6 +19,7 @@ import Model.Lights exposing (Light, LightInterface)
 import Model.Main exposing (Model)
 
 import Util.Layout exposing(card)
+import Util.ColorPicker as ColorPicker
 import Msg exposing(Msg)
 
 type alias Align =
@@ -26,7 +27,7 @@ type alias Align =
 
 menu : Model -> LightInterface -> Html Msg
 menu model light =
-  Menu.render Msg.Mdl [1] model.mdl
+  Menu.render Msg.Mdl [ light.id ] model.mdl
     [ Menu.bottomRight
     , Menu.ripple
     , css "position" "absolute"
@@ -62,7 +63,7 @@ white =
 view : Model -> LightInterface -> Material.Grid.Cell Msg.Msg
 view model light =
   let
-    content = [ menu model light ]
+    content = [ (menu model light), ColorPicker.view ]
     hsbk = light.device.state.hsbk
     col = if light.device.state.power == 0 then
       css "background" "hsla(0, 0%, 0%, 1.0)"
