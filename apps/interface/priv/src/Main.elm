@@ -266,9 +266,7 @@ script url =
   let
     tag = "script"
     attrs =
-      [ attribute "defer" ""
-      , attribute "src" url
-      ]
+      [ attribute "src" url ]
     children = []
   in
     node tag attrs children
@@ -294,19 +292,8 @@ view model =
     { header = header model
     , drawer = []
     , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.BlueGrey Color.S500) ] )
-    , main = List.concat [ addMeta, [viewBody model] ]
+    , main = [viewBody model]
     }
-
---<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,500|Roboto+Mono|Roboto+Condensed:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
---<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
---<link rel="stylesheet" href="https://code.getmdl.io/1.2.0/material.min.css" />
-addMeta : List (Html a)
-addMeta =
-  [ node "meta" [ name "viewport", content "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" ] []
-  , stylesheet "/static/font-face.css"
-  , stylesheet "/static/mdl/material.min.css"
-  , script "/static/mdl/material.min.js"
-  ]
 
 
 viewBody : Model -> Html Msg
