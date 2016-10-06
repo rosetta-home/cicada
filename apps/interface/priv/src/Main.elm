@@ -275,10 +275,15 @@ header : Model -> List (Html Msg)
 header model =
   [ Layout.row
     [ css "padding" "10px"
-    , Color.background (Color.color Color.BlueGrey Color.S700)
+    , Color.background (Color.primary)
     ]
     [ h5 [] [ text "Rosetta Home 2.0" ]
-    , Options.styled span [ Typography.caption, Typography.contrast 0.87, white ] [ text (toString model.time) ]
+    , Options.styled p
+      [ Typography.caption
+      , Color.text Color.primaryContrast
+      , css "position" "absolute"
+      , css "right" "10px"
+      ] [ text (toString model.time) ]
     ]
   ]
 
@@ -291,7 +296,7 @@ view model =
     ]
     { header = header model
     , drawer = []
-    , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background (Color.color Color.BlueGrey Color.S500) ] )
+    , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background Color.primaryDark ] )
     , main = [viewBody model]
     }
 
