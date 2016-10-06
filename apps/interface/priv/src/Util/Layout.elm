@@ -49,7 +49,7 @@ card header subhead content background styles =
     styles = List.concat
       [ styles
         , [ Material.Grid.size All 4
-          , cs "background"
+          , css "position" "relative"
           , background
           , css "height" "300px"
           , css "border-radius" "2px"
@@ -62,12 +62,14 @@ card header subhead content background styles =
 viewGraph : String -> String -> Html a -> Html a
 viewGraph header subheader graph =
   Options.div []
-    [ Options.styled span [ white ] [ text (header ++ " : ") ]
+    [ Options.styled span
+      [ white
+      , css "margin-left" "13px" ] [ text (header ++ " : ") ]
     , Options.styled span
       [ Typography.caption
       , lime
       , css "padding" "5px"
       ] [ text subheader ]
     , Options.styled br [ ] [ ]
-    , graph
+    , Options.styled div [ css "margin-left" "13px" ] [ graph ]
     ]
