@@ -3,14 +3,16 @@ module Msg exposing(..)
 import Material
 import Model.Lights exposing(LightInterface)
 import Time exposing (Time)
-import Util.ImageData exposing (..)
+import Util.ColorPicker exposing (..)
 import Dict exposing(Dict)
 
 type Msg
   = DeviceEvent String
   | SelectTab Int
   | Tick Time
-  | ToggleLight LightInterface
   | Mdl (Material.Msg Msg)
   | ShowColorPicker String
+  | HideColorPicker String
+  | LightOn String
+  | LightOff String
   | GotColor ColorData

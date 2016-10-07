@@ -49,11 +49,16 @@
                 app.ports.gotColor.send({id: id, h: hsv[0], s: hsv[1], v: hsv[2]});
             }
 
+            app.ports.hideColorPicker.subscribe(function(id){
+                var el = document.getElementById(id);
+                var c = el.getElementsByTagName('canvas')[0];
+                el.removeChild(c);
+            });
+
             app.ports.showColorPicker.subscribe(function(id){
                 var el = document.getElementById(id);
                 var w = el.scrollWidth;
                 var h = 100;
-                console.log(w);
                 var c = document.createElement("canvas");
                 c.width = w;
                 c.height = h;
@@ -76,8 +81,6 @@
                 g_a.addColorStop(1, "hsla("+(i*40)+", 100%, 100%, 1)");
                 ctx.fillStyle = g_a
                 ctx.fillRect(0, 0, w, h);
-                //var imgData = ctx.getImageData(Math.round((event.relPos.x/c.scrollWidth)*300), event.relPos.y, 1, 1);
-                //app.ports.gotColor.send("#FFFFFF");
             });
         </script>
     </body>

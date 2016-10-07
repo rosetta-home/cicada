@@ -30,6 +30,13 @@ defmodule API.Websocket do
         Logger.info "Got LightColor"
         i_pid = String.to_existing_atom(cmd["payload"]["id"])
         DeviceManager.Device.Light.Lifx.color(i_pid, cmd["payload"]["h"], cmd["payload"]["s"], cmd["payload"]["v"])
+      "LightPower" ->
+          Logger.info "Got LightPower"
+          i_pid = String.to_existing_atom(cmd["id"])
+          case cmd["payload"] do
+            true -> DeviceManager.Device.Light.Lifx.on(i_pid)
+            false -> DeviceManager.Device.Light.Lifx.off(i_pid)
+          end
     end
     {:reply, {:text, "ok"}, req, state}
   end

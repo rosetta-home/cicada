@@ -34,8 +34,33 @@ menu model light =
     , css "top" "16px"
     ]
     [ Menu.item
-      [ Menu.onSelect (Msg.ShowColorPicker light.device.interface_pid ) ]
-      [ text "Set Color" ]
+      [ Menu.onSelect
+        ( if light.colorPickerOpen then
+            Msg.HideColorPicker light.device.interface_pid
+          else
+            Msg.ShowColorPicker light.device.interface_pid
+        ) ]
+      [ text
+        (if light.colorPickerOpen then
+          "Close Color Picker"
+        else
+          "Open Color Picker"
+        )
+      ]
+    , Menu.item
+      [ Menu.onSelect
+        ( if light.device.state.power == 0 then
+            Msg.LightOn light.device.interface_pid
+          else
+            Msg.LightOff light.device.interface_pid
+        ) ]
+      [ text
+        (if light.device.state.power == 0 then
+          "On"
+        else
+          "Off"
+        )
+      ]
     ]
 
 convertToHSL : Int -> Int -> Int -> Options.Property c m

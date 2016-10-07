@@ -21,7 +21,7 @@ import Json.Decode.Extra exposing ((|:))
 import Util.MouseEvents exposing (relPos)
 import Dict exposing (Dict)
 import WebSocket
-import Util.ImageData
+import Util.ColorPicker
 import Debug
 
 -- MediaPlayers
@@ -92,34 +92,37 @@ eventType event_type =
 
 -- UPDATE
 
-decodeDevice : Decoder a -> (a -> b) -> String -> Maybe b
-decodeDevice decoder interface payload =
+decodeDevice : Decoder a -> String -> Maybe a
+decodeDevice decoder payload =
   case (decodeString decoder payload) of
-    Ok d -> Just (interface d)
+    Ok d -> Just d
     Err _ -> Nothing
 
 deviceList : List { d | id : Int, device : { a | interface_pid: String }}
-  -> { d | id : Int, device : { a | interface_pid: String }}
+  -> { a | interface_pid: String }
+  -> ( { a | interface_pid : String }
+    -> { d | id : Int, device : { a | interface_pid : String } }
+  )
   -> List { d | id : Int, device : { a | interface_pid: String }}
-deviceList list device =
-  case List.any (\d -> d.device.interface_pid == device.device.interface_pid) list of
+deviceList list device interface =
+  case List.any (\d -> d.device.interface_pid == device.interface_pid) list of
     True ->
       List.indexedMap (\i d ->
-        case d.device.interface_pid == device.device.interface_pid of
-          True -> { device | id = i }
+        case d.device.interface_pid == device.interface_pid of
+          True -> { d | id = i, device = device}
           False -> { d | id = i }
       ) list
     False ->
-      device :: list
+      (interface device) :: list
 
-updateHistory : { d | device : { b | state: a, interface_pid: String }}
+updateHistory : { b | state: a, interface_pid: String }
   -> Dict String (List (Date, { b | state : a, interface_pid : String }))
   -> Time
   -> Dict String (List (Date, { b | state : a, interface_pid : String }))
 updateHistory device history time =
-  case Dict.get device.device.interface_pid history of
-    Just h -> Dict.update device.device.interface_pid (\l -> Just (List.take historyLength ((Date.fromTime time, device.device) :: h))) history
-    Nothing -> Dict.insert device.device.interface_pid [(Date.fromTime time, device.device)] history
+  case Dict.get device.interface_pid history of
+    Just h -> Dict.update device.interface_pid (\l -> Just (List.take historyLength ((Date.fromTime time, device) :: h))) history
+    Nothing -> Dict.insert device.interface_pid [(Date.fromTime time, device)] history
 
 updateModel : { c
     | devices : List { d | id : Int, device : { b | interface_pid : String, state : a }}
@@ -136,9 +139,9 @@ updateModel : { c
   }
 updateModel model payload decoder interface time =
   let
-    ( devices, history ) = case decodeDevice decoder interface payload of
+    ( devices, history ) = case decodeDevice decoder payload of
       Just d ->
-        ( deviceList model.devices d
+        ( deviceList model.devices d interface
         , updateHistory d model.history time
         )
       Nothing -> ( model.devices, model.history )
@@ -198,17 +201,27 @@ handleDeviceEvent payload model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Msg.ShowColorPicker id ->
-      let
-        ev = Debug.log "OK" id
-      in
-        (model, Util.ImageData.showColorPicker id)
-    Msg.GotColor color ->
+    Msg.LightOn id ->
       let
         (lights, cmd) = Update.Light.update msg model.lights
       in
         ({ model | lights = lights}, cmd)
-    Msg.ToggleLight color ->
+    Msg.LightOff id ->
+      let
+        (lights, cmd) = Update.Light.update msg model.lights
+      in
+        ({ model | lights = lights}, cmd)
+    Msg.ShowColorPicker id ->
+      let
+        (lights, cmd) = Update.Light.update msg model.lights
+      in
+        ({ model | lights = lights}, cmd)
+    Msg.HideColorPicker id ->
+      let
+        (lights, cmd) = Update.Light.update msg model.lights
+      in
+        ({ model | lights = lights}, cmd)
+    Msg.GotColor color ->
       let
         (lights, cmd) = Update.Light.update msg model.lights
       in
@@ -251,7 +264,7 @@ subscriptions model =
     , Layout.subs Msg.Mdl model.mdl
     , Time.every second Msg.Tick
     , Menu.subs Msg.Mdl model.mdl
-    , Util.ImageData.gotColor Msg.GotColor
+    , Util.ColorPicker.gotColor Msg.GotColor
     ]
 
 -- VIEW

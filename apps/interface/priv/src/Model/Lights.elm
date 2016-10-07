@@ -27,11 +27,11 @@ interface light =
     else
       True
   in
-    (LightInterface on Nothing light 0)
+    (LightInterface on False light 0)
 
 type alias LightInterface =
   { on: Bool
-  , selected : Maybe String
+  , colorPickerOpen : Bool
   , device : Light
   , id : Int
   }
