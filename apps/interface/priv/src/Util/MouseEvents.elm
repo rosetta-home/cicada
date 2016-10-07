@@ -1,9 +1,12 @@
 module Util.MouseEvents exposing (..)
 
-import Html
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Html.App exposing (map)
 import Json.Decode as Decode exposing ((:=))
 import DOM exposing (Rectangle)
-import Html.Events exposing (..)
+import String
 
 type alias Position =
   { x : Int, y : Int }
@@ -11,25 +14,30 @@ type alias Position =
 type alias MouseEvent =
   { clientPos : Position
   , targetPos : Position
+  , relPos : Position
+  , cls : String
   }
 
 relPos : MouseEvent -> Position
 relPos ev =
   Position (ev.clientPos.x - ev.targetPos.x) (ev.clientPos.y - ev.targetPos.y)
 
-mouseEvent : Int -> Int -> Rectangle -> MouseEvent
-mouseEvent clientX clientY target =
+mouseEvent : Int -> Int -> Rectangle -> String -> MouseEvent
+mouseEvent clientX clientY target cls =
   { clientPos = Position clientX clientY
   , targetPos = Position (truncate target.left) (truncate target.top)
+  , relPos = Position 0 0
+  , cls = cls
   }
 
 mouseEventDecoder : Decode.Decoder MouseEvent
 mouseEventDecoder =
-  Decode.object3
+  Decode.object4
     mouseEvent
     ("clientX" := Decode.int)
     ("clientY" := Decode.int)
     ("target" := DOM.boundingClientRect)
+    (DOM.target DOM.className)
 
 onClick : (MouseEvent -> msg) -> Html.Attribute msg
 onClick target =

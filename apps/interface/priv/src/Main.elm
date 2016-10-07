@@ -21,6 +21,7 @@ import Json.Decode.Extra exposing ((|:))
 import Util.MouseEvents exposing (relPos)
 import Dict exposing (Dict)
 import WebSocket
+import Util.ImageData
 import Debug
 
 -- MediaPlayers
@@ -203,9 +204,9 @@ update msg model =
   case msg of
     Msg.GetColor event ->
       let
-        ev = Debug.log "OK" (relPos event)
+        ev = Debug.log "OK" event
       in
-        (model, Cmd.none)
+        (model, Util.ImageData.getColor { event | relPos = relPos event})
     Msg.GotColor color ->
       let
         m = Debug.log "OK" color
@@ -254,6 +255,7 @@ subscriptions model =
     , Layout.subs Msg.Mdl model.mdl
     , Time.every second Msg.Tick
     , Menu.subs Msg.Mdl model.mdl
+    , Util.ImageData.gotColor Msg.GotColor
     ]
 
 -- VIEW

@@ -7,50 +7,40 @@ import Svg.Attributes exposing (..)
 import Html.Attributes exposing (style)
 import Msg exposing (Msg)
 import Util.MouseEvents as MouseEvents
+import String
 
-view : Html.Html Msg
-view =
+view : { a | id : Int } -> Html.Html Msg
+view device =
   let
-    stops = List.map(\i ->
-      stop [ offset ((toString ((i+1)*10)) ++ "%"), stopColor ("hsla("++(toString (i*40))++", 100%, 50%, 1.0)") ] [ ]
-    ) [0..9]
-    alpha_stops =
-      [ stop [ offset "0%", stopColor "white", stopOpacity "0" ] [ ]
-      , stop [ offset "100%", stopColor "white", stopOpacity "1" ] [ ]
-      ]
+    stops = String.join
+        ", "
+        (List.map(\i ->
+          "hsla("++(toString (i*40))++", 100%, 50%, 1.0)" ++ " " ++ (toString ((i+1)*10)) ++ "%"
+        ) [0..9])
+
+    alpha_stops = "rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%"
   in
-    Html.div
+    Html.canvas
       [ Html.Attributes.style
         [ ("position", "absolute")
         , ("bottom", "0")
         , ("left", "0")
         , ("width", "100%")
         , ("height", "100px")
-        , ("z-index", "100")
+        , ("background-image", ("linear-gradient(90deg, "++ stops ++")"))
         ]
+        , MouseEvents.onClick Msg.GetColor
+        , Html.Attributes.class ("color-picker" ++ (toString device.id))
+        , Html.Attributes.id ("color-picker" ++ (toString device.id) ++ "svg")
       ]
-      [ svg [ width "100%", height "100px" ]
-        [ defs [ ]
-          [ linearGradient [ id "colorspectrum", x1 "0%", y1 "0%", x2 "100%", y2 "0%" ] stops
-          , linearGradient [ id "alphaspectrum", x1 "0%", y1 "25%", x2 "0%", y2 "95%" ] alpha_stops
+      [ Html.canvas
+        [ Html.Attributes.style
+          [ ("position", "absolute")
+          , ("bottom", "0")
+          , ("left", "0")
+          , ("width", "100%")
+          , ("height", "100px")
+          , ("background-image", ("linear-gradient(180deg, "++ alpha_stops ++")"))
           ]
-        , rect
-          [ fill "url(#colorspectrum)", x "0", y "0", width "100%", height "100px"]
-          [  ]
-        , rect
-          [ fill "url(#alphaspectrum)", x "0", y "0", width "100%", height "100px" ]
-          [  ]
-        ]
-        , Html.div
-          [ Html.Attributes.style
-            [ ("position", "absolute")
-            , ("bottom", "0")
-            , ("left", "0")
-            , ("width", "100%")
-            , ("height", "100%")
-            , ("z-index", "100")
-            ]
-          , MouseEvents.onClick Msg.GetColor
-          ] [ ]
-
+        ] [ ]
       ]

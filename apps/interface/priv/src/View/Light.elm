@@ -63,7 +63,7 @@ white =
 view : Model -> LightInterface -> Material.Grid.Cell Msg.Msg
 view model light =
   let
-    content = [ (menu model light), ColorPicker.view ]
+    content = [ (menu model light), ColorPicker.view light ]
     hsbk = light.device.state.hsbk
     col = if light.device.state.power == 0 then
       css "background" "hsla(0, 0%, 0%, 1.0)"
