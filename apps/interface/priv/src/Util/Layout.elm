@@ -35,13 +35,17 @@ card id header subhead content background styles =
       [ [ Options.styled p
           [ Typography.title
           , white
-          , css "margin" "13px"
+          , grey
+          , css "margin" "13px 65px 0 13px"
+          , css "padding" "3px"
           ] [ text header ]
         , Options.styled p
           [ Typography.caption
-          , Typography.contrast 0.87
+          , Typography.contrast 1
           , white
-          , css "margin" "13px"
+          , grey
+          , css "margin" "13px 65px 0 13px"
+          , css "padding" "3px"
           ] [ text subhead ]
         ]
         , content

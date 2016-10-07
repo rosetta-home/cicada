@@ -32,6 +32,7 @@ menu model light =
     , css "position" "absolute"
     , css "right" "16px"
     , css "top" "16px"
+    , Color.text Color.accent
     ]
     [ Menu.item
       [ Menu.onSelect
@@ -87,7 +88,7 @@ view model light =
     content = [ (menu model light) ]
     hsbk = light.device.state.hsbk
     col = if light.device.state.power == 0 then
-      css "background" "hsla(0, 0%, 0%, 1.0)"
+      Color.background Color.primary
     else
       convertToHSL hsbk.hue hsbk.saturation hsbk.brightness
   in
