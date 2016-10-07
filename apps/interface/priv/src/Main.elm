@@ -46,12 +46,8 @@ import View.SmartMeter
 
 -- Main
 import Model.Main exposing (Model, model)
+import Config exposing(eventServer)
 import Msg exposing(Msg)
-
--- MODEL
-eventServer : String
-eventServer =
-  "ws://rosetta.local:8081/ws?user_id=3894298374"
 
 historyLength : Int
 historyLength = 120
@@ -202,17 +198,17 @@ handleDeviceEvent payload model =
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Msg.GetColor event ->
+    Msg.ShowColorPicker id ->
       let
-        ev = Debug.log "OK" event
+        ev = Debug.log "OK" id
       in
-        (model, Util.ImageData.getColor { event | relPos = relPos event})
+        (model, Util.ImageData.showColorPicker id)
     Msg.GotColor color ->
       let
-        m = Debug.log "OK" color
+        (lights, cmd) = Update.Light.update msg model.lights
       in
-        (model, Cmd.none)
-    Msg.ToggleLight light ->
+        ({ model | lights = lights}, cmd)
+    Msg.ToggleLight color ->
       let
         (lights, cmd) = Update.Light.update msg model.lights
       in

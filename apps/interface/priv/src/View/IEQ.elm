@@ -47,4 +47,4 @@ view model ieq_interface =
       , viewGraph "RSSI" (toString ieq.state.rssi) (LineChart.view rssi)
       ]
   in
-    card ieq.name "" content grey [ css "height" "1650px" ]
+    card ieq.interface_pid ieq.name "" content grey [ css "height" "1650px" ]

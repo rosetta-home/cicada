@@ -36,4 +36,4 @@ view model media_player =
     else
       media_player.device.state.title
   in
-    card title "" content grey []
+    card media_player.device.interface_pid title "" content grey []

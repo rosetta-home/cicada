@@ -27,4 +27,4 @@ view model hvac =
           [ Icon.i "phone" ]
       ]
   in
-    card hvac.device.name ((toString hvac.device.state.temperature) ++ " : " ++ (toString hvac.device.state.state)) content grey []
+    card hvac.device.interface_pid hvac.device.name ((toString hvac.device.state.temperature) ++ " : " ++ (toString hvac.device.state.state)) content grey []

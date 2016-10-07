@@ -44,4 +44,4 @@ view model weather_station_i =
       , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (LineChart.view uv)
       ]
   in
-    card weather_station.name "" content grey [ css "height" "1200px" ]
+    card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1200px" ]

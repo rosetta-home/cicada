@@ -18,6 +18,10 @@ defmodule DeviceManager.Device.Light.Lifx do
     GenServer.call(pid, :off)
   end
 
+  def color(pid, hue, saturation, brightness) do
+    GenServer.call(pid, {:color, hue, saturation, brightness})
+  end
+
   def hue(pid, hue) do
     GenServer.call(pid, {:hue, hue})
   end
@@ -116,6 +120,14 @@ defmodule DeviceManager.Device.Light.Lifx do
 
   def handle_call(:off, _from, device) do
     Lifx.Device.off(device.device_pid)
+    {:reply, true, device}
+  end
+
+  def handle_call({:color, hue, sat, bri}, _from, device) do
+    Lifx.Device.set_color(
+      device.device_pid,
+      %Lifx.Protocol.HSBK{hue: hue, saturation: sat, brightness: bri, kelvin: device.state.hsbk.kelvin}
+    )
     {:reply, true, device}
   end
 

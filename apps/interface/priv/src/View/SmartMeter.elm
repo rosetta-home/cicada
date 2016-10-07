@@ -42,4 +42,4 @@ view model smart_meter_i =
       , viewGraph "KW Received" (toString smart_meter.state.kw_received) (LineChart.view received)
       ]
   in
-    card smart_meter.name "" content grey [ css "height" "550px" ]
+    card smart_meter.interface_pid smart_meter.name "" content grey [ css "height" "550px" ]

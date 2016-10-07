@@ -24,7 +24,14 @@ defmodule API.Websocket do
   end
 
   def websocket_handle({:text, data}, req, state) do
-    {:reply, {:text, data}, req, state}
+    cmd = Poison.decode!(data)
+    case cmd["type"] do
+      "LightColor" ->
+        Logger.info "Got LightColor"
+        i_pid = String.to_existing_atom(cmd["payload"]["id"])
+        DeviceManager.Device.Light.Lifx.color(i_pid, cmd["payload"]["h"], cmd["payload"]["s"], cmd["payload"]["v"])
+    end
+    {:reply, {:text, "ok"}, req, state}
   end
 
   def websocket_handle(_data, req, state) do

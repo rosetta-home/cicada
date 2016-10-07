@@ -6,7 +6,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Material
 import Material.Button as Button
-import Material.Options exposing (css, cs)
+import Material.Options exposing (css, id)
 import Material.Color as Color
 import Material.Card as Card
 import Material.Icon as Icon
@@ -28,8 +28,8 @@ grey : Options.Property c m
 grey =
   Color.background (Color.color Color.BlueGrey Color.S400)
 
-card : String -> String -> List (Html a) -> Style a -> List (Style a) -> Material.Grid.Cell a
-card header subhead content background styles =
+card : String -> String -> String -> List (Html a) -> Style a -> List (Style a) -> Material.Grid.Cell a
+card id header subhead content background styles =
   let
     c = List.concat
       [ [ Options.styled p
@@ -54,6 +54,7 @@ card header subhead content background styles =
           , css "height" "300px"
           , css "border-radius" "2px"
           , Elevation.e3
+          , Material.Options.id id
           ]
       ]
   in

@@ -19,7 +19,6 @@ import Model.Lights exposing (Light, LightInterface)
 import Model.Main exposing (Model)
 
 import Util.Layout exposing(card)
-import Util.ColorPicker as ColorPicker
 import Msg exposing(Msg)
 
 type alias Align =
@@ -35,11 +34,8 @@ menu model light =
     , css "top" "16px"
     ]
     [ Menu.item
-      [ Menu.onSelect (Msg.ToggleLight light) ]
-      [ text "Toggle" ]
-    , Menu.item
-      [ Menu.onSelect (Msg.ToggleLight light) ]
-      [ text "Color" ]
+      [ Menu.onSelect (Msg.ShowColorPicker light.device.interface_pid ) ]
+      [ text "Set Color" ]
     ]
 
 convertToHSL : Int -> Int -> Int -> Options.Property c m
@@ -63,11 +59,11 @@ white =
 view : Model -> LightInterface -> Material.Grid.Cell Msg.Msg
 view model light =
   let
-    content = [ (menu model light), ColorPicker.view light ]
+    content = [ (menu model light) ]
     hsbk = light.device.state.hsbk
     col = if light.device.state.power == 0 then
       css "background" "hsla(0, 0%, 0%, 1.0)"
     else
       convertToHSL hsbk.hue hsbk.saturation hsbk.brightness
   in
-    card light.device.name (toString light.device.state.tx) content col []
+    card light.device.interface_pid light.device.name (toString light.device.state.tx) content col []

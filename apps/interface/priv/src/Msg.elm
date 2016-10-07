@@ -3,7 +3,8 @@ module Msg exposing(..)
 import Material
 import Model.Lights exposing(LightInterface)
 import Time exposing (Time)
-import Util.MouseEvents exposing (..)
+import Util.ImageData exposing (..)
+import Dict exposing(Dict)
 
 type Msg
   = DeviceEvent String
@@ -11,5 +12,5 @@ type Msg
   | Tick Time
   | ToggleLight LightInterface
   | Mdl (Material.Msg Msg)
-  | GetColor MouseEvent
-  | GotColor String
+  | ShowColorPicker String
+  | GotColor ColorData
