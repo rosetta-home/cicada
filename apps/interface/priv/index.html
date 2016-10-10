@@ -50,9 +50,11 @@
             }
 
             app.ports.hideColorPicker.subscribe(function(id){
-                var el = document.getElementById(id);
-                var c = el.getElementsByTagName('canvas')[0];
-                el.removeChild(c);
+                try{
+                    var el = document.getElementById(id);
+                    var c = el.getElementsByTagName('canvas')[0];
+                    el.removeChild(c);
+                }catch(e){}
             });
 
             app.ports.showColorPicker.subscribe(function(id){

@@ -1,6 +1,7 @@
 module View.IEQ exposing(..)
 
 import Html exposing (..)
+import Html.Lazy exposing(lazy)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -34,17 +35,19 @@ view model ieq_interface =
     co = LineChart.getHistory ieq.interface_pid model.ieq.history .co
     pressure = LineChart.getHistory ieq.interface_pid model.ieq.history .pressure
     sound = LineChart.getHistory ieq.interface_pid model.ieq.history .sound
+    energy = LineChart.getHistory ieq.interface_pid model.ieq.history .energy
     rssi = LineChart.getHistory ieq.interface_pid model.ieq.history .rssi
     content =
-      [ viewGraph "CO2" (toString ieq.state.co2) (LineChart.view co2)
-      , viewGraph "VOC" (toString ieq.state.voc) (LineChart.view voc)
-      , viewGraph "Temperature" (toString ieq.state.temperature) (LineChart.view temp)
-      , viewGraph "Humidity" (toString ieq.state.humidity) (LineChart.view humidity)
-      , viewGraph "Light" (toString ieq.state.light) (LineChart.view light)
-      , viewGraph "CO" (toString ieq.state.co) (LineChart.view co)
-      , viewGraph "Pressure" (toString ieq.state.pressure) (LineChart.view pressure)
-      , viewGraph "Sound" (toString ieq.state.sound) (LineChart.view sound)
-      , viewGraph "RSSI" (toString ieq.state.rssi) (LineChart.view rssi)
+      [ viewGraph "CO2" (toString ieq.state.co2) (lazy LineChart.view co2)
+      , viewGraph "Energy" (toString ieq.state.energy) (lazy LineChart.view energy)
+      , viewGraph "VOC" (toString ieq.state.voc) (lazy LineChart.view voc)
+      , viewGraph "Temperature" (toString ieq.state.temperature) (lazy LineChart.view temp)
+      , viewGraph "Humidity" (toString ieq.state.humidity) (lazy LineChart.view humidity)
+      , viewGraph "Light" (toString ieq.state.light) (lazy LineChart.view light)
+      , viewGraph "CO" (toString ieq.state.co) (lazy LineChart.view co)
+      , viewGraph "Pressure" (toString ieq.state.pressure) (lazy LineChart.view pressure)
+      , viewGraph "Sound" (toString ieq.state.sound) (lazy LineChart.view sound)
+      , viewGraph "RSSI" (toString ieq.state.rssi) (lazy LineChart.view rssi)
       ]
   in
-    card ieq.interface_pid ieq.name "" content grey [ css "height" "1650px" ]
+    card ieq.interface_pid ieq.name "" content grey [ css "height" "1750px" ]

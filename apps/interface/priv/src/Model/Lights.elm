@@ -29,6 +29,12 @@ interface light =
   in
     (LightInterface on False light 0)
 
+reset : Model -> Model
+reset model =
+  {model | devices = (List.map (\i ->
+    { i | colorPickerOpen = False }
+  ) model.devices)}
+
 type alias LightInterface =
   { on: Bool
   , colorPickerOpen : Bool

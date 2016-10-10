@@ -1,6 +1,7 @@
 module View.SmartMeter exposing(..)
 
 import Html exposing (..)
+import Html.Lazy exposing(lazy)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -37,9 +38,9 @@ view model smart_meter_i =
     received = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_received
     demand = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw
     content =
-      [ viewGraph "Demand" (toString smart_meter.state.kw) (LineChart.view demand)
-      , viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (LineChart.view delivered)
-      , viewGraph "KW Received" (toString smart_meter.state.kw_received) (LineChart.view received)
+      [ viewGraph "Demand" (toString smart_meter.state.kw) (lazy LineChart.view demand)
+      , viewGraph "KW Delivered" (toString smart_meter.state.kw_delivered) (lazy LineChart.view delivered)
+      , viewGraph "KW Received" (toString smart_meter.state.kw_received) (lazy LineChart.view received)
       ]
   in
-    card smart_meter.interface_pid smart_meter.name "" content grey [ css "height" "550px" ]
+    card smart_meter.interface_pid smart_meter.name "" content grey [ css "height" "600px" ]

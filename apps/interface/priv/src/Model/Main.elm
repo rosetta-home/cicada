@@ -21,6 +21,7 @@ type alias Model =
   , time: Time
   , mdl : Material.Model
   , selectedTab : Int
+  , lastTab: Int
   }
 
 model : Model
@@ -34,4 +35,5 @@ model =
   , time = 0
   , mdl = Material.model
   , selectedTab = 0
+  , lastTab = 0
   }

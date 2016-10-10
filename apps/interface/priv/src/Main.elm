@@ -231,7 +231,8 @@ update msg model =
         handleDeviceEvent payload model
       else
         (model, Cmd.none)
-    Msg.SelectTab tab -> { model | selectedTab = tab } ! []
+    Msg.SelectTab tab ->
+      { model | selectedTab = tab, lastTab = model.selectedTab } ! []
     Msg.Mdl msg -> Material.update msg model
     Msg.Tick time ->
       let
@@ -269,29 +270,6 @@ subscriptions model =
 
 -- VIEW
 
-stylesheet : String -> Html a
-stylesheet url =
-  let
-    tag = "link"
-    attrs =
-      [ attribute "rel" "stylesheet"
-      , attribute "property" "stylesheet"
-      , attribute "href" url
-      ]
-    children = []
-  in
-    node tag attrs children
-
-script : String -> Html a
-script url =
-  let
-    tag = "script"
-    attrs =
-      [ attribute "src" url ]
-    children = []
-  in
-    node tag attrs children
-
 header : Model -> List (Html Msg)
 header model =
   [ Layout.row
@@ -325,7 +303,14 @@ view model =
 viewBody : Model -> Html Msg
 viewBody model =
   case model.selectedTab of
-    0 -> displayTab model model.lights View.Light.view
+    0 ->
+      let
+        model = if model.selectedTab /= model.lastTab then
+          { model | lights = (Lights.reset model.lights)}
+        else
+          model
+      in
+        displayTab model model.lights View.Light.view
     1 -> displayTab model model.media_players View.MediaPlayer.view
     2 -> displayTab model model.ieq View.IEQ.view
     3 -> displayTab model model.weather_stations View.WeatherStation.view

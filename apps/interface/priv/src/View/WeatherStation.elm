@@ -1,6 +1,7 @@
 module View.WeatherStation exposing(..)
 
 import Html exposing (..)
+import Html.Lazy exposing(lazy)
 import Html.App as App
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -36,12 +37,12 @@ view model weather_station_i =
     rain = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .rain
     uv = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .uv
     content =
-      [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (LineChart.view indoor_temp)
-      , viewGraph "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (LineChart.view outdoor_temp)
-      , viewGraph "Humidity" (toString weather_station.state.humidity) (LineChart.view humidity)
-      , viewGraph "Pressure" (toString weather_station.state.outdoor_temperature) (LineChart.view pressure)
-      , viewGraph "Rain" (toString weather_station.state.outdoor_temperature) (LineChart.view rain)
-      , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (LineChart.view uv)
+      [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (lazy LineChart.view indoor_temp)
+      , viewGraph "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view outdoor_temp)
+      , viewGraph "Humidity" (toString weather_station.state.humidity) (lazy LineChart.view humidity)
+      , viewGraph "Pressure" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view pressure)
+      , viewGraph "Rain" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view rain)
+      , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view uv)
       ]
   in
     card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1200px" ]
