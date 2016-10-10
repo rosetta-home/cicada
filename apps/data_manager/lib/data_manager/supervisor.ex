@@ -10,6 +10,7 @@ defmodule DataManager.Supervisor do
     children = [
       worker(DataManager.DeviceConsumer, []),
       worker(DataManager.Broadcaster, []),
+      worker(DataManager.MetricHistory, [])
     ]
     supervise(children, strategy: :one_for_one)
   end

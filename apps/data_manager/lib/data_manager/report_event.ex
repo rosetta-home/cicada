@@ -18,7 +18,7 @@ defmodule DataManager.Report.Event do
   end
 
   def exometer_report(metric, datapoint, extra, value, state) do
-    Logger.info("Report Report: #{inspect metric} - #{inspect datapoint} - #{inspect extra} - #{inspect value}")
+    Logger.debug("Report Report: #{inspect metric} - #{inspect datapoint} - #{inspect extra} - #{inspect value}")
     %{
       metric: metric,
       datapoint: datapoint,

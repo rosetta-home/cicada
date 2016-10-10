@@ -7,8 +7,8 @@ defmodule DataManager.Metric do
   end
 
   def update_value(namespace, value) when namespace |> is_binary do
-    update_histogram(namespace, value, (60*60*6))
-    update_gauge(namespace, value)
+    update_histogram(namespace, value, (10*60))
+    #update_gauge(namespace, value)
   end
 
 end

@@ -3,15 +3,11 @@
 use Mix.Config
 
 config :exometer_core, report: [reporters: [{DataManager.Report.Event, []}]]
-config :elixometer, reporter: :exometer_report_tty,
-  env: Mix.env,
-  metric_prefix: "rosetta",
-  update_frequency: (10*60000)
 
 config :elixometer, reporter: DataManager.Report.Event,
   env: Mix.env,
   metric_prefix: "rosetta",
-  update_frequency: (10000)
+  update_frequency: (10*60000)
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
