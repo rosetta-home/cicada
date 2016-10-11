@@ -34,6 +34,17 @@ defmodule DataManager.DeviceConsumer do
     end)
   end
 
+  def handle_metric(%DeviceManager.Device{type: :smart_meter} = device) do
+    id = device.interface_pid |> Atom.to_string
+    device.state |> Map.to_list |> Enum.each(fn({k, v} = metric) ->
+      case k do
+        :id -> nil
+        :__struct__ -> nil
+        other -> DataManager.Metric.update_value("#{id}::#{Atom.to_string(k)}", v)
+      end
+    end)
+  end
+
   def handle_metric(%DeviceManager.Device{} = device) do
     #Nothing
   end

@@ -39,7 +39,7 @@ defmodule DataManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:elixometer, github: "pinterest/elixometer"},
+      {:elixometer, github: "NationalAssociationOfRealtors/elixometer"},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
     ]

@@ -5,6 +5,8 @@ import Model.Lights exposing(LightInterface)
 import Time exposing (Time)
 import Util.ColorPicker exposing (..)
 import Dict exposing(Dict)
+import Http
+import Model.DeviceMetrics exposing(..)
 
 type Msg
   = DeviceEvent String
@@ -16,3 +18,5 @@ type Msg
   | LightOn String
   | LightOff String
   | GotColor ColorData
+  | DeviceMetricsSucceed DeviceMetrics
+  | DeviceMetricsFail Http.Error

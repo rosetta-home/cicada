@@ -6,7 +6,7 @@
   "dns": {:hex, :dns, "0.0.4", "2e347a0a03e8345bc70c6d69ed08788103a3bec81b93e4636b1b432110835436", [:mix], [{:socket, "~> 0.3.5", [hex: :socket, optional: false]}]},
   "edown": {:hex, :edown, "0.7.0", "6803599606b10f8e328d6d60c44cd16244cd2429908894c415fce4211c3bfefd", [:rebar, :rebar, :make], []},
   "elixir_make": {:hex, :elixir_make, "0.3.0", "285147fa943806eee82f6680b7b446b5569bcf3ee8328fa0a7c200ffc44fbaba", [:mix], []},
-  "elixometer": {:git, "https://github.com/pinterest/elixometer.git", "520e2a2501742bafd9ed0d07d7904224900f3e6a", []},
+  "elixometer": {:git, "https://github.com/NationalAssociationOfRealtors/elixometer.git", "2959c0b426f45b578c66e0a7f83eccdf0f9023c6", []},
   "exometer_core": {:hex, :exometer_core, "1.4.0", "a546ccd38be910de6ea75ea95b724b6b2db513c26f02e30919b25eb19651815a", [:rebar3], [{:edown, "0.7.0", [hex: :edown, optional: false]}, {:folsom, "0.8.3", [hex: :folsom, optional: false]}, {:lager, "3.0.2", [hex: :lager, optional: false]}, {:parse_trans, "2.9.0", [hex: :parse_trans, optional: false]}, {:setup, "1.7.0", [hex: :setup, optional: false]}]},
   "exprotobuf": {:hex, :exprotobuf, "1.1.0", "0d91a0b527abac118e03361d12eac7262299cdda3a0316fc60763557c227c890", [:mix], [{:gpb, "~> 3.24", [hex: :gpb, optional: false]}]},
   "folsom": {:hex, :folsom, "0.8.3", "71cff146152fa95e6092e62119f9dc96888660111e7b61853c8fdcf80598a4e0", [:rebar3], [{:bear, "0.8.3", [hex: :bear, optional: false]}]},

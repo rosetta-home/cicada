@@ -5,7 +5,8 @@ defmodule API.TCPServer do
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/ws", API.Websocket, []}
+          {"/ws", API.Websocket, []},
+          {"/metric_history", API.MetricHistory, []},
         ]}
     ])
     {:ok, _} = :cowboy.start_http(:api_http,

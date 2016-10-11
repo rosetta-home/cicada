@@ -6,9 +6,11 @@ defmodule DataManager.Metric do
     namespace |> Atom.to_string |> update_value(value)
   end
 
-  def update_value(namespace, value) when namespace |> is_binary do
-    update_histogram(namespace, value, (10*60))
-    #update_gauge(namespace, value)
+  def update_value(namespace, value) when namespace |> is_binary and value |> is_number do
+    update_histogram(namespace, value, (15*60), false)
+    update_gauge(namespace, value)
   end
+
+  def update_value(namespace, value), do: nil
 
 end

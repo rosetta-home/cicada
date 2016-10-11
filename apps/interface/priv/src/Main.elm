@@ -1,3 +1,4 @@
+import Http
 import Html exposing (..)
 import Html.App as App
 import Html.Attributes exposing (..)
@@ -23,6 +24,7 @@ import Dict exposing (Dict)
 import WebSocket
 import Util.ColorPicker
 import Debug
+import Task as Task
 
 -- MediaPlayers
 import Model.MediaPlayers as MediaPlayers
@@ -43,7 +45,8 @@ import View.WeatherStation
 -- SmartMeters
 import Model.SmartMeters as SmartMeters
 import View.SmartMeter
-
+-- DeviceMetrics
+import Model.DeviceMetrics exposing(..)
 -- Main
 import Model.Main exposing (Model, model)
 import Config exposing(eventServer)
@@ -198,6 +201,14 @@ handleDeviceEvent payload model =
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
 
+getDeviceMetrics : String -> Cmd Msg
+getDeviceMetrics id =
+  let
+    url =
+      "http://rosetta.local:8081/metric_history?device_id=" ++ id
+  in
+    Task.perform Msg.DeviceMetricsFail Msg.DeviceMetricsSucceed (Http.get decodeDeviceMetrics url)
+
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -231,8 +242,18 @@ update msg model =
         handleDeviceEvent payload model
       else
         (model, Cmd.none)
+    Msg.DeviceMetricsSucceed metrics ->
+      let
+        m = Debug.log "Metrics" metrics
+      in
+        (model, Cmd.none)
+    Msg.DeviceMetricsFail message ->
+      let
+        m = Debug.log "Metrics" message
+      in
+        (model, Cmd.none)
     Msg.SelectTab tab ->
-      { model | selectedTab = tab, lastTab = model.selectedTab } ! []
+      { model | selectedTab = tab, lights = (Lights.reset model.lights) } ! [getDeviceMetrics "RavenSMCD-0x00135005000254e7"]
     Msg.Mdl msg -> Material.update msg model
     Msg.Tick time ->
       let
@@ -303,14 +324,7 @@ view model =
 viewBody : Model -> Html Msg
 viewBody model =
   case model.selectedTab of
-    0 ->
-      let
-        model = if model.selectedTab /= model.lastTab then
-          { model | lights = (Lights.reset model.lights)}
-        else
-          model
-      in
-        displayTab model model.lights View.Light.view
+    0 -> displayTab model model.lights View.Light.view
     1 -> displayTab model model.media_players View.MediaPlayer.view
     2 -> displayTab model model.ieq View.IEQ.view
     3 -> displayTab model model.weather_stations View.WeatherStation.view

@@ -21,9 +21,26 @@ defmodule DataManager.MetricHistory do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  def get_metrics(id) do
+    GenServer.call(__MODULE__, {:get_metrics, id})
+  end
+
   def init(:ok) do
     DataManager.DataConsumer.start_link(self)
     {:ok, %State{}}
+  end
+
+  def handle_call({:get_metrics, id}, _from, state) do
+    {:reply, Enum.find(state.devices, %Device{id: id}, fn(d) -> d.id == id end), state}
+  end
+
+  def handle_info({:data_event, event}, state) do
+    [id, metric] = event |> get_id
+    {:noreply, case event.datapoint do
+      :n -> state
+      :ms_since_reset -> state
+      _ -> handle_datapoint(id, metric, event, state)
+    end}
   end
 
   def get_id(event) do
@@ -40,17 +57,21 @@ defmodule DataManager.MetricHistory do
     end)
   end
 
-  def get_history(device, event, metric) do
+  def get_history(device, %{datapoint: dp} = event, metric) when dp |> is_integer do
+    event = %{ event | datapoint: dp |> to_string }
+    get_history(device, event, metric)
+  end
+
+  def get_history(device, %{datapoint: dp} = event, metric) when dp |> is_bitstring or dp |> is_atom do
     Enum.find(device.history, %History{metric: metric, datapoint: event.datapoint}, fn(h) ->
       h.metric == metric and h.datapoint == event.datapoint
     end)
   end
 
-  def handle_info({:data_event, event}, state) do
-    [id, metric] = event |> get_id
+  def handle_datapoint(id, metric, event, state) do
     device = id |> get_device(state.devices)
     history = device |> get_history(event, metric)
-    history = %History{ history | values: [event.value | history.values] }
+    history = %History{ history | values: [event.value*1 | history.values] }
     d_history = case Enum.any?(device.history, fn(h) ->  h.metric == metric and h.datapoint == event.datapoint end) do
       false -> [history | device.history]
       true -> Enum.map(device.history, fn(h) ->
@@ -70,7 +91,7 @@ defmodule DataManager.MetricHistory do
         end
       end)
     end
-    {:noreply, %State{ state | devices: devices }}
+    %State{ state | devices: devices }
   end
 
 end
