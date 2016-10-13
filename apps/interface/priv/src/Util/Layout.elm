@@ -2,6 +2,7 @@ module Util.Layout exposing(..)
 
 import Html exposing (..)
 import Html.App as App
+import Html.Lazy exposing(lazy)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Material
@@ -15,6 +16,10 @@ import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
 import Material.Elevation as Elevation
 import Msg exposing (Msg)
+import Model.Main exposing (Model)
+import String
+import Regex
+import Util.Histogram exposing(..)
 
 white : Options.Property c m
 white =
@@ -64,17 +69,35 @@ card id header subhead content background styles =
   in
     cell styles c
 
-viewGraph : String -> String -> Html a -> Html a
-viewGraph header subheader graph =
-  Options.div []
-    [ Options.styled span
-      [ white
-      , css "margin-left" "13px" ] [ text (header ++ " : ") ]
-    , Options.styled span
-      [ Typography.caption
-      , lime
-      , css "padding" "5px"
-      ] [ text subheader ]
-    , Options.styled br [ ] [ ]
-    , Options.styled div [ css "margin-left" "13px" ] [ graph ]
-    ]
+removeSpaces = Regex.replace Regex.All (Regex.regex " ") (\_ -> "_")
+
+viewGraph : Model -> String -> String -> String -> Html Msg -> Html Msg
+viewGraph model id header subheader graph =
+  let
+    typ = String.toLower (removeSpaces header)
+    h_id = id ++ typ
+    view = if not (List.member h_id model.histograms) then
+      [ graph ]
+    else
+      [ Options.styled div [ ] [ ] ]
+  in
+    Options.div [ ]
+      [ Button.render Msg.Mdl [0] model.mdl
+        [ white
+        , css "margin-left" "13px"
+        , if List.member h_id model.histograms then
+            Button.onClick (Msg.HideHistogram (HistogramData id typ))
+          else
+            Button.onClick (Msg.ShowHistogram (HistogramData id typ))
+        ] [ text (header ++ " : ") ]
+      , Options.styled span
+        [ Typography.caption
+        , lime
+        , css "padding" "5px"
+        ] [ text subheader ]
+      , Options.styled br [ ] [ ]
+      , Options.styled div
+        [ css "margin-left" "13px"
+        , Options.id (id ++ "-graph-" ++ typ)
+        ] view
+      ]

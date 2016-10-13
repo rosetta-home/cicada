@@ -21,8 +21,8 @@ defmodule DataManager.MetricHistory do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def get_metrics(id) do
-    GenServer.call(__MODULE__, {:get_metrics, id})
+  def get_metrics(id, sensor_type) do
+    GenServer.call(__MODULE__, {:get_metrics, id, sensor_type})
   end
 
   def init(:ok) do
@@ -30,15 +30,20 @@ defmodule DataManager.MetricHistory do
     {:ok, %State{}}
   end
 
-  def handle_call({:get_metrics, id}, _from, state) do
-    {:reply, Enum.find(state.devices, %Device{id: id}, fn(d) -> d.id == id end), state}
+  def handle_call({:get_metrics, id, sensor_type}, _from, state) do
+    d = Enum.find(state.devices, %Device{id: id}, fn(d) -> d.id == id end)
+    h = Enum.filter(d.history, fn(h) ->
+        h.metric == sensor_type
+    end)
+    {:reply, %Device{d | history: h}, state}
   end
 
   def handle_info({:data_event, event}, state) do
     [id, metric] = event |> get_id
+    event = %{event | datapoint: event.datapoint |> to_string }
     {:noreply, case event.datapoint do
-      :n -> state
-      :ms_since_reset -> state
+      "n" -> state
+      "ms_since_reset" -> state
       _ -> handle_datapoint(id, metric, event, state)
     end}
   end
@@ -57,14 +62,9 @@ defmodule DataManager.MetricHistory do
     end)
   end
 
-  def get_history(device, %{datapoint: dp} = event, metric) when dp |> is_integer do
-    event = %{ event | datapoint: dp |> to_string }
-    get_history(device, event, metric)
-  end
-
-  def get_history(device, %{datapoint: dp} = event, metric) when dp |> is_bitstring or dp |> is_atom do
+  def get_history(device, event, metric) do
     Enum.find(device.history, %History{metric: metric, datapoint: event.datapoint}, fn(h) ->
-      h.metric == metric and h.datapoint == event.datapoint
+      (h.metric == metric && h.datapoint == event.datapoint)
     end)
   end
 

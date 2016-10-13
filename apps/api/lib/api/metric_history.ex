@@ -2,17 +2,19 @@ defmodule API.MetricHistory do
     require Logger
 
     defmodule State do
-      defstruct device_id: nil
+      defstruct device_id: nil,
+        sensor_type: nil
     end
 
     def init({:tcp, :http}, req, opts) do
         {device_id, req} = :cowboy_req.qs_val("device_id", req)
-        {:ok, req, %State{:device_id => device_id}}
+        {sensor_type, req} = :cowboy_req.qs_val("sensor_type", req)
+        {:ok, req, %State{:device_id => device_id, :sensor_type => sensor_type }}
     end
 
     def handle(req, state) do
-        Logger.info "Getting Metrics for #{state.device_id}"
-        device = DataManager.MetricHistory.get_metrics(state.device_id)
+        Logger.info "Getting Metrics for #{state.device_id} of type #{state.sensor_type}"
+        device = DataManager.MetricHistory.get_metrics(state.device_id, state.sensor_type)
         headers = [
             {"cache-control", "no-cache"},
             {"connection", "close"},

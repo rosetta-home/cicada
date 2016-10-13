@@ -22,6 +22,7 @@ type alias Model =
   , mdl : Material.Model
   , selectedTab : Int
   , lastTab: Int
+  , histograms: List String
   }
 
 model : Model
@@ -36,4 +37,5 @@ model =
   , mdl = Material.model
   , selectedTab = 0
   , lastTab = 0
+  , histograms = []
   }

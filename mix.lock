@@ -20,7 +20,7 @@
   "lager": {:hex, :lager, "3.2.1", "eef4e18b39e4195d37606d9088ea05bf1b745986cf8ec84f01d332456fe88d17", [:rebar3], [{:goldrush, "0.1.8", [hex: :goldrush, optional: false]}]},
   "lifx": {:hex, :lifx, "0.1.5", "2bc36e44af4dc3c9b1112bfe99f01aefddf531950fd08de00c6f6222fe158b22", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: false]}, {:poison, "~> 2.1", [hex: :poison, optional: false]}]},
   "mdns": {:hex, :mdns, "0.1.3", "2ce276fdb93e51c63bf9c1ba28892a6f3a08535f6a6dac5ac6c275c363507d67", [:mix], [{:dns, "~> 0.0.4", [hex: :dns, optional: false]}]},
-  "meteo_stick": {:hex, :meteo_stick, "0.1.4", "9149cdc4a6c8189405078213b66bb19cd9b8f4242c573bcc700ccc2f7ec2fc59", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},
+  "meteo_stick": {:hex, :meteo_stick, "0.1.5", "fb699b9b3d98346f6e192812020c46da0f078c5dbb14a729cb3f528165d979c6", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},
   "movi": {:hex, :movi, "0.1.1", "6f17b9f86d3d75b5e8ac566c97522fb3c3f9ab71bdfd47b4571538cefbcd0210", [:mix], [{:nerves_uart, "~> 0.1.1", [hex: :nerves_uart, optional: false]}]},

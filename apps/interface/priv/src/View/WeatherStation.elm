@@ -37,12 +37,12 @@ view model weather_station_i =
     rain = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .rain
     uv = LineChart.getHistory weather_station.interface_pid model.weather_stations.history .uv
     content =
-      [ viewGraph "Indoor Temperature" (toString weather_station.state.indoor_temperature) (lazy LineChart.view indoor_temp)
-      , viewGraph "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view outdoor_temp)
-      , viewGraph "Humidity" (toString weather_station.state.humidity) (lazy LineChart.view humidity)
-      , viewGraph "Pressure" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view pressure)
-      , viewGraph "Rain" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view rain)
-      , viewGraph "UV" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view uv)
+      [ viewGraph model weather_station.interface_pid "Indoor Temperature" (toString weather_station.state.indoor_temperature) (lazy LineChart.view indoor_temp)
+      , viewGraph model weather_station.interface_pid "Outdoor Temperature" (toString weather_station.state.outdoor_temperature) (lazy LineChart.view outdoor_temp)
+      , viewGraph model weather_station.interface_pid "Humidity" (toString weather_station.state.humidity) (lazy LineChart.view humidity)
+      , viewGraph model weather_station.interface_pid "Pressure" (toString weather_station.state.pressure) (lazy LineChart.view pressure)
+      , viewGraph model weather_station.interface_pid "Rain" ((toString (weather_station.state.rain*0.01))++"\"") (lazy LineChart.view rain)
+      , viewGraph model weather_station.interface_pid "UV" (toString weather_station.state.uv) (lazy LineChart.view uv)
       ]
   in
-    card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1200px" ]
+    card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1400px" ]

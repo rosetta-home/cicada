@@ -4,6 +4,7 @@ import Material
 import Model.Lights exposing(LightInterface)
 import Time exposing (Time)
 import Util.ColorPicker exposing (..)
+import Util.Histogram exposing (..)
 import Dict exposing(Dict)
 import Http
 import Model.DeviceMetrics exposing(..)
@@ -18,5 +19,5 @@ type Msg
   | LightOn String
   | LightOff String
   | GotColor ColorData
-  | DeviceMetricsSucceed DeviceMetrics
-  | DeviceMetricsFail Http.Error
+  | ShowHistogram HistogramData
+  | HideHistogram HistogramData

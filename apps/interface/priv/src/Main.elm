@@ -23,6 +23,7 @@ import Util.MouseEvents exposing (relPos)
 import Dict exposing (Dict)
 import WebSocket
 import Util.ColorPicker
+import Util.Histogram
 import Debug
 import Task as Task
 
@@ -201,14 +202,6 @@ handleDeviceEvent payload model =
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
 
-getDeviceMetrics : String -> Cmd Msg
-getDeviceMetrics id =
-  let
-    url =
-      "http://rosetta.local:8081/metric_history?device_id=" ++ id
-  in
-    Task.perform Msg.DeviceMetricsFail Msg.DeviceMetricsSucceed (Http.get decodeDeviceMetrics url)
-
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
@@ -237,23 +230,24 @@ update msg model =
         (lights, cmd) = Update.Light.update msg model.lights
       in
         ({ model | lights = lights}, cmd)
+    Msg.ShowHistogram data ->
+      let
+        model = { model | histograms = (data.id++data.metric_type) :: model.histograms }
+      in
+        (model, Util.Histogram.showHistogram data)
+    Msg.HideHistogram data ->
+      let
+        h = Debug.log "Histograms" model.histograms
+        model = { model | histograms = List.filter (\h -> h /= (data.id++data.metric_type)) model.histograms }
+      in
+        (model, Util.Histogram.hideHistogram data)
     Msg.DeviceEvent payload ->
       if model.time > 0 then
         handleDeviceEvent payload model
       else
         (model, Cmd.none)
-    Msg.DeviceMetricsSucceed metrics ->
-      let
-        m = Debug.log "Metrics" metrics
-      in
-        (model, Cmd.none)
-    Msg.DeviceMetricsFail message ->
-      let
-        m = Debug.log "Metrics" message
-      in
-        (model, Cmd.none)
     Msg.SelectTab tab ->
-      { model | selectedTab = tab, lights = (Lights.reset model.lights) } ! [getDeviceMetrics "RavenSMCD-0x00135005000254e7"]
+      { model | selectedTab = tab, lights = (Lights.reset model.lights), histograms = []} ! []
     Msg.Mdl msg -> Material.update msg model
     Msg.Tick time ->
       let

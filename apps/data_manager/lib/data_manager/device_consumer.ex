@@ -8,11 +8,7 @@ defmodule DataManager.DeviceConsumer do
     GenStage.start_link(__MODULE__, :ok)
   end
 
-  # Callbacks
-
   def init(:ok) do
-    # Starts a permanent subscription to the broadcaster
-    # which will automatically start requesting items.
     {:consumer, [], subscribe_to: [DeviceManager.Broadcaster]}
   end
 
@@ -23,29 +19,21 @@ defmodule DataManager.DeviceConsumer do
     {:noreply, [], state}
   end
 
-  def handle_metric(%DeviceManager.Device{type: :ieq} = device) do
+  def handle_metric(%DeviceManager.Device{type: type} = device) when type in [:ieq, :weather_station, :smart_meter] do
+    device |> send_metric
+  end
+
+  def handle_metric(%DeviceManager.Device{} = device), do: nil
+
+  def send_metric(device) do
     id = device.interface_pid |> Atom.to_string
     device.state |> Map.to_list |> Enum.each(fn({k, v} = metric) ->
       case k do
         :id -> nil
         :__struct__ -> nil
-        other -> DataManager.Metric.update_value("#{id}::#{Atom.to_string(k)}", v)
+        other when v |> is_number -> DataManager.Metric.update_value("#{id}::#{Atom.to_string(k)}", v)
+        _ -> nil
       end
     end)
-  end
-
-  def handle_metric(%DeviceManager.Device{type: :smart_meter} = device) do
-    id = device.interface_pid |> Atom.to_string
-    device.state |> Map.to_list |> Enum.each(fn({k, v} = metric) ->
-      case k do
-        :id -> nil
-        :__struct__ -> nil
-        other -> DataManager.Metric.update_value("#{id}::#{Atom.to_string(k)}", v)
-      end
-    end)
-  end
-
-  def handle_metric(%DeviceManager.Device{} = device) do
-    #Nothing
   end
 end
