@@ -15,7 +15,7 @@ function showHistogram(obj){
     var dom_id = id+"-graph-"+type;
     var dom = document.getElementById(dom_id);
     dom.innerHTML = "<p>Loading Histogram...</p>";
-    d3.json("http://rosetta.local:8081/metric_history?device_id="+id+"&sensor_type="+type, function(data) {
+    d3.json("http://"+hostname+":8081/metric_history?device_id="+id+"&sensor_type="+type, function(data) {
         console.log(data);
         var now = new Date().getTime();
         for(var series in data.history){

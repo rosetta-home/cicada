@@ -16,11 +16,13 @@
         <script src="/static/mdl/material.min.js"></script>
         <script src="/static/js/colorpicker.js"></script>
         <script src="/static/js/histogram.js"></script>
+        <script src="/static/js/hostname.js"></script>
         <script src="app.js"></script>
         <script type="text/javascript">
             var app;
+            var hostname = "<%= hostname %>";
             function init(){
-                app = Elm.Main.fullscreen();
+                app = Elm.Main.fullscreen({hostname: hostname});
                 app.ports.hideColorPicker.subscribe(hideColorPicker);
                 app.ports.showColorPicker.subscribe(showColorPicker);
                 app.ports.showHistogram.subscribe(showHistogram);

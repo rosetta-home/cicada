@@ -23,6 +23,7 @@ type alias Model =
   , selectedTab : Int
   , lastTab: Int
   , histograms: List String
+  , hostname: String
   }
 
 model : Model
@@ -38,4 +39,5 @@ model =
   , selectedTab = 0
   , lastTab = 0
   , histograms = []
+  , hostname = ""
   }

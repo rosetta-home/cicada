@@ -5,7 +5,7 @@ defmodule Interface.TCPServer do
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", :cowboy_static, {:priv_file, :interface, "index.html"}},
+          {"/", Interface.Index, []},
           {"/app.js", :cowboy_static, {:priv_file, :interface, "app.js"}},
           {"/static/[...]", :cowboy_static, {:priv_dir,  :interface, "static"}},
 

@@ -19,7 +19,6 @@ import Material.Options as Options exposing (Style)
 import Material.Menu as Menu
 import Json.Decode exposing (..)
 import Json.Decode.Extra exposing ((|:))
-import Util.MouseEvents exposing (relPos)
 import Dict exposing (Dict)
 import WebSocket
 import Util.ColorPicker
@@ -276,7 +275,7 @@ update msg model =
 subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
-    [ WebSocket.listen eventServer Msg.DeviceEvent
+    [ WebSocket.listen ("ws://"++model.hostname++":8081/ws") Msg.DeviceEvent
     , Layout.subs Msg.Mdl model.mdl
     , Time.every second Msg.Tick
     , Menu.subs Msg.Mdl model.mdl
@@ -335,9 +334,18 @@ displayTab model typ view =
   else
     grid [] (List.map (view model) typ.devices)
 
+type alias Flags = { hostname: String }
+
+init : Maybe Flags -> ( Model, Cmd Msg )
+init flags =
+    case flags of
+      Just f -> { model | hostname = f.hostname, mdl =  Layout.setTabsWidth 600 model.mdl} ! [Layout.sub0 Msg.Mdl]
+      Nothing -> { model | hostname = "rosetta.local", mdl =  Layout.setTabsWidth 600 model.mdl} ! [Layout.sub0 Msg.Mdl]
+
+
 main =
-  App.program
-    { init = {model | mdl = Layout.setTabsWidth 600 model.mdl} ! [Layout.sub0 Msg.Mdl]
+  App.programWithFlags
+    { init = init
     , view = view
     , update = update
     , subscriptions = subscriptions
