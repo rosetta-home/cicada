@@ -39,6 +39,7 @@ import View.IEQ
 -- HVAC
 import Model.HVAC as HVAC
 import View.HVAC
+import Update.HVAC
 -- WeatherStations
 import Model.WeatherStations as WeatherStations
 import View.WeatherStation
@@ -245,6 +246,12 @@ update msg model =
         handleDeviceEvent payload model
       else
         (model, Cmd.none)
+
+    Msg.HVACTemperatureChange interface_pid temp ->
+      let
+        (hvac, cmd) = Update.HVAC.update msg model.hvac
+      in
+        ({model | hvac = hvac}, cmd)
     Msg.SelectTab tab ->
       { model | selectedTab = tab, lights = (Lights.reset model.lights), histograms = []} ! []
     Msg.Mdl msg -> Material.update msg model

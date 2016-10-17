@@ -21,3 +21,4 @@ type Msg
   | GotColor ColorData
   | ShowHistogram HistogramData
   | HideHistogram HistogramData
+  | HVACTemperatureChange String Float

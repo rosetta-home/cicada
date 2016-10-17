@@ -21,10 +21,17 @@ model =
 
 interface : HVAC -> HVACInterface
 interface hvac =
-  (HVACInterface hvac 0)
+  let
+    adjusting_to =
+      case hvac.state.temporary_target_cool > 0 of
+        False -> hvac.state.temporary_target_heat
+        True -> hvac.state.temporary_target_cool
+  in
+    (HVACInterface hvac adjusting_to 0)
 
 type alias HVACInterface =
   { device : HVAC
+  , adjusting_to : Float
   , id : Int
   }
 

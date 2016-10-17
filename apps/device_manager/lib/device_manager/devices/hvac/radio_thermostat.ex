@@ -115,33 +115,50 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     {:reply, device, device}
   end
 
-  def handle_call(:on, _from, state) do
+  def handle_call(:on, _from, device) do
     {:reply,
-      case RadioThermostat.set(state.device_pid, :fan, 1) do
-        {:ok, %{"success": 0}} -> true
+      case RadioThermostat.set(device.device_pid, :fan, 1) do
+        {:ok, %{"success": 0}} ->
+          Process.send_after(self, :update_state, 0)
+          true
         other ->
           IO.inspect other
           false
-      end, state}
+      end, device}
   end
 
-  def handle_call(:off, _from, state) do
+  def handle_call(:off, _from, device) do
     {:reply,
-      case RadioThermostat.set(state.device_pid, :fan, 0) do
-        {:ok, %{"success": 0}} -> true
+      case RadioThermostat.set(device.device_pid, :fan, 0) do
+        {:ok, %{"success": 0}} ->
+          Process.send_after(self, :update_state, 0)
+          true
         other ->
           IO.inspect other
           false
-      end, state}
+      end, device}
   end
 
-  def handle_call({:set_temp, temp}, _from, state) do
+  def handle_call({:set_temp, temp}, _from, device) do
+    res = case device.state.mode do
+      :cool ->
+        case temp > device.state.temporary_target_cool do
+          true -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
+          false -> RadioThermostat.set(device.device_pid, :temporary_cool, temp)
+        end
+      :heat ->
+        case temp < device.state.temporary_target_heat do
+          true -> RadioThermostat.set(device.device_pid, :temporary_cool, temp)
+          false -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
+        end
+    end
     {:reply,
-      case RadioThermostat.set(state.device_pid, :temporary_cool, temp) do
-        {:ok, %{"success": 0}} -> true
-        _other ->
-          false
-      end, state}
+      case res do
+        {:ok, %{"success": 0}} ->
+          Process.send_after(self, :update_state, 0)
+          true
+        _other -> false
+      end, device}
   end
 
 end

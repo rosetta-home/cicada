@@ -10,6 +10,7 @@ import Material.Options exposing (css)
 import Material.Color as Color
 import Material.Card as Card
 import Material.Icon as Icon
+import Material.Slider as Slider
 import Material.Typography as Typography
 import Material.Grid exposing (grid, cell, size, Device(..))
 import Material.Options as Options exposing (Style)
@@ -28,15 +29,19 @@ view model hvac =
         ]
         [ Options.styled div [ ] [ text ("Running: " ++ hvac.device.state.state) ]
         , Options.styled div [ ] [ text ("Current Temperature: " ++ (toString hvac.device.state.temperature)) ]
-        , Options.styled div [ ] [ text ("Mode: " ++ hvac.device.state.mode) ]
-        , Options.styled div [ ]
-          [ case hvac.device.state.mode of
-              "cool" -> text ("Cooling to: " ++ (toString hvac.device.state.temporary_target_cool))
-              "heat" -> text ("Heating to: " ++ (toString hvac.device.state.temporary_target_heat))
-              _ -> text ""
+        --, Options.styled div [ ] [ text ("Mode: " ++ hvac.device.state.mode) ]
+        , Options.styled div [ ] [ text ("Adjusting to: " ++ (toString hvac.adjusting_to)) ]
+        --, Options.styled div [ ] [ text ("Fan: " ++ hvac.device.state.fan_state) ]
+        --, Options.styled div [ ] [ text ("Fan Mode: " ++ hvac.device.state.fan_mode) ]
+        , Options.styled br [ ] [ ]
+        , Options.styled br [ ] [ ]
+        , Slider.view
+          [ Slider.onChange (Msg.HVACTemperatureChange hvac.device.interface_pid)
+          , Slider.value hvac.adjusting_to
+          , Slider.max 95
+          , Slider.min 40
+          , Slider.step 1
           ]
-        , Options.styled div [ ] [ text ("Fan: " ++ hvac.device.state.fan_state) ]
-        , Options.styled div [ ] [ text ("Fan Mode: " ++ hvac.device.state.fan_mode) ]
         ]
       ]
   in

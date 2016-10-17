@@ -16,7 +16,6 @@
         <script src="/static/mdl/material.min.js"></script>
         <script src="/static/js/colorpicker.js"></script>
         <script src="/static/js/histogram.js"></script>
-        <script src="/static/js/hostname.js"></script>
         <script src="app.js"></script>
         <script type="text/javascript">
             var app;

@@ -12,7 +12,7 @@ defmodule DeviceManager.DiscoverySupervisor do
       worker(Discovery.HVAC, []),
       worker(Discovery.Light, []),
       worker(Discovery.MediaPlayer, []),
-      worker(Discovery.WeatherStation, []),
+      #worker(Discovery.WeatherStation, []),
       worker(Discovery.SmartMeter, []),
       worker(Discovery.IEQ, [])
     ]
