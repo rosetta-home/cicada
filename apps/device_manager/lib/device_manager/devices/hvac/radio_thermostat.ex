@@ -96,7 +96,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     device = %DeviceManager.Device{device | state:
       RadioThermostat.state(device.device_pid) |> map_state
     }
-    Process.send_after(self, :update_state, 5*60000)
+    Process.send_after(self, :update_state, 60000)
     DeviceManager.Broadcaster.sync_notify(device)
     {:noreply, device}
   end
@@ -142,23 +142,18 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def handle_call({:set_temp, temp}, _from, device) do
     res = case device.state.mode do
       :cool ->
-        case temp > device.state.temporary_target_cool do
+        case temp > device.state.temperature do
           true -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
           false -> RadioThermostat.set(device.device_pid, :temporary_cool, temp)
         end
       :heat ->
-        case temp < device.state.temporary_target_heat do
+        case temp < device.state.temperature do
           true -> RadioThermostat.set(device.device_pid, :temporary_cool, temp)
           false -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
         end
     end
-    {:reply,
-      case res do
-        {:ok, %{"success": 0}} ->
-          Process.send_after(self, :update_state, 0)
-          true
-        _other -> false
-      end, device}
+    Process.send_after(self, :update_state, 1000)
+    {:reply, :ok, device}
   end
 
 end

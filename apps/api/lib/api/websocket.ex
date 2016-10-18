@@ -14,9 +14,8 @@ defmodule API.Websocket do
 
   def websocket_init(_TransportName, req, _opts) do
     {user_id, req} = :cowboy_req.qs_val("user_id", req)
-    Process.send_after(self, :heartbeat, 1000)
     API.DeviceConsumer.start_link(self)
-    #API.DataConsumer.start_link(self)
+    API.DataConsumer.start_link(self)
     {:ok, req, %State{user_id: user_id}}
   end
 
@@ -43,26 +42,19 @@ defmodule API.Websocket do
         state
       "Temperature" ->
         i_pid = String.to_existing_atom(cmd["id"])
-        Logger.info "Got Temperature Adjustment"
         temp = case Float.parse cmd["payload"] do
           {num, rem} -> num
           :error -> 72
         end
         case Map.get(state.temp_debounce, i_pid) do
           nil ->
-            Logger.info("New Setting")
             Process.send_after(self, {:send_temp, i_pid}, 1000)
             %State{state | temp_debounce: Map.put(state.temp_debounce, i_pid, temp)}
           val ->
-            Logger.info("OLD Setting: #{val}")
-            db = Map.update!(state.temp_debounce, i_pid, fn(v) ->
-              Logger.info "Updating Key: #{v}"
-              temp
-            end)
+            db = Map.update!(state.temp_debounce, i_pid, fn(v) -> temp end)
             %State{state | temp_debounce: db}
         end
     end
-    Logger.info "#{inspect state}"
     {:reply, {:text, "ok"}, req, state}
   end
 
@@ -71,7 +63,6 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:send_temp, pid}, req, state) do
-    Logger.info "Trying to set temp"
     temp = Map.get(state.temp_debounce, pid)
     Logger.info "Setting Temp: #{inspect pid} = #{temp}"
     DeviceManager.Device.HVAC.RadioThermostat.set_temp(pid, temp)

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+        <link rel="stylesheet" href="/static/css/nv.d3.min.css"></link>
+        <link rel="stylesheet" href="/static/css/floorplan-styles.css"></link>
+        <title>SensorNode Floorplan View</title>
+    </head>
+    <body onload="init();">
+        <a class="floorplan" href="/static/img/receiving-room-interior-design-3-idea.jpg">
+            <img width="400px;" src="/static/img/receiving-room-interior-design-3-idea.jpg">
+        </a>
+        <script src="/static/js/d3.min.js"></script>
+        <script src="/static/js/nv.d3.min.js"></script>
+        <script src="/static/js/jquery-3.1.1.min.js"></script>
+        <script src="/static/js/magnifik.min.js"></script>
+        <script src="/static/js/simpleheat.js"></script>
+        <script type="text/javascript">
+            var ws_url = "ws://<%= hostname %>:8081/ws";
+            var socket = new WebSocket(ws_url);
+            var nodes = {}, heat, start;
+            socket.onopen = function(e){
+                console.log("Websocket Opened");
+            }
+
+            socket.onmessage = function(ev){
+                var d = JSON.parse(ev.data)
+                if(d.type == 'ieq'){
+                    nodes[d.name] = nodes[d.name] || {x: Math.random()*1236, y: Math.random()*622, value: d.state.co2};
+                    nodes[d.name].value = d.state.co2;
+                    console.log(nodes);
+                }
+            }
+            function init(){
+                $('a.floorplan').magnifik({
+                    ratio: 3,
+                    clickCloses: false,
+                });
+                register_listeners();
+            }
+
+            function register_listeners(){
+                var $element = $('a.floorplan');
+                var openingEvent = 'magnifik:opening';
+                var openedEvent = 'magnifik:open';
+                var closedEvent = 'magnifik:close';
+                var closingEvent = 'magnifik:closing';
+
+                $element.on(openingEvent, function(event) {
+                    console.log(openingEvent + ' event has been fired');
+                });
+
+                $element.on(openedEvent, function(event) {
+                    console.log(openedEvent + ' event has been fired');
+                    width = $(".m-magnifikFull").width();
+                    height = $(".m-magnifikFull").height();
+                    $(".m-magnifikFull").click(function(e){
+                        var x = (e.offsetX-10);
+                        var y = (e.offsetY-10);
+                        console.log("Clicked at: "+ x + ", " + y);
+                    });
+                    load_heatmap(width, height);
+                });
+            }
+
+            function load_heatmap(width, height){
+                var $element = $('.m-magnifikCanvas');
+                console.log(width);
+                console.log(height);
+                var c = document.createElement("canvas");
+                c.width = width;
+                c.height = height;
+                $element.append(c);
+                heat = simpleheat(c);
+                heat.max(600);
+                heat.radius(100, 50);
+                window.requestAnimationFrame(draw);
+            }
+
+            function draw(ts){
+                if (!start) start = ts;
+                var progress = ts - start;
+                var data = [];
+                for(n in nodes){
+                    var no = nodes[n];
+                    data.push([no.x, no.y, no.value]);
+                }
+                heat.clear();
+                heat.data(data);
+                heat.draw();
+                if(progress > 500) window.requestAnimationFrame(draw);
+            }
+        </script>
+    </body>
+</html>

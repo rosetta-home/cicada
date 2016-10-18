@@ -6,6 +6,7 @@ defmodule Interface.TCPServer do
       { :_,
         [
           {"/", Interface.Index, []},
+          {"/floorplan", Interface.Floorplan, []},
           {"/app.js", :cowboy_static, {:priv_file, :interface, "app.js"}},
           {"/static/[...]", :cowboy_static, {:priv_dir,  :interface, "static"}},
 
