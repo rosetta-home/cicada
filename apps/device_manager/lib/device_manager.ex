@@ -12,8 +12,7 @@ defmodule DeviceManager do
   end
 
   def start(_type, _args) do
-    {:ok, pid} = DeviceManager.DiscoverySupervisor.start_link
-    {:ok, pid} = DeviceManager.BroadcastSupervisor.start_link
+    DeviceManager.BroadcastSupervisor.start_link
   end
 
 end

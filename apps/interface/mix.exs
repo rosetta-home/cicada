@@ -19,7 +19,7 @@ defmodule Interface.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :mdns],
+      applications: [:logger, :cowboy, :mdns, :network_manager, :gen_stage],
       mod: {Interface, []}
     ]
   end
@@ -27,7 +27,9 @@ defmodule Interface.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0"},
-      {:mdns, "~> 0.1.3"}
+      {:mdns, "~> 0.1.3"},
+      {:gen_stage, "~> 0.4"},
+      {:network_manager, in_umbrella: true}
     ]
   end
 end

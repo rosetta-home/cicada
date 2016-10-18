@@ -1,4 +1,4 @@
-defmodule DeviceManager.BroadcastSupervisor do
+defmodule NetworkManager.Supervisor do
   use Supervisor
   require Logger
 
@@ -8,9 +8,8 @@ defmodule DeviceManager.BroadcastSupervisor do
 
   def init(:ok) do
     children = [
-      worker(DeviceManager.Broadcaster, []),
-      worker(DeviceManager.Consumer, [], id: 1),
-      worker(DeviceManager.NetworkListener, []),
+      worker(NetworkManager.Broadcaster, []),
+      worker(NetworkManager.Client, []),
     ]
     supervise(children, strategy: :one_for_one)
   end
