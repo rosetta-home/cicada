@@ -3,7 +3,7 @@ defmodule DeviceManager.NetworkListener do
   require Logger
 
   def start_link do
-    GenServer.start_link(__MODULE__, :ok)
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(:ok) do
@@ -12,10 +12,8 @@ defmodule DeviceManager.NetworkListener do
 
   def handle_info({:bound, ip}, state) do
     Logger.info "Got IP"
-    Mdns.start([], [])
-    SSDP.start([], [])
-    Lifx.start([], [])
-    DeviceManager.DiscoverySupervisor.start_link
+    DeviceManager.ApplicationSupervisor.start_apps
+    DeviceManager.ApplicationSupervisor.start_discovery
     {:noreply, state}
   end
 

@@ -12,7 +12,6 @@ defmodule Interface.NetworkListener do
 
   def handle_info({:bound, ip}, state) do
     Mdns.Server.set_ip(ip)
-    Mdns.Server.start
     Mdns.Server.add_service(%Mdns.Server.Service{
       domain: "rosetta.local",
       data: :ip,
@@ -20,6 +19,7 @@ defmodule Interface.NetworkListener do
       type: :a
     })
     Interface.TCPServer.start_link
+    {:noreply, state}
   end
 
 end

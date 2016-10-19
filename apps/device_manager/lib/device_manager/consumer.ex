@@ -5,7 +5,7 @@ defmodule DeviceManager.Consumer do
   use GenStage
 
   def start_link() do
-    GenStage.start_link(__MODULE__, :ok)
+    GenStage.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   # Callbacks

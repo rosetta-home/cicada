@@ -9,8 +9,7 @@ defmodule DeviceManager.BroadcastSupervisor do
   def init(:ok) do
     children = [
       worker(DeviceManager.Broadcaster, []),
-      worker(DeviceManager.Consumer, [], id: 1),
-      worker(DeviceManager.NetworkListener, []),
+      worker(DeviceManager.Consumer, []),
     ]
     supervise(children, strategy: :one_for_one)
   end

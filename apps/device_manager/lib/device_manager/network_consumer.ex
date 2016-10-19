@@ -5,7 +5,7 @@ defmodule DeviceManager.NetworkConsumer do
   use GenStage
 
   def start_link(parent) do
-    GenStage.start_link(__MODULE__, parent)
+    GenStage.start_link(__MODULE__, parent, name: __MODULE__)
   end
 
   # Callbacks

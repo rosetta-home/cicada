@@ -11,8 +11,16 @@ defmodule DeviceManager do
       state: %{}
   end
 
+  def start_applications do
+    GenServer.call()
+  end
+
   def start(_type, _args) do
     DeviceManager.BroadcastSupervisor.start_link
+    DeviceManager.ApplicationSupervisor.start_link
+    DeviceManager.NetworkListener.start_link
   end
+
+
 
 end
