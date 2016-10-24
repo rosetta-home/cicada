@@ -18,6 +18,7 @@ defmodule Interface.NetworkListener do
       ttl: 120,
       type: :a
     })
+    Mdns.Server.start
     Interface.TCPServer.start_link
     {:noreply, state}
   end
