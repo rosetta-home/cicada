@@ -2,11 +2,7 @@ defmodule NetworkManager.Client do
   use GenServer
   require Logger
 
-  @interface System.get_env("INTERFACE")
-  @ssid System.get_env("SSID")
-  @psk System.get_env("PSK")
   @key_management :"WPA-PSK"
-  @nerves System.get_env("NERVES")
 
   defmodule WifiHandler do
     use GenEvent
@@ -47,12 +43,14 @@ defmodule NetworkManager.Client do
 
   def handle_info(:start_network, state) do
     Logger.info "Starting Network Manager"
-    case @nerves do
+    nerves = System.get_env("NERVES")
+    case nerves do
       "nerves" ->
         GenEvent.add_handler(Nerves.NetworkInterface.event_manager, WifiHandler, self)
         setup_wifi
       _ ->
-        ip = get_ip(@interface)
+        interface = System.get_env("INTERFACE")
+        ip = get_ip(interface)
         Logger.info "Got IP: #{inspect ip}"
         :timer.sleep 1000
         NetworkManager.Broadcaster.sync_notify({:bound, ip})
@@ -71,10 +69,10 @@ defmodule NetworkManager.Client do
 
   def setup_wifi do
     Logger.info "Setting Up WiFi"
-    Logger.debug @interface
-    Logger.debug @ssid
-    Logger.debug @psk
-    Nerves.InterimWiFi.setup(@interface, ssid: @ssid, key_mgmt: @key_management, psk: @psk)
+    interface = System.get_env("INTERFACE")
+    ssid = System.get_env("SSID")
+    psk = System.get_env("PSK")
+    Nerves.InterimWiFi.setup(interface, ssid: ssid, key_mgmt: @key_management, psk: psk)
   end
 
 end

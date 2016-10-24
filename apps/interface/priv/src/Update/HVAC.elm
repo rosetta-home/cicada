@@ -2,6 +2,7 @@ module Update.HVAC exposing (..)
 
 import Msg exposing(Msg)
 import Model.HVAC exposing (Model, HVACInterface)
+import Model.Main as Main
 import Json.Encode
 import Config exposing(eventServer)
 import WebSocket
@@ -44,8 +45,8 @@ updateHVAC model interface_pid fn =
   ) model.devices)}
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
+update : Msg -> Main.Model -> Model -> (Model, Cmd Msg)
+update msg main_model model =
   case msg of
     Msg.HVACTemperatureChange interface_pid temp ->
       let
@@ -55,5 +56,5 @@ update msg model =
           model
           interface_pid
           (\i id -> { i | adjusting_to = temp }
-        ), WebSocket.send eventServer (cmd |> encodeHVACCommand))
+        ), WebSocket.send ("ws://"++main_model.hostname++":8081/ws") (cmd |> encodeHVACCommand))
     _ -> (model, Cmd.none)

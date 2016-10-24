@@ -207,27 +207,27 @@ update msg model =
   case msg of
     Msg.LightOn id ->
       let
-        (lights, cmd) = Update.Light.update msg model.lights
+        (lights, cmd) = Update.Light.update msg model model.lights
       in
         ({ model | lights = lights}, cmd)
     Msg.LightOff id ->
       let
-        (lights, cmd) = Update.Light.update msg model.lights
+        (lights, cmd) = Update.Light.update msg model model.lights
       in
         ({ model | lights = lights}, cmd)
     Msg.ShowColorPicker id ->
       let
-        (lights, cmd) = Update.Light.update msg model.lights
+        (lights, cmd) = Update.Light.update msg model model.lights
       in
         ({ model | lights = lights}, cmd)
     Msg.HideColorPicker id ->
       let
-        (lights, cmd) = Update.Light.update msg model.lights
+        (lights, cmd) = Update.Light.update msg model model.lights
       in
         ({ model | lights = lights}, cmd)
     Msg.GotColor color ->
       let
-        (lights, cmd) = Update.Light.update msg model.lights
+        (lights, cmd) = Update.Light.update msg model model.lights
       in
         ({ model | lights = lights}, cmd)
     Msg.ShowHistogram data ->
@@ -249,7 +249,7 @@ update msg model =
 
     Msg.HVACTemperatureChange interface_pid temp ->
       let
-        (hvac, cmd) = Update.HVAC.update msg model.hvac
+        (hvac, cmd) = Update.HVAC.update msg model model.hvac
       in
         ({model | hvac = hvac}, cmd)
     Msg.SelectTab tab ->

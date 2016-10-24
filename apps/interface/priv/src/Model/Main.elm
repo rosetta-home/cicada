@@ -3,7 +3,6 @@ module Model.Main exposing (..)
 import Material
 import Time exposing (Time)
 
-import Update.Light as Light
 import Model.Lights as Lights
 import Model.MediaPlayers as MediaPlayers
 import Model.WeatherStations as WeatherStations

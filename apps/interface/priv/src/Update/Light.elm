@@ -2,6 +2,7 @@ module Update.Light exposing (..)
 
 import Msg exposing(Msg)
 import Model.Lights exposing (Model, LightInterface)
+import Model.Main as Main
 import Util.ColorPicker
 import Config exposing(eventServer)
 import WebSocket
@@ -77,19 +78,19 @@ updateLight model interface_pid fn =
   ) model.devices)}
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
+update : Msg -> Main.Model -> Model -> (Model, Cmd Msg)
+update msg main_model model =
   case msg of
     Msg.LightOff interface_pid ->
       let
         cmd = ToggleCommand LightPower interface_pid False
       in
-        (model, WebSocket.send eventServer (cmd |> encodeToggleCommand))
+        (model, WebSocket.send ("ws://"++main_model.hostname++":8081/ws") (cmd |> encodeToggleCommand))
     Msg.LightOn interface_pid ->
       let
         cmd = ToggleCommand LightPower interface_pid True
       in
-        (model, WebSocket.send eventServer (cmd |> encodeToggleCommand))
+        (model, WebSocket.send ("ws://"++main_model.hostname++":8081/ws") (cmd |> encodeToggleCommand))
     Msg.ShowColorPicker interface_pid ->
       (updateLight
         model
@@ -119,5 +120,5 @@ update msg model =
               { i | device = n_d }
           else
             i
-        ) model.devices)}, WebSocket.send eventServer (cmd |> encodeColorCommand))
+        ) model.devices)}, WebSocket.send ("ws://"++main_model.hostname++":8081/ws") (cmd |> encodeColorCommand))
     _ -> (model, Cmd.none)
