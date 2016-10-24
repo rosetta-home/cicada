@@ -45,4 +45,4 @@ view model weather_station_i =
       , viewGraph model weather_station.interface_pid "UV" (toString weather_station.state.uv) (lazy LineChart.view uv)
       ]
   in
-    card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1400px" ]
+    card weather_station.interface_pid weather_station.name "" content grey [ css "height" "1200px" ]
