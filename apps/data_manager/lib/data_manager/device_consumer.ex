@@ -25,7 +25,7 @@ defmodule DataManager.DeviceConsumer do
     device |> send_metric(state)
   end
 
-  def handle_metric(%DeviceManager.Device{} = device, state), do: nil
+  def handle_metric(%DeviceManager.Device{} = device, state), do: []
 
   def send_metric(device, state) do
     id = device.interface_pid |> Atom.to_string

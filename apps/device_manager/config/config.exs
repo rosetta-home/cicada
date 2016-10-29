@@ -8,5 +8,3 @@ config :logger, level: :info
 config :meteo_stick, tty: "/dev/ttyUSB987987"
 config :raven_smcd, tty: "/dev/ttyUSB65675"
 config :ieq_gateway, tty: "/dev/ttyUSB0986767"
-
-config :nerves_interim_wifi, regulatory_domain: "US"

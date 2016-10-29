@@ -47,6 +47,7 @@ defmodule NetworkManager.Client do
 
   def handle_info(:start_network, state) do
     Logger.info "Starting Network Manager"
+    Logger.info "Nerves: #{@nerves}"
     case @nerves do
       "true" ->
         GenEvent.add_handler(Nerves.NetworkInterface.event_manager, WifiHandler, self)
