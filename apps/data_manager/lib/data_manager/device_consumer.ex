@@ -4,36 +4,46 @@ defmodule DataManager.DeviceConsumer do
 
   use GenStage
 
+  defmodule State do
+    defstruct sensors: []
+  end
+
   def start_link() do
     GenStage.start_link(__MODULE__, :ok)
   end
 
   def init(:ok) do
-    {:consumer, [], subscribe_to: [DeviceManager.Broadcaster]}
+    {:consumer, %State{}, subscribe_to: [DeviceManager.Broadcaster]}
   end
 
   def handle_events(events, _from, state) do
-    for event <- events do
-      handle_metric(event)
-    end
-    {:noreply, [], state}
+    keys = for event <- events, key <- handle_metric(event, state), key != nil, do: key
+    {:noreply, [], %State{ state | sensors: Enum.uniq(keys ++ state.sensors)}}
   end
 
-  def handle_metric(%DeviceManager.Device{type: type} = device) when type in [:ieq, :weather_station, :smart_meter] do
-    device |> send_metric
+  def handle_metric(%DeviceManager.Device{type: type} = device, state) when type in [:ieq, :weather_station, :smart_meter] do
+    device |> send_metric(state)
   end
 
-  def handle_metric(%DeviceManager.Device{} = device), do: nil
+  def handle_metric(%DeviceManager.Device{} = device, state), do: nil
 
-  def send_metric(device) do
+  def send_metric(device, state) do
     id = device.interface_pid |> Atom.to_string
-    device.state |> Map.to_list |> Enum.each(fn({k, v} = metric) ->
+    keys = device.state |> Map.to_list |> Enum.map(fn({k, v} = metric) ->
+      key = "#{id}::#{Atom.to_string(k)}"
       case k do
         :id -> nil
         :__struct__ -> nil
-        other when v |> is_number -> DataManager.Metric.update_value("#{id}::#{Atom.to_string(k)}", v)
+        other when v |> is_number ->
+          case Enum.member?(state.sensors, key) do
+            true -> nil
+            false -> Exmetrics.Histogram.new(key, 10000, 3)
+          end
+          #Exmetrics.Histogram.record(key, v)
+          key
         _ -> nil
       end
     end)
+    keys
   end
 end

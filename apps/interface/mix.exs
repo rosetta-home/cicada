@@ -19,7 +19,7 @@ defmodule Interface.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :mdns, :network_manager, :gen_stage],
+      applications: [:logger, :cowboy, :mdns, :network_manager, :gen_stage, :eex],
       mod: {Interface, []}
     ]
   end

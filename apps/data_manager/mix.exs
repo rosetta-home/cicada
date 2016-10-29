@@ -19,7 +19,7 @@ defmodule DataManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :elixometer],
+      applications: [:logger, :exmetrics, :device_manager],
       mod: {DataManager, []}
     ]
   end
@@ -39,7 +39,8 @@ defmodule DataManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:elixometer, github: "NationalAssociationOfRealtors/elixometer"},
+      {:exmetrics, "~> 1.1.0"},
+      {:hdr_histogram, git: "https://github.com/HdrHistogram/hdr_histogram_erl.git", tag: "0.3.2"},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
     ]

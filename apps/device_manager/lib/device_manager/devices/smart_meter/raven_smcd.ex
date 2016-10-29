@@ -65,8 +65,8 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   def handle_info(:fake_data, device) do
     Process.send_after(self, :fake_data, 1000)
     kw = :rand.uniform()
-    kw_r = device.state.kw_received + kw
-    kw_d = device.state.kw_delivered + kw
+    kw_r = device.state.kw_received + (kw * 0.0001)
+    kw_d = device.state.kw_delivered + (kw * 0.001)
     device = %DeviceManager.Device{device | state: %{ device.state | kw_received: kw_r, kw_delivered: kw_d, kw: kw} }
     DeviceManager.Broadcaster.sync_notify(device)
     {:noreply, device}

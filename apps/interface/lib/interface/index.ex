@@ -13,7 +13,7 @@ defmodule Interface.Index do
   def handle(req, state) do
     Logger.info(System.cwd)
     Logger.info(state.hostname)
-    st = EEx.eval_file("apps/interface/priv/index.html.eex", [hostname: state.hostname])
+    st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "index.html.eex"), [hostname: state.hostname])
     headers = [
         {"cache-control", "no-cache"},
         {"connection", "close"},
