@@ -51,7 +51,7 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def init({id, device}) do
-    Process.send_after(self, :fake_data, 1000)
+    #Process.send_after(self, :fake_data, 1000)
     {:ok, %DeviceManager.Device{
       module: Raven.Client,
       type: :smart_meter,

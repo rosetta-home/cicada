@@ -37,13 +37,12 @@ defmodule Fw.Mixfile do
     ]
   end
 
-  def system(target) do
-    [{:"nerves_system_#{target}", ">= 0.0.0"}]
+  def system("rpi3") do
+    [{:"nerves_system_rpi3", git: "https://github.com/NationalAssociationOfRealtors/nerves_system_rpi3.git", tag: "v0.7.1" }]
   end
 
   def aliases do
     ["deps.precompile": ["nerves.precompile", "deps.precompile"],
      "deps.loadpaths":  ["deps.loadpaths", "nerves.loadpaths"]]
   end
-
 end

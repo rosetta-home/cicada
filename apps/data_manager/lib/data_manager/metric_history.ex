@@ -42,18 +42,14 @@ defmodule DataManager.MetricHistory do
     [id, metric] = event |> get_id
     event = %{event | datapoint: event.datapoint |> to_string }
     {:noreply, case event.datapoint do
-      "n" -> state
-      "ms_since_reset" -> state
+      "values" -> state
+      "id" -> state
       _ -> handle_datapoint(id, metric, event, state)
     end}
   end
 
   def get_id(event) do
-    event.metric
-    |> Enum.reverse
-    |> Enum.at(0)
-    |> Atom.to_string
-    |> String.split("::")
+    event.metric |> String.split("::")
   end
 
   def get_device(id, devices) do

@@ -1,8 +1,8 @@
-defmodule DeviceManager.Mixfile do
+defmodule Histogram.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :device_manager,
+    [app: :histogram,
      version: "0.1.0",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
@@ -18,8 +18,10 @@ defmodule DeviceManager.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :gen_stage, :network_manager, :lifx, :ssdp, :mdns, :chromecast, :ieq_gateway, :radio_thermostat, :meteo_stick, :raven_smcd],
-     mod: {DeviceManager, []}]
+    [
+      applications: [:logger, :statistics],
+      mod: {Histogram, []}
+    ]
   end
 
   # Dependencies can be Hex packages:
@@ -36,18 +38,6 @@ defmodule DeviceManager.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    [
-      {:mdns, "~> 0.1.3"},
-      {:ssdp, "~> 0.1.1"},
-      {:lifx, "~> 0.1.6"},
-      {:chromecast, "~> 0.1.1"},
-      {:meteo_stick, "~> 0.1.8"},
-      {:raven_smcd, "~> 0.1.7"},
-      {:ieq_gateway, "~> 0.1.3"},
-      {:gen_stage, "~> 0.4"},
-      {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"},
-      {:voice_control, in_umbrella: true},
-      {:network_manager, in_umbrella: true}
-    ]
+    [{:statistics, "~> 0.4.1"}]
   end
 end

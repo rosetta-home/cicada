@@ -38,7 +38,7 @@ view model smart_meter_i =
     received = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw_received
     demand = LineChart.getHistory smart_meter.interface_pid model.smart_meters.history .kw
     content =
-      [ viewGraph model smart_meter.interface_pid "Demand" (toString smart_meter.state.kw) (lazy LineChart.view demand)
+      [ viewGraph model smart_meter.interface_pid "KW" (toString smart_meter.state.kw) (lazy LineChart.view demand)
       , viewGraph model smart_meter.interface_pid "KW Delivered" (toString smart_meter.state.kw_delivered) (lazy LineChart.view delivered)
       , viewGraph model smart_meter.interface_pid "KW Received" (toString smart_meter.state.kw_received) (lazy LineChart.view received)
       ]

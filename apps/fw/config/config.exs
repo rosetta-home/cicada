@@ -13,8 +13,10 @@ config :nerves, :firmware,
   rootfs_additions: "config/rpi3/rootfs-additions"
 
 nerves = System.get_env("NERVES")
+inter = System.get_env("INTERFACE")
 
 Logger.info "NERVES: #{nerves}"
+Logger.info "INTERFACE: #{inter}"
 
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

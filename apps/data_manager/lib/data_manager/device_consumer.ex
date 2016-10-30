@@ -37,9 +37,9 @@ defmodule DataManager.DeviceConsumer do
         other when v |> is_number ->
           case Enum.member?(state.sensors, key) do
             true -> nil
-            false -> Exmetrics.Histogram.new(key, 10000, 3)
+            false -> Histogram.new(key)
           end
-          #Exmetrics.Histogram.record(key, v)
+          Histogram.Record.add(key, v)
           key
         _ -> nil
       end

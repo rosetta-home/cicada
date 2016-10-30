@@ -7,20 +7,23 @@ defmodule DataManager.Timer do
   end
 
   def init(:ok) do
-    Process.send_after(self, :get_histogram, 0)
+    Process.send_after(self, :get_histogram, 100)
     {:ok, %{}}
   end
 
   def handle_info(:get_histogram, state) do
-    Exmetrics.snapshot |> Map.get(:guages, %{}) |> Enum.each(fn {k,v} ->
-      [metric, datapoint] = String.split(k, ".", parts: 2)
-      %{
-        metric: metric,
-        datapoint: datapoint,
-        value: v
-      } |> DataManager.Broadcaster.sync_notify
+    Histogram.snapshot |> IO.inspect |> Enum.each(fn {k,v} ->
+      Enum.each(v, fn {datapoint, value} ->
+        %{
+          metric: k,
+          datapoint: datapoint,
+          value: value,
+          extra: nil
+        } |> DataManager.Broadcaster.sync_notify
+      end)
     end)
-    Process.send_after(self, :get_histogram, 5*60000)
+    Histogram.reset
+    Process.send_after(self, :get_histogram, 15*60000)
     {:noreply, state}
   end
 end
