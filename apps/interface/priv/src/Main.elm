@@ -311,6 +311,7 @@ view : Model -> Html Msg
 view model =
   Layout.render Msg.Mdl model.mdl
     [ Layout.fixedHeader
+    , Layout.scrolling
     , Layout.selectedTab model.selectedTab
     , Layout.onSelectTab Msg.SelectTab
     ]
