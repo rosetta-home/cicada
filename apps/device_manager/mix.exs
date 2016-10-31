@@ -37,7 +37,7 @@ defmodule DeviceManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:mdns, "~> 0.1.3"},
+      {:mdns, "~> 0.1.4"},
       {:ssdp, "~> 0.1.1"},
       {:lifx, "~> 0.1.6"},
       {:chromecast, "~> 0.1.1"},
