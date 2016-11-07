@@ -57,7 +57,9 @@ card id header subhead content background styles =
       ]
     styles = List.concat
       [ styles
-        , [ Material.Grid.size All 4
+        , [ Material.Grid.size Desktop 3
+          , Material.Grid.size Tablet 4
+          , Material.Grid.size Phone 4
           , css "position" "relative"
           , background
           , css "height" "300px"
