@@ -14,8 +14,13 @@ defmodule DeviceManager.Discovery do
       end
 
       def init(:ok) do
-        init_handlers
+        Process.send_after(self, :init_handlers, 10)
         {:ok, %State{}}
+      end
+
+      def handle_info(:init_handlers, state) do
+        init_handlers
+        {:noreply, state}
       end
 
       def handle_device(device_state, state, module) do

@@ -26,6 +26,7 @@ defmodule DeviceManager.Discovery.HVAC do
   alias DeviceManager.Discovery
 
   def init_handlers do
+    :timer.sleep 5000
     Logger.info "Starting Radio Thermostat Listener"
     SSDP.Client.add_handler(Discovery.HVAC.RadioThermostat)
   end

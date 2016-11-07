@@ -16,6 +16,7 @@ defmodule API.Websocket do
     {user_id, req} = :cowboy_req.qs_val("user_id", req)
     API.DeviceConsumer.start_link(self)
     API.DataConsumer.start_link(self)
+    API.CpuConsumer.start_link(self)
     {:ok, req, %State{user_id: user_id}}
   end
 
@@ -85,6 +86,10 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:data_event, %{} = event}, req, state) do
+    {:ok, req, state}
+  end
+
+  def websocket_info({:cpu_event, %{} = event}, req, state) do
     {:ok, req, state}
   end
 
