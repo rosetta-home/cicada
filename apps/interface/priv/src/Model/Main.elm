@@ -9,6 +9,7 @@ import Model.WeatherStations as WeatherStations
 import Model.SmartMeters as SmartMeters
 import Model.IEQ as IEQ
 import Model.HVAC as HVAC
+import Model.Cpu as Cpu
 
 type alias Model =
   { lights : Lights.Model
@@ -17,6 +18,7 @@ type alias Model =
   , weather_stations: WeatherStations.Model
   , hvac: HVAC.Model
   , smart_meters: SmartMeters.Model
+  , cpu: Cpu.Model
   , time: Time
   , mdl : Material.Model
   , selectedTab : Int
@@ -33,6 +35,7 @@ model =
   , weather_stations = WeatherStations.model
   , hvac = HVAC.model
   , smart_meters = SmartMeters.model
+  , cpu = Cpu.model
   , time = 0
   , mdl = Material.model
   , selectedTab = 0

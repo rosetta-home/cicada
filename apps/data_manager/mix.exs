@@ -19,7 +19,7 @@ defmodule DataManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :histogram, :device_manager],
+      applications: [:logger, :histogram, :device_manager, :cpu_mon],
       mod: {DataManager, []}
     ]
   end
@@ -42,6 +42,7 @@ defmodule DataManager.Mixfile do
       {:histogram, in_umbrella: true},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
+      {:cpu_mon, in_umbrella: true},
     ]
   end
 end

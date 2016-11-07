@@ -90,7 +90,15 @@ defmodule API.Websocket do
   end
 
   def websocket_info({:cpu_event, %{} = event}, req, state) do
-    {:ok, req, state}
+    ws_event = %{
+      type: "cpu",
+      state: event,
+      name: "CPU #{event.cpu}",
+      module: "CpuMon.Cpu",
+      interface_pid: "cpu_mon-cpu-#{event.cpu}",
+      device_pid: ""
+    }
+    {:reply, {:text, Poison.encode!(ws_event)}, req, state}
   end
 
   def websocket_info(_info, req, state) do

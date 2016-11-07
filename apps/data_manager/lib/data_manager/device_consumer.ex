@@ -13,7 +13,7 @@ defmodule DataManager.DeviceConsumer do
   end
 
   def init(:ok) do
-    {:consumer, %State{}, subscribe_to: [DeviceManager.Broadcaster]}
+    {:consumer, %State{}, subscribe_to: [DeviceManager.Broadcaster, CpuMon.Broadcaster]}
   end
 
   def handle_events(events, _from, state) do
@@ -27,6 +27,17 @@ defmodule DataManager.DeviceConsumer do
 
   def handle_metric(%DeviceManager.Device{} = device, state), do: []
 
+  def handle_metric(%{cpu: cpu} = event, state) do
+    %{
+      type: "cpu",
+      state: event,
+      name: "CPU #{event.cpu}",
+      module: "CpuMon.Cpu",
+      interface_pid: :"cpu_mon-cpu-#{event.cpu}",
+      device_pid: :""
+    } |> send_metric(state)
+  end
+
   def send_metric(device, state) do
     id = device.interface_pid |> Atom.to_string
     keys = device.state |> Map.to_list |> Enum.map(fn({k, v} = metric) ->
@@ -34,6 +45,7 @@ defmodule DataManager.DeviceConsumer do
       case k do
         :id -> nil
         :__struct__ -> nil
+        :cpu -> nil
         other when v |> is_number ->
           case Enum.member?(state.sensors, key) do
             true -> nil

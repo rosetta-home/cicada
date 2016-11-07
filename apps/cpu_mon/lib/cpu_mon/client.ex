@@ -7,7 +7,7 @@ defmodule CpuMon.Client do
   end
 
   def init(:ok) do
-    Process.send_after(self, :get_metrics, 100)
+    Process.send_after(self, :get_metrics, 5000)
     {:ok, %{}}
   end
 
@@ -20,6 +20,9 @@ defmodule CpuMon.Client do
         %{cpu: cpu, busy: b, idle: i}
       end)
     Logger.info("Current Load: #{inspect load}")
+    Enum.each(load, fn(e) ->
+      CpuMon.Broadcaster.sync_notify(e)
+    end)
     Process.send_after(self, :get_metrics, 5000)
     {:noreply, state}
   end

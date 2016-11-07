@@ -46,6 +46,9 @@ import View.WeatherStation
 -- SmartMeters
 import Model.SmartMeters as SmartMeters
 import View.SmartMeter
+-- SmartMeters
+import Model.Cpu as Cpu
+import View.Cpu
 -- DeviceMetrics
 import Model.DeviceMetrics exposing(..)
 -- Main
@@ -72,6 +75,7 @@ type EventType
   | SmartMeter
   | WeatherStation
   | IEQ
+  | Cpu
   | Unknown
 
 event =
@@ -92,6 +96,7 @@ eventType event_type =
     "smart_meter" -> SmartMeter
     "weather_station" -> WeatherStation
     "ieq" -> IEQ
+    "cpu" -> Cpu
     _ -> Unknown
 
 -- UPDATE
@@ -198,6 +203,11 @@ handleDeviceEvent payload model =
             hvac = updateModel model.hvac payload HVAC.decodePacket HVAC.interface model.time
           in
             ({model | hvac = hvac}, Cmd.none)
+        Cpu ->
+          let
+            cpu = updateModel model.cpu payload Cpu.decodePacket Cpu.interface model.time
+          in
+            ({model | cpu = cpu}, Cmd.none)
 
         _ -> (model, Cmd.none)
     Err _ -> (model, Cmd.none)
@@ -263,15 +273,14 @@ update msg model =
         --mp = updateLastHistory model.media_players time
         sm = updateLastHistory model.smart_meters time
         ws = updateLastHistory model.weather_stations time
+        cpu = updateLastHistory model.cpu time
       in
         (
           { model | time = time
-          --, hvac = hvac
           , ieq = ieq
-          --, lights = lights
-          --, media_players = mp
           , smart_meters = sm
           , weather_stations = ws
+          , cpu = cpu
           }
         , Cmd.none
         )
@@ -317,7 +326,7 @@ view model =
     ]
     { header = header model
     , drawer = []
-    , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "_____" ], [ Color.background Color.primaryDark ] )
+    , tabs = ( [ text "Lights", text "Media Players", text "IEQ", text "Weather Stations", text "HVAC", text "Smart Meters", text "CPU", text "_____" ], [ Color.background Color.primaryDark ] )
     , main = [viewBody model]
     }
 
@@ -331,7 +340,8 @@ viewBody model =
     3 -> displayTab model model.weather_stations View.WeatherStation.view
     4 -> displayTab model model.hvac View.HVAC.view
     5 -> displayTab model model.smart_meters View.SmartMeter.view
-    6 -> displayTab model model.smart_meters View.SmartMeter.view
+    6 -> displayTab model model.cpu View.Cpu.view
+    7 -> displayTab model model.cpu View.Cpu.view
     _ -> text "404"
 
 

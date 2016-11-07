@@ -7,8 +7,8 @@ defmodule CpuMon.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(CpuMon.Client, []),
       worker(CpuMon.Broadcaster, []),
+      worker(CpuMon.Client, []),
     ]
     supervise(children, strategy: :one_for_one)
   end
