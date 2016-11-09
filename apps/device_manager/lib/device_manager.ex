@@ -3,6 +3,7 @@ defmodule DeviceManager do
   require Logger
 
   defmodule Device do
+    @derive [Poison.Encoder]
     defstruct module: nil,
       type: nil,
       device_pid: nil,

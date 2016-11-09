@@ -1,5 +1,6 @@
 defmodule DeviceManager.Device.IEQ do
   defmodule State do
+    @derive [Poison.Encoder]
     defstruct id: 0,
       battery: 0,
       co2: 0,

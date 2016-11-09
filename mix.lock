@@ -4,7 +4,7 @@
   "bear": {:hex, :bear, "0.8.3", "866002127a97932720a0d475d8582c98ec5fb78db3a18dfe7eaf91594d9024b8", [:rebar3], []},
   "certifi": {:hex, :certifi, "0.4.0", "a7966efb868b179023618d29a407548f70c52466bf1849b9e8ebd0e34b7ea11f", [:rebar3], []},
   "cf": {:hex, :cf, "0.2.1", "69d0b1349fd4d7d4dc55b7f407d29d7a840bf9a1ef5af529f1ebe0ce153fc2ab", [:rebar3], []},
-  "chromecast": {:hex, :chromecast, "0.1.1", "ab24607a394073c13910f5e161e060a683cbda1a491db9a1c37ce15c82ede715", [:mix], [{:exprotobuf, "~> 1.1.0", [hex: :exprotobuf, optional: false]}, {:poison, "~> 2.2.0", [hex: :poison, optional: false]}]},
+  "chromecast": {:hex, :chromecast, "0.1.2", "d428e4a04d99f1eec4c6246414c2b8d91d51e063370036e28ff5edf338e53b50", [:mix], [{:exprotobuf, "~> 1.1.0", [hex: :exprotobuf, optional: false]}, {:poison, "~> 2.2.0", [hex: :poison, optional: false]}]},
   "cowboy": {:hex, :cowboy, "1.0.4", "a324a8df9f2316c833a470d918aaf73ae894278b8aa6226ce7a9bf699388f878", [:make, :rebar], [{:cowlib, "~> 1.0.0", [hex: :cowlib, optional: false]}, {:ranch, "~> 1.0", [hex: :ranch, optional: false]}]},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], []},
   "dns": {:hex, :dns, "0.0.4", "2e347a0a03e8345bc70c6d69ed08788103a3bec81b93e4636b1b432110835436", [:mix], [{:socket, "~> 0.3.5", [hex: :socket, optional: false]}]},

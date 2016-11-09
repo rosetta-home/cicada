@@ -1,4 +1,4 @@
-defmodule API.DeviceConsumer do
+defmodule API.Consumer do
   alias Experimental.{GenStage}
   require Logger
 
@@ -13,12 +13,12 @@ defmodule API.DeviceConsumer do
   def init(parent) do
     # Starts a permanent subscription to the broadcaster
     # which will automatically start requesting items.
-    {:consumer, parent, subscribe_to: [DeviceManager.Broadcaster]}
+    {:consumer, parent, subscribe_to: [DeviceManager.Broadcaster, CpuMon.Broadcaster, DataManager.Broadcaster]}
   end
 
   def handle_events(events, _from, parent) do
     for event <- events do
-      send(parent, {:device_event, event})
+      send(parent, event)
     end
     {:noreply, [], parent}
   end

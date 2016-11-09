@@ -1,5 +1,6 @@
 defmodule DeviceManager.Device.WeatherStation do
   defmodule State do
+    @derive [Poison.Encoder]
     defstruct id: 0,
       outdoor_temperature: 0,
       indoor_temperature: 0,

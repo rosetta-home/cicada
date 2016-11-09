@@ -12,16 +12,13 @@ defmodule CpuMon.Client do
   end
 
   def handle_info(:get_metrics, state) do
-    load =
-      :cpu_sup.util([:per_cpu, :detailed])
-      |> Enum.map(fn({cpu, busy, idle, _misc}) ->
-        b = busy |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
-        i = idle |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
-        %{cpu: cpu, busy: b, idle: i}
-      end)
-    Logger.info("Current Load: #{inspect load}")
-    Enum.each(load, fn(e) ->
-      CpuMon.Broadcaster.sync_notify(e)
+    mem = :memsup.get_memory_data
+    Logger.info "Memory: #{inspect mem}"
+    :cpu_sup.util([:per_cpu, :detailed])
+    |> Enum.map(fn({cpu, busy, idle, _misc}) ->
+      b = busy |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
+      i = idle |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
+      CpuMon.Broadcaster.sync_notify(%{cpu: cpu, busy: b, idle: i})
     end)
     Process.send_after(self, :get_metrics, 5000)
     {:noreply, state}

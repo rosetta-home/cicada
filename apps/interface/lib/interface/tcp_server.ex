@@ -13,7 +13,7 @@ defmodule Interface.TCPServer do
         ]}
       ])
       {:ok, _} = :cowboy.start_http(:interface_http,
-        10,
+        100,
         [{:ip, {0,0,0,0}}, {:port, port}],
         [{:env, [{:dispatch, dispatch}]}]
       )

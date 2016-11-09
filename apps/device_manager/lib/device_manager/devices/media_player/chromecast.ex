@@ -37,6 +37,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def map_state(state) do
+    #Logger.info "Chromecast State #{inspect state}"
     item = case state.media_status |> Map.get("items") do
       nil -> state.media_status |> Map.get("media", %{})
       items -> items |> Enum.at(0, %{})
@@ -57,18 +58,18 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       i -> i |> Enum.at(0, %{})
     end
     app = Map.get(state.receiver_status, "status", %{}) |>  Map.get("applications", []) |> Enum.at(0, %{})
-
+    #Logger.info "Media: #{inspect media}"
     %MediaPlayer.State{
       ip: state.ip |> :inet_parse.ntoa |> to_string,
-      current_time:  state |> Map.get("current_time", 0),
-      content_id: item |> Map.get("content_id", 0),
-      content_type: item |> Map.get("content_type", "Unknown"),
-      duration: item |> Map.get("duration", 0),
-      autoplay: item |> Map.get("autoplay", false),
+      current_time:  state.media_status |> Map.get("currentTime", 0),
+      content_id: media |> Map.get("content_id", 0),
+      content_type: media |> Map.get("contentType", "Unknown"),
+      duration: media |> Map.get("duration", 0),
+      autoplay: media |> Map.get("autoplay", false),
       image: %MediaPlayer.State.Image{ url: Map.get(image, "url", Map.get(image, :url, "")) },
       title: metadata |> Map.get("title", ""),
       subtitle: metadata |> Map.get("subtitle", ""),
-      volume: state.receiver_status["status"]["volume"]["level"],
+      volume: state.media_status["volume"]["level"],
       status: app |> Map.get("statusText", ""),
       idle: app |> Map.get("isIdleScreen", ""),
       app_name: app |> Map.get("displayName", ""),

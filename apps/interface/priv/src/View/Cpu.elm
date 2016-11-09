@@ -41,4 +41,4 @@ view model cpu_i =
       , viewGraph model cpu.interface_pid "Idle" (toString cpu.state.idle) (lazy LineChart.view idle)
       ]
   in
-    card cpu.interface_pid cpu.name "" content grey [ css "height" "600px" ]
+    card cpu.interface_pid cpu.name "" content grey [ css "height" "450px" ]

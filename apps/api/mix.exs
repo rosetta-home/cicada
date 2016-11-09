@@ -19,7 +19,7 @@ defmodule Api.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :device_manager, :data_manager, :cpu_mon, :gen_stage],
+      applications: [:logger, :cowboy, :device_manager, :data_manager, :cpu_mon, :gen_stage, :poison],
       mod: {API, []}
     ]
   end
@@ -43,7 +43,9 @@ defmodule Api.Mixfile do
       {:data_manager, in_umbrella: true},
       {:cpu_mon, in_umbrella: true},
       {:gen_stage, "~> 0.4"},
-      {:cowboy, "~> 1.0"}
+      {:poison, "~> 3.0", override: true},
+      {:cowboy, "~> 1.0"},
+
     ]
   end
 end

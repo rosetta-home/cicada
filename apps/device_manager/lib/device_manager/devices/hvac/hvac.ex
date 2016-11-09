@@ -7,6 +7,7 @@ defmodule DeviceManager.Device.HVAC do
   @tstate %{:off => 0, :heat => 1, :cool => 2}
 
   defmodule State do
+    @derive [Poison.Encoder]
     defstruct temperature: 0,
       fan_mode: :off,
       fan_state: :off,

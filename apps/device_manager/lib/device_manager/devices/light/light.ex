@@ -1,6 +1,7 @@
 defmodule DeviceManager.Device.Light do
 
   defmodule State.HSBK do
+    @derive [Poison.Encoder]
     defstruct hue: 120,
       saturation: 100,
       brightness: 100,
@@ -8,6 +9,7 @@ defmodule DeviceManager.Device.Light do
   end
 
   defmodule State do
+    @derive [Poison.Encoder]
     defstruct host: "0.0.0.0",
       port: 57600,
       label: "",

@@ -1,10 +1,10 @@
 defmodule NetworkManager.Client do
   use GenServer
   require Logger
+  alias Nerves.Networking
 
   @key_management :"WPA-PSK"
   @interface System.get_env("INTERFACE")
-  @nerves System.get_env("NERVES")
   @ssid System.get_env("SSID")
   @psk System.get_env("PSK")
 
@@ -25,15 +25,6 @@ defmodule NetworkManager.Client do
     end
   end
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
-    Process.send_after(self, :start_network, 0)
-    {:ok, %{}}
-  end
-
   def get_ip(interface) do
     Logger.info "Getting IP address for interface #{interface}"
     :inet.getifaddrs()
@@ -45,29 +36,43 @@ defmodule NetworkManager.Client do
       |> IO.inspect
   end
 
+  def start_link() do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  def init(:ok) do
+    unless :os.type == {:unix, :darwin} do
+      Process.send_after(self, :start_network, 0)
+    else
+      Process.send_after(self, :get_ip, 0)
+    end
+    {:ok, %{}}
+  end
+
   def handle_info(:start_network, state) do
     Logger.info "Starting Network Manager"
-    Logger.info "Nerves: #{@nerves}"
-    case @nerves do
-      "true" ->
+    case @interface do
+      "eth0" ->
+        {:ok, _} = String.to_atom(@interface) |> Networking.setup
+        Process.send_after(self, :get_ip, 1000)
+      "wlan0" ->
         GenEvent.add_handler(Nerves.NetworkInterface.event_manager, WifiHandler, self)
         setup_wifi
-      _ ->
-        ip = get_ip(@interface)
-        Logger.info "Got IP: #{inspect ip}"
-        :timer.sleep 1000
-        NetworkManager.Broadcaster.sync_notify({:bound, ip})
-        Logger.info "Broadcasted"
     end
     {:noreply, state}
   end
 
-  def handle_info({:bound, info}, state) do
-    Logger.info "IP Address Bound"
-    :timer.sleep(1000)
-    {:ok, ip} = :inet_parse.address(to_char_list(info.ipv4_address))
-    Logger.info "#{inspect ip}"
+  def handle_info(:get_ip, state) do
+    ip = get_ip(@interface)
+    Logger.info "Got IP: #{inspect ip}"
+    :timer.sleep 1000
     NetworkManager.Broadcaster.sync_notify({:bound, ip})
+    Logger.info "Broadcasted"
+    {:noreply, state}
+  end
+
+  def handle_info({:bound, info}, state) do
+    Process.send_after(self, :get_ip, 1000)
     {:noreply, state}
   end
 

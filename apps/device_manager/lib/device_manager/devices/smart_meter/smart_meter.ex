@@ -1,5 +1,6 @@
 defmodule DeviceManager.Device.SmartMeter do
   defmodule State do
+    @derive [Poison.Encoder]
     defstruct connection_status: "",
       channel: 0,
       meter_mac_id: "",

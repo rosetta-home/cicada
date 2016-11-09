@@ -3,9 +3,7 @@ defmodule API.Websocket do
   require Logger
 
   defmodule State do
-    defstruct user_id: nil,
-      devices: [],
-      temp_debounce: %{}
+    defstruct temp_debounce: %{}
   end
 
   def init({tcp, http}, _req, _opts) do
@@ -13,11 +11,8 @@ defmodule API.Websocket do
   end
 
   def websocket_init(_TransportName, req, _opts) do
-    {user_id, req} = :cowboy_req.qs_val("user_id", req)
-    API.DeviceConsumer.start_link(self)
-    API.DataConsumer.start_link(self)
-    API.CpuConsumer.start_link(self)
-    {:ok, req, %State{user_id: user_id}}
+    API.Consumer.start_link(self)
+    {:ok, req, %State{}}
   end
 
   def websocket_terminate(reason, _req, state) do
@@ -71,25 +66,13 @@ defmodule API.Websocket do
     {:ok, req, state}
   end
 
-  def websocket_info(:heartbeat, req, state) do
-    Process.send_after(self, :heartbeat, 1000)
-    {:reply, {:text, Poison.encode!(%{type: :heartbeat})}, req, state}
-  end
-
-  def websocket_info({:device_event, %DeviceManager.Device{} = event}, req, state) do
+  def websocket_info(%DeviceManager.Device{} = event, req, state) do
+    #Logger.info "Process: #{inspect Process.info(self, :message_queue_len)}"
     event = %DeviceManager.Device{event | device_pid: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
-  def websocket_info({:device_event, event}, req, state) do
-    {:ok, req, state}
-  end
-
-  def websocket_info({:data_event, %{} = event}, req, state) do
-    {:ok, req, state}
-  end
-
-  def websocket_info({:cpu_event, %{} = event}, req, state) do
+  def websocket_info(%{cpu: cpu} = event, req, state) do
     ws_event = %{
       type: "cpu",
       state: event,
@@ -98,7 +81,8 @@ defmodule API.Websocket do
       interface_pid: "cpu_mon-cpu-#{event.cpu}",
       device_pid: ""
     }
-    {:reply, {:text, Poison.encode!(ws_event)}, req, state}
+    {:ok, data} = Poison.encode(ws_event)
+    {:reply, {:text, data}, req, state}
   end
 
   def websocket_info(_info, req, state) do

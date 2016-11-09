@@ -10,7 +10,7 @@ defmodule API.TCPServer do
         ]}
     ])
     {:ok, _} = :cowboy.start_http(:api_http,
-      10,
+      100,
       [{:port, port}],
       [{:env, [{:dispatch, dispatch}]}]
     )
