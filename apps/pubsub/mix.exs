@@ -1,8 +1,8 @@
-defmodule DataManager.Mixfile do
+defmodule Pubsub.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :data_manager,
+    [app: :pubsub,
      version: "0.1.0",
      build_path: "../../_build",
      config_path: "../../config/config.exs",
@@ -19,11 +19,8 @@ defmodule DataManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :histogram, :device_manager, :cpu_mon],
-      mod: {DataManager, []},
-      env: [
-        update_frequency: 60*60000
-      ]
+      applications: [:logger, :phoenix_pubsub, :nodefinder],
+      mod: {PubSub, []}
     ]
   end
 
@@ -42,10 +39,8 @@ defmodule DataManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:histogram, in_umbrella: true},
-      {:gen_stage, "~> 0.4"},
-      {:device_manager, in_umbrella: true},
-      {:cpu_mon, in_umbrella: true},
+      {:phoenix_pubsub, "~> 1.0"},
+      {:nodefinder, "~> 1.5"}
     ]
   end
 end

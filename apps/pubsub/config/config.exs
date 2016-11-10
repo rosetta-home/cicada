@@ -2,8 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :data_manager, update_frequency: 60*60000
-
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
@@ -12,11 +10,11 @@ config :data_manager, update_frequency: 60*60000
 
 # You can configure for your application as:
 #
-#     config :data_manager, key: :value
+#     config :pubsub, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:data_manager, :key)
+#     Application.get_env(:pubsub, :key)
 #
 # Or configure a 3rd-party app:
 #

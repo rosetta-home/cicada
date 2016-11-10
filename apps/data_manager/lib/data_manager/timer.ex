@@ -7,7 +7,7 @@ defmodule DataManager.Timer do
   end
 
   def init(:ok) do
-    Process.send_after(self, :get_histogram, 100)
+    Process.send_after(self, :get_histogram, 5*60000)
     {:ok, %{}}
   end
 
@@ -23,7 +23,8 @@ defmodule DataManager.Timer do
       end)
     end)
     Histogram.reset
-    Process.send_after(self, :get_histogram, 15*60000)
+    frequency = Application.get_env(:data_manager, :update_frequency)
+    Process.send_after(self, :get_histogram, frequency)
     {:noreply, state}
   end
 end
