@@ -29,7 +29,7 @@ defmodule DeviceManager.Device.IEQ.Sensor do
   end
 
   def init({id, device}) do
-    Process.send_after(self, :add_voice_controls, 100)
+    #Process.send_after(self, :add_voice_controls, 100)
     {:ok, %DeviceManager.Device{
       module: IEQGateway.IEQStation,
       type: :ieq,

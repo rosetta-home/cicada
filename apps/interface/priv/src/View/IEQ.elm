@@ -33,21 +33,21 @@ view model ieq_interface =
     humidity = LineChart.getHistory ieq.interface_pid model.ieq.history .humidity
     light = LineChart.getHistory ieq.interface_pid model.ieq.history .light
     co = LineChart.getHistory ieq.interface_pid model.ieq.history .co
-    pressure = LineChart.getHistory ieq.interface_pid model.ieq.history .pressure
-    sound = LineChart.getHistory ieq.interface_pid model.ieq.history .sound
-    energy = LineChart.getHistory ieq.interface_pid model.ieq.history .energy
-    rssi = LineChart.getHistory ieq.interface_pid model.ieq.history .rssi
+    --pressure = LineChart.getHistory ieq.interface_pid model.ieq.history .pressure
+    --sound = LineChart.getHistory ieq.interface_pid model.ieq.history .sound
+    --energy = LineChart.getHistory ieq.interface_pid model.ieq.history .energy
+    --rssi = LineChart.getHistory ieq.interface_pid model.ieq.history .rssi
     content =
       [ viewGraph model ieq.interface_pid "CO2" (toString ieq.state.co2) (lazy LineChart.view co2)
-      , viewGraph model ieq.interface_pid "Energy" (toString ieq.state.energy) (lazy LineChart.view energy)
+      --, viewGraph model ieq.interface_pid "Energy" (toString ieq.state.energy) (lazy LineChart.view energy)
       , viewGraph model ieq.interface_pid "VOC" (toString ieq.state.voc) (lazy LineChart.view voc)
       , viewGraph model ieq.interface_pid "Temperature" (toString ieq.state.temperature) (lazy LineChart.view temp)
       , viewGraph model ieq.interface_pid "Humidity" (toString ieq.state.humidity) (lazy LineChart.view humidity)
       , viewGraph model ieq.interface_pid "Light" (toString ieq.state.light) (lazy LineChart.view light)
       , viewGraph model ieq.interface_pid "CO" (toString ieq.state.co) (lazy LineChart.view co)
-      , viewGraph model ieq.interface_pid "Pressure" (toString ieq.state.pressure) (lazy LineChart.view pressure)
-      , viewGraph model ieq.interface_pid "Sound" (toString ieq.state.sound) (lazy LineChart.view sound)
-      , viewGraph model ieq.interface_pid "RSSI" (toString ieq.state.rssi) (lazy LineChart.view rssi)
+      --, viewGraph model ieq.interface_pid "Pressure" (toString ieq.state.pressure) (lazy LineChart.view pressure)
+      --, viewGraph model ieq.interface_pid "Sound" (toString ieq.state.sound) (lazy LineChart.view sound)
+      --, viewGraph model ieq.interface_pid "RSSI" (toString ieq.state.rssi) (lazy LineChart.view rssi)
       ]
   in
-    card ieq.interface_pid ieq.name "" content grey [ css "height" "1950px" ]
+    card ieq.interface_pid ieq.name "" content grey [ css "height" "1175px" ]

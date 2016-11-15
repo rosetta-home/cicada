@@ -13,7 +13,7 @@ defmodule API.Consumer do
   def init(parent) do
     # Starts a permanent subscription to the broadcaster
     # which will automatically start requesting items.
-    {:consumer, parent, subscribe_to: [DeviceManager.Broadcaster, CpuMon.Broadcaster, DataManager.Broadcaster]}
+    {:consumer, parent, subscribe_to: [DeviceManager.Broadcaster, CpuMon.Broadcaster]}
   end
 
   def handle_events(events, _from, parent) do
