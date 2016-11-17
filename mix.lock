@@ -1,4 +1,4 @@
-%{"barrel": {:git, "https://gitlab.com/barrel-db/barrel.git", "6c1c9bbb482796ab2fa18ca8f2cf403400b46888", []},
+%{"barrel": {:git, "https://github.com/barrel-db/platform.git", "bfadb0fe90f8ea671ee2fa2777ce98a00126425e", []},
   "barrel_db": {:git, "https://gitlab.com/barrel-db/barrel.git", "6c1c9bbb482796ab2fa18ca8f2cf403400b46888", []},
   "bbmustache": {:hex, :bbmustache, "1.0.4", "7ba94f971c5afd7b6617918a4bb74705e36cab36eb84b19b6a1b7ee06427aa38", [:rebar], []},
   "bear": {:hex, :bear, "0.8.3", "866002127a97932720a0d475d8582c98ec5fb78db3a18dfe7eaf91594d9024b8", [:rebar3], []},

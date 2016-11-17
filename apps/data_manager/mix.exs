@@ -45,7 +45,7 @@ defmodule DataManager.Mixfile do
       {:histogram, in_umbrella: true},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
-      {:cpu_mon, in_umbrella: true},
+      {:cpu_mon, in_umbrella: true}
     ]
   end
 end

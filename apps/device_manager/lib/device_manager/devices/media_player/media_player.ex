@@ -33,8 +33,7 @@ defmodule DeviceManager.Discovery.MediaPlayer do
 
   def init_handlers do
     Logger.info "Starting Chromecast"
-    Mdns.Client.add_handler(Discovery.MediaPlayer.Chromecast)
-    Mdns.Client.start
+    Mdns.EventManager.add_handler(Discovery.MediaPlayer.Chromecast)
     Process.send_after(self, :query_cast, 100)
   end
 
