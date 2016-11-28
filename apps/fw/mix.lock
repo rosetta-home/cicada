@@ -17,7 +17,7 @@
   "getopt": {:hex, :getopt, "0.8.2", "b17556db683000ba50370b16c0619df1337e7af7ecbf7d64fbf8d1d6bce3109b", [:rebar], []},
   "goldrush": {:hex, :goldrush, "0.1.8", "2024ba375ceea47e27ea70e14d2c483b2d8610101b4e852ef7f89163cdb6e649", [:rebar3], []},
   "gpb": {:hex, :gpb, "3.26.4", "d7abdeb17cf226f29bbc3bfbbe14281f35fdb34d6fb13a12819334af3d1af73f", [:make, :rebar], []},
-  "hackney": {:hex, :hackney, "1.6.2", "96a0a5e7e65b7acad8031d231965718cc70a9b4131a8b033b7543bbd673b8210", [:mix, :rebar3], [{:certifi, "0.7.0", [hex: :certifi, optional: false]}, {:idna, "1.2.0", [hex: :idna, optional: false]}, {:metrics, "1.0.1", [hex: :metrics, optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, optional: false]}, {:ssl_verify_fun, "1.1.1", [hex: :ssl_verify_fun, optional: false]}]},
+  "hackney": {:hex, :hackney, "1.6.3", "d489d7ca2d4323e307bedc4bfe684323a7bf773ecfd77938f3ee8074e488e140", [:mix, :rebar3], [{:certifi, "0.7.0", [hex: :certifi, optional: false]}, {:idna, "1.2.0", [hex: :idna, optional: false]}, {:metrics, "1.0.1", [hex: :metrics, optional: false]}, {:mimerl, "1.0.2", [hex: :mimerl, optional: false]}, {:ssl_verify_fun, "1.1.1", [hex: :ssl_verify_fun, optional: false]}]},
   "hdr_histogram": {:git, "https://github.com/HdrHistogram/hdr_histogram_erl.git", "46a4f86f3a9b72181859c2a30c8039c5d486248b", [tag: "0.3.2"]},
   "httpoison": {:hex, :httpoison, "0.8.3", "b675a3fdc839a0b8d7a285c6b3747d6d596ae70b6ccb762233a990d7289ccae4", [:mix], [{:hackney, "~> 1.6.0", [hex: :hackney, optional: false]}]},
   "idna": {:hex, :idna, "1.2.0", "ac62ee99da068f43c50dc69acf700e03a62a348360126260e87f2b54eced86b2", [:rebar3], []},
@@ -53,7 +53,7 @@
   "relx": {:hex, :relx, "3.21.1", "f989dc520730efd9075e9f4debcb8ba1d7d1e86b018b0bcf45a2eb80270b4ad6", [:rebar3], [{:bbmustache, "1.0.4", [hex: :bbmustache, optional: false]}, {:cf, "0.2.1", [hex: :cf, optional: false]}, {:erlware_commons, "0.21.0", [hex: :erlware_commons, optional: false]}, {:getopt, "0.8.2", [hex: :getopt, optional: false]}, {:providers, "1.6.0", [hex: :providers, optional: false]}]},
   "setup": {:hex, :setup, "1.7.0", "15df8e57c6df9755e22bfb1aef0c640bd97e9889396fdfb2a85a5536a9043674", [:rebar3], []},
   "socket": {:hex, :socket, "0.3.5", "6c23772e7eda60f129f36dd69a61930aab18ae9b8d74d7f767c85355cf0b585d", [:mix], []},
-  "ssdp": {:hex, :ssdp, "0.1.1", "3209f1b11c9381ceecb798e3df79cb08d1a92023ae3b5499b737078d6a74baa2", [:mix], [{:httpoison, "~> 0.8.3", [hex: :httpoison, optional: false]}, {:poison, "~> 2.0", [hex: :poison, optional: false]}, {:sweet_xml, "~> 0.6.1", [hex: :sweet_xml, optional: false]}]},
+  "ssdp": {:hex, :ssdp, "0.1.2", "e6bb53c3a422e93cf99d96f043f1c4ddac7d7b350a8d210ee2a9d08cd082c11c", [:mix], [{:httpoison, "~> 0.8.3", [hex: :httpoison, optional: false]}, {:poison, "~> 2.0", [hex: :poison, optional: false]}, {:sweet_xml, "~> 0.6.1", [hex: :sweet_xml, optional: false]}]},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []},
   "statistics": {:hex, :statistics, "0.4.1", "e9bfe6649f70842d9ebce69aa31ac8b6928e096bde43b683d7d673057237d028", [:mix], []},
   "sweet_xml": {:hex, :sweet_xml, "0.6.2", "8f8aadd902dcc62fb85b7a308bb6a083874e97eb51ccddaf855d97c8ffad7d64", [:mix], []}}

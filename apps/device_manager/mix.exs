@@ -38,7 +38,7 @@ defmodule DeviceManager.Mixfile do
   defp deps do
     [
       {:mdns, "~> 0.1.5"},
-      {:ssdp, "~> 0.1.1"},
+      {:ssdp, "~> 0.1.2"},
       {:lifx, "~> 0.1.6"},
       {:chromecast, "~> 0.1.2"},
       {:meteo_stick, "~> 0.2.0"},

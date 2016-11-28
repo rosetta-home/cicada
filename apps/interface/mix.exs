@@ -27,7 +27,7 @@ defmodule Interface.Mixfile do
   defp deps do
     [
       {:cowboy, "~> 1.0"},
-      {:mdns, "~> 0.1.4"},
+      {:mdns, "~> 0.1.5"},
       {:gen_stage, "~> 0.4"},
       {:network_manager, in_umbrella: true}
     ]
