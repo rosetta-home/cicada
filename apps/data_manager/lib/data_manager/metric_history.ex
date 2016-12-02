@@ -64,7 +64,7 @@ defmodule DataManager.MetricHistory do
     end)
   end
 
-  def handle_datapoint(id, metric, event, state) do
+  def handle_datapoint(id, metric, %{value: val} = event, state) when val |> is_number do
     device = id |> get_device(state.devices)
     history = device |> get_history(event, metric)
     history = %History{ history | values: [event.value*1 | history.values] }
@@ -89,5 +89,7 @@ defmodule DataManager.MetricHistory do
     end
     %State{ state | devices: devices }
   end
+
+  def handle_datapoint(id, metric, event, state), do: state
 
 end
