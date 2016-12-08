@@ -7,12 +7,14 @@ defmodule DataManager.Timer do
   end
 
   def init(:ok) do
-    Process.send_after(self, :get_histogram, 5*60000)
+    Process.send_after(self, :get_histogram, 1*60000)
     {:ok, %{}}
   end
 
   def handle_info(:get_histogram, state) do
-    Histogram.snapshot |> IO.inspect |> Enum.each(fn {k,v} ->
+    snapshot = Histogram.snapshot
+    snapshot |> DataManager.Broadcaster.sync_notify
+    snapshot |> Enum.each(fn {k,v} ->
       Enum.each(v, fn {datapoint, value} ->
         %{
           metric: k,

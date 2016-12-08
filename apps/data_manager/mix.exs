@@ -43,6 +43,8 @@ defmodule DataManager.Mixfile do
   defp deps do
     [
       {:histogram, in_umbrella: true},
+      {:httpoison, "~> 0.8.3"},
+      {:poison, "~> 3.0", override: true},
       {:gen_stage, "~> 0.4"},
       {:device_manager, in_umbrella: true},
       {:cpu_mon, in_umbrella: true}

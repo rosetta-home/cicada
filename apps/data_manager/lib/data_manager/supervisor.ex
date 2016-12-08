@@ -11,6 +11,7 @@ defmodule DataManager.Supervisor do
       worker(DataManager.DeviceConsumer, []),
       worker(DataManager.Broadcaster, []),
       worker(DataManager.MetricHistory, []),
+      worker(DataManager.CloudLogger, []),
       worker(DataManager.Timer, [])
     ]
     supervise(children, strategy: :one_for_one)

@@ -38,7 +38,7 @@ defmodule DataManager.MetricHistory do
     {:reply, %Device{d | history: h}, state}
   end
 
-  def handle_info({:data_event, event}, state) do
+  def handle_info({:data_event, %{metric: _metric} = event}, state) do
     [id, metric] = event |> get_id
     event = %{event | datapoint: event.datapoint |> to_string }
     {:noreply, case event.datapoint do
@@ -47,6 +47,8 @@ defmodule DataManager.MetricHistory do
       _ -> handle_datapoint(id, metric, event, state)
     end}
   end
+
+  def handle_info({:data_event, event}, state), do: {:noreply, state}
 
   def get_id(event) do
     event.metric |> String.split("::")

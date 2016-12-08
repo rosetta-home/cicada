@@ -2,7 +2,7 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :data_manager, update_frequency: 60*60000
+config :data_manager, update_frequency: 1*60000
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
