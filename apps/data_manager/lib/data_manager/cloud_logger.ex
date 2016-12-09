@@ -9,22 +9,25 @@ defmodule DataManager.CloudLogger do
   def init(:ok) do
     DataManager.DataConsumer.start_link(self)
     id = try do
-      i = System.cmd("/usr/bin/boardid", ["-b", "rpi", "-n", "4"])
-      i |> String.split("\n") |> List.first
+      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "rpi", "-n", "4"])
+      id |> String.split("\n") |> List.first
     rescue
-      ErlangError -> "123456789"
+      e in ErlangError ->
+        Logger.info "#{inspect e}"
+        "123456789"
     end
     Logger.info "Board ID: #{id}"
-    {:ok, %{boardid: id}}
+    cloud_url = Application.get_env(:data_manager, :cloud_url)
+    {:ok, %{boardid: id, cloud_url: cloud_url}}
   end
 
   def handle_info({:data_event, %{metric: _metric} = event}, state), do: {:noreply, state}
 
   def handle_info({:data_event, event}, state) do
-    Logger.info "Snapshot: #{inspect event}"
+    Logger.debug "Snapshot: #{inspect event}"
     data = %{weather: [], energy: [], ieq: [], hvac: []}
     Enum.reduce(event, data, fn({key, value}, acc) ->
-      Logger.info key
+      Logger.debug key
       case key do
         <<"Sensor-IEQStation-", id::bytes-size(1), "::", k::binary>> ->
           update_acc(acc, :ieq, id, k, value.value)
@@ -48,16 +51,16 @@ defmodule DataManager.CloudLogger do
           update_acc(acc, :weather, id, k, value.value)
         _ -> acc
       end
-    end) |> log_data(state.boardid)
+    end) |> log_data(state.boardid, state.cloud_url)
     {:noreply, state}
   end
 
-  def log_data(data, id) do
+  def log_data(data, id, url) do
     data = %{id: id, data: data}
     Logger.info "Cloud Snapshot: #{inspect data}"
     priv_dir = :code.priv_dir(:data_manager)
     {:ok, body} = Poison.encode(data)
-    {reply, http} = HTTPoison.post "https://127.0.0.1:4000/", body, [{"content-type", "application/json"}], [
+    {reply, http} = HTTPoison.post url, body, [{"content-type", "application/json"}], [
       hackney: [
         ssl_options: [
           certfile: "#{priv_dir}/certs/RosettaHomeClient.crt",
