@@ -3,7 +3,10 @@
 use Mix.Config
 require Logger
 
-config :logger, level: :info
+config :logger,
+  backends: [:console],
+  compile_time_purge_level: :info,
+  level: :info
 
 config :meteo_stick, tty: "/dev/ttyUSB987987"
 config :raven_smcd, tty: "/dev/ttyUSB65675"

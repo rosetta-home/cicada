@@ -8,26 +8,16 @@ defmodule DataManager.CloudLogger do
 
   def init(:ok) do
     DataManager.DataConsumer.start_link(self)
-    id = try do
-      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "rpi", "-n", "4"])
-      id |> String.split("\n") |> List.first
-    rescue
-      e in ErlangError ->
-        Logger.info "#{inspect e}"
-        "123456789"
-    end
+    id = get_board_id
     Logger.info "Board ID: #{id}"
     cloud_url = Application.get_env(:data_manager, :cloud_url)
     {:ok, %{boardid: id, cloud_url: cloud_url}}
   end
 
-  def handle_info({:data_event, %{metric: _metric} = event}, state), do: {:noreply, state}
-
   def handle_info({:data_event, event}, state) do
-    Logger.debug "Snapshot: #{inspect event}"
+    Logger.info "Sending Cloud Data..."
     data = %{weather: [], energy: [], ieq: [], hvac: []}
     Enum.reduce(event, data, fn({key, value}, acc) ->
-      Logger.debug key
       case key do
         <<"Sensor-IEQStation-", id::bytes-size(1), "::", k::binary>> ->
           update_acc(acc, :ieq, id, k, value.value)
@@ -72,16 +62,12 @@ defmodule DataManager.CloudLogger do
   end
 
   def update_acc(acc, acc_key, id, key, value) do
-    Logger.debug "#{id} #{key}"
     map = Enum.find(acc[acc_key], %{id: id}, fn(map) -> map.id == id end)
-    Logger.debug "Got Map: #{inspect map}"
     map = Map.put(map, key, value)
-    Logger.debug "Map Updated: #{inspect map}"
     arr = case Enum.find(acc[acc_key], fn(w) -> w.id == id end) do
       nil -> [map]++acc[acc_key]
       _ -> acc[acc_key]
     end
-    Logger.debug "Arr: #{inspect arr}"
     Map.put(acc, acc_key, Enum.map(arr, fn(w) ->
       cond do
         w.id == id -> map
@@ -89,4 +75,16 @@ defmodule DataManager.CloudLogger do
       end
     end))
   end
+
+  def get_board_id() do
+    try do
+      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "rpi", "-n", "4"])
+      id |> String.split("\n") |> List.first
+    rescue
+      e in ErlangError ->
+        Logger.info "#{inspect e}"
+        "123456789"
+    end
+  end
+
 end

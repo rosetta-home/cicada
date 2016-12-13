@@ -12,21 +12,20 @@ defmodule DataManager.Timer do
   end
 
   def handle_info(:get_histogram, state) do
-    snapshot = Histogram.snapshot
-    snapshot |> DataManager.Broadcaster.sync_notify
-    snapshot |> Enum.each(fn {k,v} ->
-      Enum.each(v, fn {datapoint, value} ->
-        %{
-          metric: k,
-          datapoint: datapoint,
-          value: value,
-          extra: nil
-        } |> DataManager.Broadcaster.sync_notify
-      end)
-    end)
+    Histogram.snapshot |> DataManager.Broadcaster.sync_notify
     Histogram.reset
     frequency = Application.get_env(:data_manager, :update_frequency)
     Process.send_after(self, :get_histogram, frequency)
+    Logger.info "Update again in: #{inspect frequency}"
     {:noreply, state}
+  end
+
+  def notify(key, datapoint, value) do
+    %{
+      metric: key,
+      datapoint: datapoint,
+      value: value,
+      extra: nil
+    } |> DataManager.Broadcaster.sync_notify
   end
 end

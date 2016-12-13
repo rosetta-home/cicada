@@ -2,6 +2,11 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
+config :logger,
+  backends: [:console],
+  compile_time_purge_level: :info,
+  level: :info
+
 config :nerves_interim_wifi, regulatory_domain: "US"
 
 # This configuration is loaded before any dependency and is restricted

@@ -22,7 +22,8 @@ defmodule DataManager.Mixfile do
       applications: [:logger, :histogram, :device_manager, :cpu_mon],
       mod: {DataManager, []},
       env: [
-        update_frequency: 60*60000
+        update_frequency: 1*60000,
+        cloud_url: "https://beagle2:4000"
       ]
     ]
   end

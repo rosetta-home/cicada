@@ -6,7 +6,10 @@
 use Mix.Config
 require Logger
 
-config :logger, level: :info
+config :logger,
+  backends: [:console],
+  compile_time_purge_level: :info,
+  level: :info
 
 config :nerves, :firmware,
   fwup_conf: "config/rpi3/fwup.conf",

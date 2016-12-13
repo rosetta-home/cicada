@@ -38,17 +38,26 @@ defmodule DataManager.MetricHistory do
     {:reply, %Device{d | history: h}, state}
   end
 
-  def handle_info({:data_event, %{metric: _metric} = event}, state) do
-    [id, metric] = event |> get_id
-    event = %{event | datapoint: event.datapoint |> to_string }
-    {:noreply, case event.datapoint do
-      "values" -> state
-      "id" -> state
-      _ -> handle_datapoint(id, metric, event, state)
-    end}
+  def handle_info({:data_event, event}, state) do
+    state = Enum.reduce(event, state, fn({k, v}, acc) ->
+      Enum.reduce(v, acc, fn({datapoint, value}, s_acc) ->
+        ev = %{
+          metric: k,
+          datapoint: datapoint |> to_string,
+          value: value,
+          extra: nil
+        }
+        [id, metric] = ev |> get_id
+        case ev.datapoint do
+          "values" -> s_acc
+          "id" -> s_acc
+          _ -> handle_datapoint(id, metric, ev, s_acc)
+        end
+      end)
+    end)
+    Logger.debug "History: #{inspect state}"
+    {:noreply, state}
   end
-
-  def handle_info({:data_event, event}, state), do: {:noreply, state}
 
   def get_id(event) do
     event.metric |> String.split("::")
