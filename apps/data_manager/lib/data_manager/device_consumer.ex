@@ -38,24 +38,26 @@ defmodule DataManager.DeviceConsumer do
     } |> send_metric(state)
   end
 
-  def send_metric(device, state) do
-    id = device.interface_pid |> Atom.to_string
-    keys = device.state |> Map.to_list |> Enum.map(fn({k, v} = metric) ->
-      key = "#{id}::#{Atom.to_string(k)}"
+  def create_histogram(id, map, state, keys \\ []) do
+    map |> Map.to_list |> Enum.flat_map(fn({k, v} = metric) ->
+      keys = keys ++ [Atom.to_string(k)]
+      key = "#{id}::#{Enum.join(keys, "-")}"
       case k do
-        :id -> nil
-        :__struct__ -> nil
-        :cpu -> nil
         other when v |> is_number ->
           case Enum.member?(state.sensors, key) do
             true -> nil
             false -> Histogram.new(key)
           end
           Histogram.Record.add(key, v)
-          key
-        _ -> nil
+          [key]
+        other_map when v |> is_map -> create_histogram(id, v, state, keys)
+        _ -> [nil]
       end
     end)
-    keys
+  end
+
+  def send_metric(device, state) do
+    id = device.interface_pid |> Atom.to_string
+    create_histogram(id, device.state, state)
   end
 end

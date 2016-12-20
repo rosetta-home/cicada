@@ -25,8 +25,7 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
   end
 
   def map_state(state) do
-    state = Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
-    state
+    Map.merge(%DeviceManager.Device.WeatherStation.State{}, state)
   end
 
   def init({id, device}) do

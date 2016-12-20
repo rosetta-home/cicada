@@ -61,9 +61,16 @@ defmodule DataManager.CloudLogger do
     Logger.info "Reply: #{inspect http}"
   end
 
+  defp merge(map, [leaf], value), do: Map.put(map, leaf, value)
+  defp merge(map, [node | remaining_keys], value) do
+    inner_map = merge(Map.get(map, node, %{}), remaining_keys, value)
+    Map.put(map, node, inner_map)
+  end
+
   def update_acc(acc, acc_key, id, key, value) do
     map = Enum.find(acc[acc_key], %{id: id}, fn(map) -> map.id == id end)
-    map = Map.put(map, key, value)
+    keys = String.split(key, "-")
+    map = merge(map, keys, value)
     arr = case Enum.find(acc[acc_key], fn(w) -> w.id == id end) do
       nil -> [map]++acc[acc_key]
       _ -> acc[acc_key]
