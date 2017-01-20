@@ -2,8 +2,10 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :data_manager, update_frequency: 1*60000
-config :data_manager, cloud_url: "https://beagle2:4000"
+config :data_manager,
+  update_frequency: 1*60000,
+  cloud_url: "https://beagle2:4000",
+  env: :dev
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
@@ -30,4 +32,4 @@ config :data_manager, cloud_url: "https://beagle2:4000"
 # Configuration from the imported file will override the ones defined
 # here (which is why it is important to import them last).
 #
-#     import_config "#{Mix.env}.exs"
+import_config "#{Mix.env}.exs"

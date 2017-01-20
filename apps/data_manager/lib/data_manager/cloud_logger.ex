@@ -8,14 +8,16 @@ defmodule DataManager.CloudLogger do
 
   def init(:ok) do
     DataManager.DataConsumer.start_link(self)
+    env = Application.get_env(:data_manager, :env)
     id = get_board_id
     Logger.info "Board ID: #{id}"
+    Logger.info "Mix ENV: #{inspect env}"
     cloud_url = Application.get_env(:data_manager, :cloud_url)
     {:ok, %{boardid: id, cloud_url: cloud_url}}
   end
 
   def handle_info({:data_event, event}, state) do
-    Logger.info "Sending Cloud Data..."
+    Logger.info "Sending Cloud Data to: #{state.cloud_url}..."
     data = %{weather: [], energy: [], ieq: [], hvac: []}
     Enum.reduce(event, data, fn({key, value}, acc) ->
       case key do
@@ -50,7 +52,16 @@ defmodule DataManager.CloudLogger do
     Logger.info "Cloud Snapshot: #{inspect data}"
     priv_dir = :code.priv_dir(:data_manager)
     {:ok, body} = Poison.encode(data)
-    {reply, http} = HTTPoison.post url, body, [{"content-type", "application/json"}], [
+    {_reply, http} = HTTPoison.post url, body, [{"content-type", "application/json"}], [
+      hackney: [
+        ssl_options: [
+          certfile: "#{priv_dir}/certs/RosettaHomeClient.crt",
+          keyfile: "#{priv_dir}/certs/RosettaHomeClient.key"
+        ]
+      ]
+    ]
+    #This is horrible, but config file changes aren't showing up. Also, post to both for now.
+    {_reply, http} = HTTPoison.post "https://35.167.180.46:4000", body, [{"content-type", "application/json"}], [
       hackney: [
         ssl_options: [
           certfile: "#{priv_dir}/certs/RosettaHomeClient.crt",
