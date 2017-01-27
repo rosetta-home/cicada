@@ -21,7 +21,7 @@ defmodule Fw.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Fw, []},
-     applications: [:logger, :nerves, :nerves_system_rpi3, :network_manager, :cpu_mon, :interface, :device_manager, :data_manager, :api, :voice_control, :pubsub]]
+     applications: [:logger, :nerves, :nerves_system_rpi3, :network_manager, :cpu_mon, :interface, :device_manager, :data_manager, :api, :voice_control, :nerves_firmware_http]]
   end
 
   def deps do
@@ -31,11 +31,10 @@ defmodule Fw.Mixfile do
       {:interface, in_umbrella: true},
       {:device_manager, in_umbrella: true},
       {:data_manager, in_umbrella: true},
-      {:pubsub, in_umbrella: true},
       {:cpu_mon, in_umbrella: true},
       {:api, in_umbrella: true},
-      {:data_manager, in_umbrella: true},
       {:voice_control, in_umbrella: true},
+      {:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"}
     ]
   end
 
