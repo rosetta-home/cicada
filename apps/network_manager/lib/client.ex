@@ -78,7 +78,7 @@ defmodule NetworkManager.Client do
 
   def setup_wifi do
     Logger.info "Setting Up WiFi"
-    Nerves.InterimWiFi.setup(@interface, ssid: @ssid, key_mgmt: @key_management, psk: @psk)
+    #Nerves.InterimWiFi.setup(@interface, ssid: @ssid, key_mgmt: @key_management, psk: @psk)
   end
 
 end

@@ -19,7 +19,7 @@ defmodule NetworkManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :nerves_interim_wifi, :nerves_networking, :gen_stage],
+      applications: [:logger, :nerves_interim_wifi, :nerves_networking, :gen_stage, :nerves_wpa_supplicant],
       mod: {NetworkManager, []}
     ]
   end
@@ -39,6 +39,7 @@ defmodule NetworkManager.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
+      {:nerves_wpa_supplicant, "~> 0.2.2"},
       {:nerves_interim_wifi, "~> 0.1.0"},
       {:nerves_networking, "~> 0.6.0"},
       {:gen_stage, "~> 0.4"}

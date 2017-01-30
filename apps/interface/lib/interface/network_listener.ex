@@ -8,6 +8,7 @@ defmodule Interface.NetworkListener do
 
   def init(:ok) do
     Interface.NetworkConsumer.start_link(self)
+    Interface.TCPServer.start_link
   end
 
   def handle_info({:bound, ip}, state) do
@@ -19,7 +20,6 @@ defmodule Interface.NetworkListener do
       type: :a
     })
     Mdns.Server.start
-    Interface.TCPServer.start_link
     {:noreply, state}
   end
 
