@@ -7,6 +7,9 @@ defmodule Interface.TCPServer do
         [
           {"/", Interface.Index, []},
           {"/floorplan", Interface.Floorplan, []},
+          {"/network", Interface.Network, []},
+          {"/connect_network", Interface.ConnectNetwork, []},
+          {"/reset_network", Interface.ResetNetwork, []},
           {"/app.js", :cowboy_static, {:priv_file, :interface, "app.js"}},
           {"/static/[...]", :cowboy_static, {:priv_dir,  :interface, "static"}},
 
