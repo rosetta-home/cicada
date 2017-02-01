@@ -81,7 +81,7 @@ defmodule NetworkManager.Client do
   end
 
   def handle_info(:start_ap, state) do
-    Logger.info "No IP Address bound. Restting Network and restarting..."
+    Logger.info "No IP Address bound. Resetting network creds and restarting..."
     reset_network
     Nerves.Firmware.reboot(:graceful)
   end
