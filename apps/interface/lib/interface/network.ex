@@ -5,7 +5,7 @@ defmodule Interface.Network do
     defstruct hostname: nil
   end
 
-  def init({:tcp, :http}, req, opts) do
+  def init({:tcp, :http}, req, _opts) do
     {host, req} = :cowboy_req.host(req)
     {:ok, req, %State{:hostname => host }}
   end
@@ -25,6 +25,6 @@ defmodule Interface.Network do
     {:ok, req2, state}
   end
 
-  def terminate(_reason, req, state), do: :ok
+  def terminate(_reason, _req, _state), do: :ok
 
 end

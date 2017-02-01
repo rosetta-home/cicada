@@ -6,6 +6,10 @@ defmodule NetworkManager.Client do
 
   @wifi_creds "/root/creds"
 
+  defmodule State do
+    defstruct ip: nil, wpa_pid: nil, bound_timer: nil
+  end
+
   defmodule InterfaceHandler do
     use GenEvent
     def init(parent) do
@@ -36,12 +40,13 @@ defmodule NetworkManager.Client do
     else
       Process.send_after(self, {:get_ip, %{ifname: "wlan0"}}, 0)
     end
-    {:ok, %{wpa_pid: nil}}
+    {:ok, %State{}}
   end
 
   def handle_info({:bound, info}, state) do
     Process.send_after(self, {:get_ip, info}, 1000)
-    {:noreply, state}
+    Process.cancel_timer(state.bound_timer)
+    {:noreply, %State{state | bound_timer: nil}}
   end
 
   def handle_info(:start_network, state) do
@@ -68,6 +73,17 @@ defmodule NetworkManager.Client do
     NetworkManager.Broadcaster.sync_notify({:bound, ip})
     Logger.info "IP Broadcasted"
     {:noreply, state}
+  end
+
+  def handle_info(:start_timer, state) do
+    timer = Process.send_after(self, :start_ap, 20000)
+    {:noreply, %State{state | bound_timer: timer}}
+  end
+
+  def handle_info(:start_ap, state) do
+    Logger.info "No IP Address bound. Restting Network and restarting..."
+    reset_network
+    Nerves.Firmware.reboot(:graceful)
   end
 
   def handle_call(:scan, _from, state) do
@@ -107,8 +123,11 @@ defmodule NetworkManager.Client do
   end
 
   def join_network do
-    [ssid, psk] = get_creds
-    Nerves.InterimWiFi.setup("wlan0", ssid: ssid, key_mgmt: :"WPA-PSK", psk: psk)
+    case get_creds do
+      [ssid, psk] -> Nerves.InterimWiFi.setup("wlan0", ssid: ssid, key_mgmt: :"WPA-PSK", psk: psk)
+      _other -> reset_network
+    end
+    Process.send_after(__MODULE__, :start_timer, 1)
   end
 
   def reset_network do

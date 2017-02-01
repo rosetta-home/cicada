@@ -5,13 +5,13 @@ defmodule Interface.ConnectNetwork do
     defstruct hostname: nil
   end
 
-  def init({:tcp, :http}, req, opts) do
+  def init({:tcp, :http}, req, _opts) do
     {host, req} = :cowboy_req.host(req)
     {:ok, req, %State{:hostname => host }}
   end
 
   def handle(req, state) do
-    {ok, kv, req2} = :cowboy_req.body_qs(req)
+    {:ok, kv, req2} = :cowboy_req.body_qs(req)
     :ok = NetworkManager.Client.write_creds(kv)
     NetworkManager.Client.join_network
     st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "network_saved.html.eex"), [])
@@ -27,6 +27,6 @@ defmodule Interface.ConnectNetwork do
     {:ok, req3, state}
   end
 
-  def terminate(_reason, req, state), do: :ok
+  def terminate(_reason, _req, _state), do: :ok
 
 end
