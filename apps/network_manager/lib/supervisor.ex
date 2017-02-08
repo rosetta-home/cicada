@@ -10,6 +10,7 @@ defmodule NetworkManager.Supervisor do
     children = [
       worker(NetworkManager.Broadcaster, []),
       worker(NetworkManager.Client, []),
+      worker(NetworkManager.BoardId, []),
     ]
     supervise(children, strategy: :one_for_one)
   end

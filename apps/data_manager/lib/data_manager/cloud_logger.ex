@@ -8,11 +8,10 @@ defmodule DataManager.CloudLogger do
 
   def init(:ok) do
     DataManager.DataConsumer.start_link(self)
-    env = Application.get_env(:data_manager, :env)
-    id = get_board_id
+    id = NetworkManager.BoardId.get
     Logger.info "Board ID: #{id}"
-    Logger.info "Mix ENV: #{inspect env}"
     cloud_url = Application.get_env(:data_manager, :cloud_url)
+    Logger.info "Cloud URL: #{cloud_url}"
     {:ok, %{boardid: id, cloud_url: cloud_url}}
   end
 
@@ -50,18 +49,10 @@ defmodule DataManager.CloudLogger do
   def log_data(data, id, url) do
     data = %{id: id, data: data}
     Logger.info "Cloud Snapshot: #{inspect data}"
+    Logger.info "Post: #{inspect url}"
     priv_dir = :code.priv_dir(:data_manager)
     {:ok, body} = Poison.encode(data)
     {_reply, http} = HTTPoison.post url, body, [{"content-type", "application/json"}], [
-      hackney: [
-        ssl_options: [
-          certfile: "#{priv_dir}/certs/RosettaHomeClient.crt",
-          keyfile: "#{priv_dir}/certs/RosettaHomeClient.key"
-        ]
-      ]
-    ]
-    #This is horrible, but config file changes aren't showing up. Also, post to both for now.
-    {_reply, http} = HTTPoison.post "https://35.167.180.46:4000", body, [{"content-type", "application/json"}], [
       hackney: [
         ssl_options: [
           certfile: "#{priv_dir}/certs/RosettaHomeClient.crt",
@@ -93,16 +84,4 @@ defmodule DataManager.CloudLogger do
       end
     end))
   end
-
-  def get_board_id() do
-    try do
-      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "rpi", "-n", "4"])
-      id |> String.split("\n") |> List.first
-    rescue
-      e in ErlangError ->
-        Logger.info "#{inspect e}"
-        "123456789"
-    end
-  end
-
 end

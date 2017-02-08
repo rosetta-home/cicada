@@ -23,9 +23,13 @@ defmodule DataManager.Mixfile do
       mod: {DataManager, []},
       env: [
         update_frequency: 1*60000,
-        cloud_url: "https://beagle2:4000"
+        cloud_url: cloud_url
       ]
     ]
+  end
+
+  def cloud_url do
+    System.get_env("CLOUD_URL")
   end
 
   # Dependencies can be Hex packages:
