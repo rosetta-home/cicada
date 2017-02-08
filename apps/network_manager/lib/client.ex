@@ -94,7 +94,7 @@ defmodule NetworkManager.Client do
 
   def get_creds do
     {:ok, creds} = File.read(@wifi_creds)
-     String.split(creds, "\n\n", parts: 2, trim: true)
+    String.split(creds |> Cipher.decrypt, "\n\n", parts: 2, trim: true)
   end
 
   def scan do
@@ -116,8 +116,7 @@ defmodule NetworkManager.Client do
     {_key, ssid} = List.keyfind(kv, "ssid", 0)
     {_key, psk} = List.keyfind(kv, "psk", 0)
     Logger.info "SSID: #{inspect ssid} PSK: #{inspect psk}"
-    #TODO encrypt this!!!
-    st = ssid <> "\n\n" <> psk
+    st = ssid <> "\n\n" <> psk |> Cipher.encrypt
     File.write(@wifi_creds, st)
     :ok
   end

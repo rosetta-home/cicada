@@ -19,8 +19,15 @@ defmodule NetworkManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :nerves_interim_wifi, :nerves_networking, :nerves_network_interface, :gen_stage, :nerves_wpa_supplicant],
-      mod: {NetworkManager, []}
+      applications: [:logger, :nerves_interim_wifi, :nerves_networking, :nerves_network_interface, :gen_stage, :nerves_wpa_supplicant, :cipher],
+      mod: {NetworkManager, []},
+      env: [
+        cipher: [
+          keyphrase: System.get_env("CIPHER_KEYPHRASE"),
+          ivphrase: System.get_env("CIPHER_IV"),
+          magic_token: System.get_env("CIPHER_TOKEN")
+        ]
+      ]
     ]
   end
 
@@ -43,7 +50,8 @@ defmodule NetworkManager.Mixfile do
       {:nerves_wpa_supplicant, "~> 0.2.2"},
       {:nerves_interim_wifi, "~> 0.1.0"},
       {:nerves_networking, "~> 0.6.0"},
-      {:gen_stage, "~> 0.4"}
+      {:gen_stage, "~> 0.4"},
+      {:cipher, ">= 1.3.0"}
     ]
   end
 end
