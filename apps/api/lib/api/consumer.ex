@@ -1,5 +1,4 @@
 defmodule API.Consumer do
-  alias Experimental.{GenStage}
   require Logger
 
   use GenStage

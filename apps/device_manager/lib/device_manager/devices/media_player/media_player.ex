@@ -32,13 +32,14 @@ defmodule DeviceManager.Discovery.MediaPlayer do
   alias DeviceManager.Device.MediaPlayer
 
   def init_handlers do
-    Logger.info "Starting Chromecast"
-    Mdns.EventManager.add_handler(Discovery.MediaPlayer.Chromecast)
-    Process.send_after(self, :query_cast, 100)
+    #Logger.info "Starting Chromecast"
+    #Mdns.EventManager.add_handler(Discovery.MediaPlayer.Chromecast)
+    #Process.send_after(self, :query_cast, 100)
+    :ok
   end
 
   def handle_info({:googlecast, device}, state) do
-    {:noreply, handle_device(device, state, MediaPlayer.Chromecast)}
+    {:noreply, state}#handle_device(device, state, MediaPlayer.Chromecast)}
   end
 
   def handle_info(:query_cast, state) do

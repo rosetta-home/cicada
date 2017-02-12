@@ -1,5 +1,4 @@
 defmodule PubSub.NetworkConsumer do
-  alias Experimental.{GenStage}
   require Logger
 
   use GenStage

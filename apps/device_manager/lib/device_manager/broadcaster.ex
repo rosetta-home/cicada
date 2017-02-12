@@ -1,5 +1,4 @@
 defmodule DeviceManager.Broadcaster do
-  alias Experimental.{GenStage}
   use GenStage
 
   def start_link() do

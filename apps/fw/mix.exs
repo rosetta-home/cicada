@@ -7,7 +7,7 @@ defmodule Fw.Mixfile do
     [app: :fw,
      version: "0.0.1",
      target: @target,
-     archives: [nerves_bootstrap: "~> 0.1.4"],
+     archives: [nerves_bootstrap: "~> 0.2.1"],
      deps_path: "deps/#{@target}",
      build_path: "_build/#{@target}",
      build_embedded: Mix.env == :prod,
@@ -26,7 +26,10 @@ defmodule Fw.Mixfile do
 
   def deps do
     [
-      {:nerves, "~> 0.3.0"},
+      {:nerves, github: "nerves-project/nerves", tag: "master", override: true},
+      {:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"},
+      {:distillery, "~>1.1.2"},
+      {:poison, "~> 3.0", [env: :prod, hex: :poison, override: true, manager: :mix]},
       {:network_manager, in_umbrella: true},
       {:interface, in_umbrella: true},
       {:device_manager, in_umbrella: true},
@@ -34,13 +37,11 @@ defmodule Fw.Mixfile do
       {:cpu_mon, in_umbrella: true},
       {:api, in_umbrella: true},
       {:voice_control, in_umbrella: true},
-      {:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"},
-      {:poison, "~> 3.0", [env: :prod, hex: :poison, override: true, manager: :mix]}
     ]
   end
 
   def system("rpi3") do
-    [{:"nerves_system_rpi3", git: "https://github.com/NationalAssociationOfRealtors/nerves_system_rpi3.git", tag: "v0.7.2" }]
+    [{:"nerves_system_rpi3", git: "https://github.com/NationalAssociationOfRealtors/nerves_system_rpi3.git", tag: "v0.10.2-dev" }]
   end
 
   def aliases do

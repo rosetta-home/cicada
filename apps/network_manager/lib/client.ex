@@ -135,13 +135,10 @@ defmodule NetworkManager.Client do
 
   def ap_mode(state) do
     Logger.info "Start AP Mode"
-    System.cmd("ip", ["route", "add", "default", "via", "192.168.11.1"])
-    System.cmd("ip", ["link", "set", "wlan0", "up"])
     System.cmd("ip", ["addr", "add", "192.168.24.1/24", "dev", "wlan0"])
     System.cmd("dnsmasq", ["--dhcp-lease", "/root/dnsmasq.lease"])
     System.cmd("hostapd", ["-B", "-d", "/etc/hostapd/hostapd.conf"])
     System.cmd("/usr/sbin/wpa_supplicant",  ["-i", "wlan0", "-C", "/var/run/wpa_supplicant", "-B"])
-    :timer.sleep 1000
     {:ok, pid} = Nerves.WpaSupplicant.start_link("/var/run/wpa_supplicant/wlan0")
     Nerves.WpaSupplicant.scan(pid)
     %{state | wpa_pid: pid}

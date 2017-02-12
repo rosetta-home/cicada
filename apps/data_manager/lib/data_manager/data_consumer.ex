@@ -1,5 +1,4 @@
 defmodule DataManager.DataConsumer do
-  alias Experimental.{GenStage}
   require Logger
 
   use GenStage

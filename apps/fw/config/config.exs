@@ -15,6 +15,11 @@ config :nerves, :firmware,
   fwup_conf: "config/rpi3/fwup.conf",
   rootfs_additions: "config/rpi3/rootfs-additions"
 
+config :cipher,
+  keyphrase: System.get_env("CIPHER_KEYPHRASE"),
+  ivphrase: System.get_env("CIPHER_IV"),
+  magic_token: System.get_env("CIPHER_TOKEN")
+
 # Import target specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 # Uncomment to use target specific configurations

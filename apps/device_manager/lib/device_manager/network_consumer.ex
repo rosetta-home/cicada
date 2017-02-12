@@ -1,5 +1,4 @@
 defmodule DeviceManager.NetworkConsumer do
-  alias Experimental.{GenStage}
   require Logger
 
   use GenStage
