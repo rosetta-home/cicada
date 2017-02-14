@@ -20,13 +20,13 @@ defmodule Interface.NetworkListener do
       ttl: 120,
       type: :a
     })
-    Mdns.Server.start
     {:ok, %{}}
   end
 
   def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}, status: %{operstate: :up}}}, state) do
     Logger.info "mDNS IP Set: #{inspect address}"
     Mdns.Server.set_ip(address)
+    Mdns.Server.start
     {:noreply, state}
   end
 

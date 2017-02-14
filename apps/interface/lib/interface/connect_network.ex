@@ -12,8 +12,10 @@ defmodule Interface.ConnectNetwork do
 
   def handle(req, state) do
     {:ok, kv, req2} = :cowboy_req.body_qs(req)
-    :ok = NetworkManager.Client.write_creds(kv)
-    NetworkManager.Client.join_network
+    Logger.info "Creds: #{inspect kv}"
+    {_key, ssid} = List.keyfind(kv, "ssid", 0)
+    {_key, psk} = List.keyfind(kv, "psk", 0)
+    :ok = NetworkManager.WiFi.write_creds(ssid, psk)
     st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "network_saved.html.eex"), [])
     headers = [
         {"cache-control", "no-cache"},
@@ -24,7 +26,21 @@ defmodule Interface.ConnectNetwork do
         {"Access-Control-Allow-Origin", "*"},
     ]
     {:ok, req3} = :cowboy_req.reply(200, headers, st, req2)
+    Nerves.Firmware.reboot
     {:ok, req3, state}
+  end
+
+  def error(req, state) do
+    st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "network.html.eex"), [error: :invalid_creds])
+    headers = [
+        {"cache-control", "no-cache"},
+        {"connection", "close"},
+        {"content-type", "text/html"},
+        {"expires", "Mon, 3 Jan 2000 12:34:56 GMT"},
+        {"pragma", "no-cache"},
+        {"Access-Control-Allow-Origin", "*"},
+    ]
+    :cowboy_req.reply(200, headers, st, req)
   end
 
   def terminate(_reason, _req, _state), do: :ok

@@ -11,7 +11,7 @@ defmodule Interface.Network do
   end
 
   def handle(req, state) do
-    networks = NetworkManager.Client.scan
+    networks = NetworkManager.WiFi.scan
     st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "network.html.eex"), [networks: networks])
     headers = [
         {"cache-control", "no-cache"},

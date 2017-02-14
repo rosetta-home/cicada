@@ -11,6 +11,6 @@
     </head>
     <body>
         <script src="/static/js/jquery-3.1.1.min.js"></script>
-        <h4>WiFi Network info saved. Please reconnect to your WiFi Network.</h4>
+        <h4>WiFi Network info saved. Please reconnect to your WiFi Network. Device is restarting.</h4>
     </body>
 </html>
