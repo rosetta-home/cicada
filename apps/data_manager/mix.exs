@@ -11,7 +11,7 @@ defmodule DataManager.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -23,7 +23,7 @@ defmodule DataManager.Mixfile do
       mod: {DataManager, []},
       env: [
         update_frequency: 1*60000,
-        cloud_url: cloud_url
+        cloud_url: cloud_url()
       ]
     ]
   end
@@ -50,7 +50,7 @@ defmodule DataManager.Mixfile do
       {:histogram, in_umbrella: true},
       {:httpoison, "~> 0.8.3"},
       {:poison, "~> 3.0", override: true},
-      {:gen_stage, "~> 0.4"},
+      {:gen_stage, "~> 0.11.0"},
       {:device_manager, in_umbrella: true},
       {:cpu_mon, in_umbrella: true}
     ]

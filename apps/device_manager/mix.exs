@@ -11,14 +11,14 @@ defmodule DeviceManager.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :gen_stage, :network_manager, :lifx, :ssdp, :mdns, :chromecast, :ieq_gateway, :radio_thermostat, :meteo_stick, :raven_smcd, :poison],
+    [applications: [:logger, :gen_stage, :event_manager, :network_manager, :lifx, :ssdp, :mdns, :chromecast, :ieq_gateway, :radio_thermostat, :meteo_stick, :raven_smcd, :poison],
      mod: {DeviceManager, []}]
   end
 
@@ -48,7 +48,8 @@ defmodule DeviceManager.Mixfile do
       {:poison, "~> 3.0", override: true},
       {:radio_thermostat, github: "NationalAssociationOfRealtors/radio_thermostat"},
       {:voice_control, in_umbrella: true},
-      {:network_manager, in_umbrella: true}
+      {:network_manager, in_umbrella: true},
+      {:event_manager, in_umbrella: true}
     ]
   end
 end

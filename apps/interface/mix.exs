@@ -11,7 +11,7 @@ defmodule Interface.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps]
+     deps: deps()]
   end
 
   # Configuration for the OTP application
@@ -19,7 +19,7 @@ defmodule Interface.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :cowboy, :mdns, :network_manager, :gen_stage, :eex],
+      applications: [:logger, :cowboy, :mdns, :network_manager, :event_manager, :eex],
       mod: {Interface, []}
     ]
   end
@@ -28,8 +28,8 @@ defmodule Interface.Mixfile do
     [
       {:cowboy, "~> 1.0"},
       {:mdns, "~> 0.1.5"},
-      {:gen_stage, "~> 0.4"},
-      {:network_manager, in_umbrella: true}
+      {:network_manager, in_umbrella: true},
+      {:event_manager, in_umbrella: true}
     ]
   end
 end

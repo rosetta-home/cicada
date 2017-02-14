@@ -12,8 +12,8 @@ defmodule Fw.Mixfile do
      build_path: "_build/#{@target}",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     aliases: aliases,
-     deps: deps ++ system(@target)]
+     aliases: aliases(),
+     deps: deps() ++ system(@target)]
   end
 
   # Configuration for the OTP application.
@@ -21,7 +21,7 @@ defmodule Fw.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [mod: {Fw, []},
-     applications: [:logger, :nerves, :nerves_system_rpi3, :network_manager, :cpu_mon, :interface, :device_manager, :data_manager, :api, :voice_control, :nerves_firmware_http, :poison]]
+     applications: [:logger, :nerves, :nerves_system_rpi3, :event_manager, :network_manager, :cpu_mon, :interface, :device_manager, :data_manager, :api, :voice_control, :nerves_firmware_http, :poison]]
   end
 
   def deps do
@@ -29,7 +29,8 @@ defmodule Fw.Mixfile do
       {:nerves, github: "nerves-project/nerves", tag: "master", override: true},
       {:nerves_firmware_http, github: "nerves-project/nerves_firmware_http"},
       {:distillery, "~>1.1.2"},
-      {:poison, "~> 3.0", [env: :prod, hex: :poison, override: true, manager: :mix]},
+      {:poison, "~> 3.0", override: true},
+      {:event_manager, in_umbrella: true},
       {:network_manager, in_umbrella: true},
       {:interface, in_umbrella: true},
       {:device_manager, in_umbrella: true},
