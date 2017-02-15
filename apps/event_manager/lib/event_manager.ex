@@ -4,7 +4,9 @@ defmodule EventManager do
     defstruct count: 0
   end
 
-  def hello do
-    :world
+  def dispatch(type, event) do
+    Registry.dispatch(EventManager.Registry, type, fn entries ->
+      for {_module, [pid]} <- entries, do: send(pid, event)
+    end)
   end
 end

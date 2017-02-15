@@ -9,7 +9,7 @@ defmodule DeviceManager.NetworkListener do
   end
 
   def init(:ok) do
-    EventManager.Consumer.start_link(self, fn x -> true end)
+    NetworkManager.register
     {:ok, %{}}
   end
 

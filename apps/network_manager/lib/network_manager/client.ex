@@ -53,7 +53,7 @@ defmodule NetworkManager.Client do
   def handle_info(:init_network, state) do
     interface = state.interfaces |> active_interface
     state = %NetworkManager.State{state | interface: interface}
-    GenStage.async_notify(EventManager.Broadcaster, state)
+    state |> dispatch
     {:noreply, state}
   end
 
@@ -76,13 +76,15 @@ defmodule NetworkManager.Client do
     state = %NetworkManager.State{state | interfaces: interfaces, interface: interface}
     #Only broadcast on network status change, up or down.
     case interface |> ifup do
-      true when old_interface == nil ->
-        GenStage.async_notify(EventManager.Broadcaster, state)
-      false when not old_interface |> is_nil ->
-        GenStage.async_notify(EventManager.Broadcaster, state)
+      true when old_interface == nil -> state |> dispatch
+      false when not old_interface |> is_nil -> state |> dispatch
       _ -> :ok
     end
     {:noreply, state}
+  end
+
+  def dispatch(event) do
+    EventManager.dispatch(NetworkManager, event)
   end
 
   def update_interface(interfaces, ifchanged) do
@@ -114,6 +116,11 @@ defmodule NetworkManager.Client do
     Logger.info "No IP Address bound. Resetting network creds and restarting..."
     reset_network
     Nerves.Firmware.reboot(:graceful)
+  end
+
+  def handle_call(:register, from, state) do
+    Registry.register(EventManager.Registry, NetworkManager, [from])
+    {:reply, :ok, state}
   end
 
   def handle_call(:scan, _from, state) do
