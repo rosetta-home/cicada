@@ -130,20 +130,63 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
 end
 
 defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
-  use GenEvent
+  use GenServer
   require Logger
+  alias DeviceManager.Discovery
+  alias DeviceManager.Device.MediaPlayer
+  alias NetworkManager.State, as: NM
+  alias NetworkManager.Interface, as: NMInterface
 
-  def init do
-      {:ok, []}
+  defmodule EventHandler do
+    use GenEvent
+    require Logger
+
+    def handle_event({:"_googlecast._tcp.local", device}, parent) do
+        send(parent, device)
+        {:ok, parent}
+
+    end
+    def handle_event(device, parent) do
+      {:ok, parent}
+    end
+
   end
 
-  def handle_event({:"_googlecast._tcp.local", device}, parent) do
-      send(parent, {:googlecast, device})
-      {:ok, parent}
+  def start_link do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def handle_event(_other, parent) do
-      {:ok, parent}
+  def init(:ok) do
+    Logger.info "Starting Chromecast Listener"
+    Mdns.EventManager.add_handler(EventHandler)
+    NetworkManager.register
+    {:ok, []}
+  end
+
+  def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}, status: %{operstate: :up}}}, state) do
+    #wait for mDNS to start, no way to guarantee who gets this event first.
+    :timer.sleep(1000)
+    Process.send_after(self, :query_cast, 0)
+    {:noreply, state}
+  end
+
+  def handle_info(%NM{}, state) do
+    {:noreply, state}
+  end
+
+  def handle_info(:query_cast, state) do
+    Mdns.Client.query("_googlecast._tcp.local")
+    Process.send_after(self, :query_cast, 5000)
+    {:noreply, state}
+  end
+
+  def handle_info(device, state) do
+    Discovery.MediaPlayer.handle_device(device, MediaPlayer.Chromecast)
+    {:noreply, state}
+  end
+
+  def handle_info(_device, state) do
+    {:noreply, state}
   end
 
 end

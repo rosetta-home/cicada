@@ -159,20 +159,43 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 end
 
 defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
-  use GenEvent
+  use GenServer
   require Logger
+  alias DeviceManager.Discovery
+  alias DeviceManager.Device.HVAC
 
-  def init do
-      {:ok, []}
+  defmodule EventHandler do
+    use GenEvent
+    require Logger
+
+    def handle_event({:device, %{device: %{device_type: "com.marvell.wm.system:1.0"}} = device}, parent) do
+      send(parent, device)
+      {:ok, parent}
+    end
+
+    def handle_event(device, parent) do
+      {:ok, parent}
+    end
+
   end
 
-  def handle_event({:device, %{device: %{device_type: "com.marvell.wm.system:1.0"}} = device}, parent) do
-      send(parent, {:radio_thermostat, device})
-      {:ok, parent}
+  def start_link do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def handle_event(_device, parent) do
-      {:ok, parent}
+  def init(:ok) do
+    Logger.info "Starting RadioThermostat Listener"
+    SSDP.Client.add_handler(EventHandler)
+    {:ok, []}
+  end
+
+  def handle_info(device, state) do
+    Discovery.HVAC.handle_device(device, HVAC.RadioThermostat)
+    {:noreply, state}
+  end
+
+  def handle_info(_device, state) do
+    {:noreply, state}
   end
 
 end

@@ -55,20 +55,43 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
 end
 
 defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
-  use GenEvent
+  use GenServer
   require Logger
+  alias DeviceManager.Discovery
+  alias DeviceManager.Device.WeatherStation
 
-  def init do
-      {:ok, []}
-  end
+  defmodule EventHandler do
+    use GenEvent
+    require Logger
 
-  def handle_event(%MeteoStick.WeatherStation.State{} = device, parent) do
+    def handle_event(%MeteoStick.WeatherStation.State{} = device, parent) do
       send(parent, {:meteo_stick, device})
       {:ok, parent}
+    end
+
+    def handle_event(device, parent) do
+      {:ok, parent}
+    end
+
   end
 
-  def handle_event(_device, parent) do
-      {:ok, parent}
+  def start_link do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  end
+
+  def init(:ok) do
+    Logger.info "Starting MeteoStick Listener"
+    MeteoStick.EventManager.add_handler(EventHandler)
+    {:ok, []}
+  end
+
+  def handle_info(device, state) do
+    Discovery.WeatherStation.handle_device(device, WeatherStation.MeteoStick)
+    {:noreply, state}
+  end
+
+  def handle_info(_device, state) do
+    {:noreply, state}
   end
 
 end

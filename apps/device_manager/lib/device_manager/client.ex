@@ -10,7 +10,6 @@ defmodule DeviceManager.Client do
 
   def init(:ok) do
     NetworkManager.register
-    GenServer.call(DeviceManager.Discovery.Light, {:register, DeviceManager.Discovery.Light.Lifx})
     {:ok, %{}}
   end
 

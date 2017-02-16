@@ -104,15 +104,70 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
 end
 
 defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
-  use GenEvent
+  use GenServer
   require Logger
+  alias DeviceManager.Discovery
+  alias DeviceManager.Device.SmartMeter
 
-  def init(parent) do
+  defmodule EventHandler do
+    use GenEvent
+    require Logger
+
+    def handle_event(device, parent) do
+        send(parent, device)
+        {:ok, parent}
+    end
+
+    def handle_event(device, parent) do
       {:ok, parent}
+    end
+
   end
 
-  def handle_event(message, parent) do
-      send(parent, {:raven, message})
-      {:ok, parent}
+  def start_link do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
+
+  def init(:ok) do
+    Logger.info "Starting Raven"
+    Raven.EventManager.add_handler(EventHandler)
+    #Hacking raven for demo
+    #Process.send_after(self, %Raven.Meter.State{
+    #    id: :"0xFFFFFFFFFFFFFF",
+    #    connection_status: %Raven.Message.ConnectionStatus{
+    #      meter_mac_id: "0xFFFFFFFFFFFFFF",
+    #      status: "Connected",
+    #      channel: "22",
+    #      link_strength: 100
+    #    },
+    #    meter_info: %Raven.Message.MeterInfo{
+    #      meter_type: "electric"
+    #    },
+    #    price: %Raven.Message.PriceCluster{
+    #      price: 0.046
+    #    },
+    #    summation: %Raven.Message.CurrentSummationDelivered{
+    #      kw_delivered: 0,
+    #      kw_received: 0
+    #    },
+    #    demand: %Raven.Message.InstantaneousDemand{
+    #      kw: 0
+    #    }
+    #}, 100)
+    {:ok, []}
+  end
+
+  def handle_info(%Raven.Meter.State{} = device, state) do
+    Discovery.SmartMeter.handle_device(device, SmartMeter.RavenSMCD)
+    {:noreply, state}
+  end
+
+  def handle_info(%Raven.Client.State{} = _device, state) do
+    {:noreply, state}
+  end
+
+  def handle_info(_device, state) do
+    {:noreply, state}
+  end
+
 end

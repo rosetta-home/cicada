@@ -186,7 +186,7 @@ defmodule DeviceManager.Discovery.Light.Lifx do
   end
 
   def handle_info(%Lifx.Device.State{} = device, state) do
-    GenServer.call(Discovery.Light, {:device, device, Light.Lifx})
+    Discovery.Light.handle_device(device, Light.Lifx)
     {:noreply, state}
   end
 

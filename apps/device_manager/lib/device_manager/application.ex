@@ -6,12 +6,12 @@ defmodule DeviceManager.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      worker(Discovery, [Discovery.HVAC], id: 1),
-      worker(Discovery, [Discovery.Light], id: 2),
-      worker(Discovery, [Discovery.MediaPlayer], id: 3),
-      worker(Discovery, [Discovery.WeatherStation], id: 4),
-      worker(Discovery, [Discovery.SmartMeter], id: 5),
-      worker(Discovery, [Discovery.IEQ], id: 6),
+      worker(Discovery.HVAC, []),
+      worker(Discovery.Light, []),
+      worker(Discovery.MediaPlayer, []),
+      worker(Discovery.WeatherStation, []),
+      worker(Discovery.SmartMeter, []),
+      worker(Discovery.IEQ, []),
       worker(Client, [])
     ]
 
