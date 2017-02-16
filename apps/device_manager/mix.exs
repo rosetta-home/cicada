@@ -19,7 +19,7 @@ defmodule DeviceManager.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [applications: [:logger, :gen_stage, :event_manager, :network_manager, :lifx, :ssdp, :mdns, :chromecast, :ieq_gateway, :radio_thermostat, :meteo_stick, :raven_smcd, :poison],
-     mod: {DeviceManager, []}]
+     mod: {DeviceManager.Application, []}]
   end
 
   # Dependencies can be Hex packages:

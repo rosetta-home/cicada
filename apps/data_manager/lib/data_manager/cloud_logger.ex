@@ -7,7 +7,7 @@ defmodule DataManager.CloudLogger do
   end
 
   def init(:ok) do
-    DataManager.DataConsumer.start_link(self)
+    #DataManager.DataConsumer.start_link(self)
     id = NetworkManager.BoardId.get
     Logger.info "Board ID: #{id}"
     cloud_url = Application.get_env(:data_manager, :cloud_url)

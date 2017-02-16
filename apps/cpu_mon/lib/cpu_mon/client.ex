@@ -18,7 +18,7 @@ defmodule CpuMon.Client do
     |> Enum.map(fn({cpu, busy, idle, _misc}) ->
       b = busy |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
       i = idle |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
-      CpuMon.Broadcaster.sync_notify(%{cpu: cpu, busy: b, idle: i})
+      #CpuMon.Broadcaster.sync_notify(%{cpu: cpu, busy: b, idle: i})
     end)
     Process.send_after(self, :get_metrics, 20000)
     {:noreply, state}

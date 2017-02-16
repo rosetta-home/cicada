@@ -1,16 +1,15 @@
-defmodule Interface.NetworkListener do
+defmodule Interface.Client do
   use GenServer
   require Logger
   alias NetworkManager.State, as: NM
   alias NetworkManager.Interface, as: NMInterface
 
   def start_link do
-    GenServer.start_link(__MODULE__, :ok)
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(:ok) do
     NetworkManager.register
-    Interface.TCPServer.start_link
     Mdns.Server.add_service(%Mdns.Server.Service{
       domain: "rosetta.local",
       data: :ip,
@@ -33,6 +32,15 @@ defmodule Interface.NetworkListener do
 
   def handle_info(mes, state) do
     {:noreply, state}
+  end
+
+  def handle_call(:register, {pid, _ref}, state) do
+    Registry.register(EventManager.Registry, Interface, pid)
+    {:reply, :ok, state}
+  end
+
+  def dispatch(event) do
+    EventManager.dispatch(Interface, event)
   end
 
 end

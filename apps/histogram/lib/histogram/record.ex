@@ -2,6 +2,8 @@ defmodule Histogram.Record do
   use GenServer
   require Logger
 
+  @values_length Application.get_env(:histogram, :history_length)
+
   defmodule State do
     defstruct values: [],
       id: nil,
@@ -63,6 +65,6 @@ defmodule Histogram.Record do
   end
 
   def handle_cast({:add, value}, state) do
-    {:noreply, %State{ state | values: [ value | state.values ], current_value: value }}
+    {:noreply, %State{ state | values: [ value | state.values ] |> Enum.slice(0, @values_length), current_value: value }}
   end
 end

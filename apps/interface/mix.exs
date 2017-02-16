@@ -20,7 +20,8 @@ defmodule Interface.Mixfile do
   def application do
     [
       applications: [:logger, :cowboy, :mdns, :network_manager, :event_manager, :eex],
-      mod: {Interface, []}
+      mod: {Interface.Application, []},
+      env: [port: System.get_env("INTERFACE_PORT")]
     ]
   end
 

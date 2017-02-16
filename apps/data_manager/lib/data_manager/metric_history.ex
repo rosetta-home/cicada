@@ -26,7 +26,7 @@ defmodule DataManager.MetricHistory do
   end
 
   def init(:ok) do
-    DataManager.DataConsumer.start_link(self)
+    #DataManager.DataConsumer.start_link(self)
     {:ok, %State{}}
   end
 

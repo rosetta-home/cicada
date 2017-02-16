@@ -1,6 +1,4 @@
 defmodule DeviceManager do
-  use Application
-  require Logger
 
   defmodule Device do
     @derive [Poison.Encoder]
@@ -12,12 +10,8 @@ defmodule DeviceManager do
       state: %{}
   end
 
-  def start(_type, _args) do
-    DeviceManager.BroadcastSupervisor.start_link
-    DeviceManager.ApplicationSupervisor.start_link
-    DeviceManager.NetworkListener.start_link
+  def register do
+    GenServer.call(DeviceManager.Client, :register)
   end
-
-
 
 end

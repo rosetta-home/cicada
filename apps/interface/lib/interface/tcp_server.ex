@@ -1,15 +1,15 @@
 defmodule Interface.TCPServer do
 
   def start_link do
-    port = Application.get_env(:interface, :tcp_port, 8080)
+    port = Application.get_env(:interface, :port, "8080") |> String.to_integer
     dispatch = :cowboy_router.compile([
       { :_,
         [
-          {"/", Interface.Index, []},
-          {"/floorplan", Interface.Floorplan, []},
-          {"/network", Interface.Network, []},
-          {"/connect_network", Interface.ConnectNetwork, []},
-          {"/reset_network", Interface.ResetNetwork, []},
+          {"/", Interface.UI.Index, []},
+          {"/floorplan", Interface.UI.Floorplan, []},
+          {"/network", Interface.UI.Network, []},
+          {"/connect_network", Interface.UI.ConnectNetwork, []},
+          {"/reset_network", Interface.UI.ResetNetwork, []},
           {"/app.js", :cowboy_static, {:priv_file, :interface, "app.js"}},
           {"/static/[...]", :cowboy_static, {:priv_dir,  :interface, "static"}},
 

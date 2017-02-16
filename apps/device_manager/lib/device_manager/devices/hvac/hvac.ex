@@ -21,19 +21,18 @@ defmodule DeviceManager.Device.HVAC do
 end
 
 defmodule DeviceManager.Discovery.HVAC do
-  use DeviceManager.Discovery
+  #use DeviceManager.Discovery
 
   alias DeviceManager.Device.HVAC
   alias DeviceManager.Discovery
 
   def init_handlers do
-    :timer.sleep 5000
-    Logger.info "Starting Radio Thermostat Listener"
+    #Logger.info "Starting Radio Thermostat Listener"
     SSDP.Client.add_handler(Discovery.HVAC.RadioThermostat)
   end
 
   def handle_info({:radio_thermostat, device}, state) do
-    {:noreply, handle_device(device, state, HVAC.RadioThermostat)}
+    #{:noreply, handle_device(device, state, HVAC.RadioThermostat)}
   end
 
 end

@@ -1,4 +1,4 @@
-defmodule Interface.ResetNetwork do
+defmodule Interface.UI.ResetNetwork do
   require Logger
 
   defmodule State do
@@ -11,8 +11,8 @@ defmodule Interface.ResetNetwork do
   end
 
   def handle(req, state) do
-    :ok = NetworkManager.Client.reset_network
-    networks = NetworkManager.Client.scan
+    :ok = NetworkManager.WiFi.delete_creds
+    networks = NetworkManager.WiFi.scan
     st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "network.html.eex"), [networks: networks])
     headers = [
         {"cache-control", "no-cache"},

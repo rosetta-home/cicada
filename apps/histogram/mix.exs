@@ -20,7 +20,8 @@ defmodule Histogram.Mixfile do
   def application do
     [
       applications: [:logger, :statistics],
-      mod: {Histogram, []}
+      mod: {Histogram, []},
+      env: [history_length: 20]
     ]
   end
 

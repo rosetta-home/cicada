@@ -5,7 +5,7 @@ defmodule EventManager.Application do
     import Supervisor.Spec, warn: false
 
     children = [
-      worker(Registry, [:duplicate, EventManager.Registry, partitions: System.schedulers_online]),
+      supervisor(Registry, [:duplicate, EventManager.Registry, [partitions: System.schedulers_online]]),
     ]
 
     opts = [strategy: :one_for_one, name: EventManager.Supervisor]

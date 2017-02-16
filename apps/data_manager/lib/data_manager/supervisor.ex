@@ -8,11 +8,9 @@ defmodule DataManager.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(DataManager.DeviceConsumer, []),
-      worker(DataManager.Broadcaster, []),
       worker(DataManager.CloudLogger, []),
       worker(DataManager.MetricHistory, []),
-      worker(DataManager.Timer, [])
+      #worker(DataManager.Timer, [])
     ]
     supervise(children, strategy: :one_for_one)
   end

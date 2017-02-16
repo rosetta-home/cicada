@@ -1,4 +1,4 @@
-defmodule Interface.Floorplan do
+defmodule Interface.UI.Index do
   require Logger
 
   defmodule State do
@@ -13,7 +13,7 @@ defmodule Interface.Floorplan do
   def handle(req, state) do
     Logger.info(System.cwd)
     Logger.info(state.hostname)
-    st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "floorplan.html.eex"), [hostname: state.hostname])
+    st = EEx.eval_file(Path.join(:code.priv_dir(:interface), "index.html.eex"), [hostname: state.hostname])
     headers = [
         {"cache-control", "no-cache"},
         {"connection", "close"},

@@ -27,7 +27,7 @@ defmodule DeviceManager.Device.MediaPlayer do
 end
 
 defmodule DeviceManager.Discovery.MediaPlayer do
-  use DeviceManager.Discovery
+  #use DeviceManager.Discovery
 
   alias DeviceManager.Device.MediaPlayer
 

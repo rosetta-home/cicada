@@ -80,7 +80,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   def init({id, device}) do
     {:ok, pid} = RadioThermostat.start_link(device.url)
     Process.send_after(self, :update_state, 0)
-    Process.send_after(self, :broadcast_state, 0)
+    #Process.send_after(self, :broadcast_state, 0)
     r_state = RadioThermostat.state(pid) |> map_state
     {:ok, %DeviceManager.Device{
       module: RadioThermostat,
@@ -97,12 +97,12 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
       RadioThermostat.state(device.device_pid) |> map_state
     }
     Process.send_after(self, :update_state, 60000)
-    DeviceManager.Broadcaster.sync_notify(device)
+    device |> DeviceManager.Client.dispatch
     {:noreply, device}
   end
 
   def handle_info(:broadcast_state, device) do
-    DeviceManager.Broadcaster.sync_notify(device)
+    device |> DeviceManager.Client.dispatch
     Process.send_after(self, :broadcast_state, 1000)
     {:noreply, device}
   end

@@ -95,7 +95,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     device = %DeviceManager.Device{device | state:
       Chromecast.state(device.device_pid) |> map_state
     }
-    DeviceManager.Broadcaster.sync_notify(device)
+    device |> DeviceManager.Client.dispatch
     {:noreply, device}
   end
 
