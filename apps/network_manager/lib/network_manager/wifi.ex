@@ -25,9 +25,13 @@ defmodule NetworkManager.WiFi do
   #Callbacks
 
   def init(:ok) do
-    System.cmd("modprobe", ["brcmfmac"])
-    System.cmd("/usr/sbin/wpa_supplicant",  ["-i", "wlan0", "-C", "/var/run/wpa_supplicant", "-B"])
-    {:ok, pid} = Nerves.WpaSupplicant.start_link("/var/run/wpa_supplicant/wlan0")
+    case File.exists?("/usr/sbin/wpa_supplicant") do
+      true ->
+        System.cmd("modprobe", ["brcmfmac"])
+        System.cmd("/usr/sbin/wpa_supplicant",  ["-i", "wlan0", "-C", "/var/run/wpa_supplicant", "-B"])
+        {:ok, pid} = Nerves.WpaSupplicant.start_link("/var/run/wpa_supplicant/wlan0")
+      _ -> :not_raspi
+    end
     case creds? do
       true -> Process.send_after(__MODULE__, :join, 0)
       false -> :ok

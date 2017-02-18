@@ -1,8 +1,6 @@
-defmodule Histogram.Record do
+defmodule DataManager.Histogram.Record do
   use GenServer
   require Logger
-
-  @values_length Application.get_env(:histogram, :history_length)
 
   defmodule State do
     defstruct values: [],
@@ -32,7 +30,7 @@ defmodule Histogram.Record do
 
   def start_link(id) do
     id_a = String.to_atom(id)
-    GenServer.start_link(__MODULE__, id, name: id_a)
+    GenServer.start_link(__MODULE__, id, name: id |> String.to_atom)
   end
 
   def init(id) do
@@ -44,19 +42,25 @@ defmodule Histogram.Record do
     res = %{
       id: state.id,
       value: state.current_value,
-      count: values |> Enum.count,
-      mean: values |> Statistics.mean,
-      min: values |> Statistics.min,
-      max: values |> Statistics.max,
-      median: values |> Statistics.median,
-      std_dev: values |> Statistics.stdev,
-      p50: values |> Statistics.percentile(50),
-      p75: values |> Statistics.percentile(75),
-      p90: values |> Statistics.percentile(90),
-      p95: values |> Statistics.percentile(95),
-      p99: values |> Statistics.percentile(99),
-      p999: values |> Statistics.percentile(99.9)
+      count: values |> Enum.count
     }
+    case values do
+      [head | tail] when head |> is_number ->
+        res = %{res |
+          mean: values |> Statistics.mean,
+          min: values |> Statistics.min,
+          max: values |> Statistics.max,
+          median: values |> Statistics.median,
+          std_dev: values |> Statistics.stdev,
+          p50: values |> Statistics.percentile(50),
+          p75: values |> Statistics.percentile(75),
+          p90: values |> Statistics.percentile(90),
+          p95: values |> Statistics.percentile(95),
+          p99: values |> Statistics.percentile(99),
+          p999: values |> Statistics.percentile(99.9)
+        }
+      _ -> res
+    end
     {:reply, res, state}
   end
 
@@ -65,6 +69,6 @@ defmodule Histogram.Record do
   end
 
   def handle_cast({:add, value}, state) do
-    {:noreply, %State{ state | values: [ value | state.values ] |> Enum.slice(0, @values_length), current_value: value }}
+    {:noreply, %State{ state | values: [ value | state.values ], current_value: value }}
   end
 end

@@ -2,11 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :logger,
-  backends: [:console],
-  compile_time_purge_level: :info,
-  level: :info
-
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
@@ -15,11 +10,11 @@ config :logger,
 
 # You can configure for your application as:
 #
-#     config :histogram, key: :value
+#     config :util, key: :value
 #
 # And access this configuration in your application as:
 #
-#     Application.get_env(:histogram, :key)
+#     Application.get_env(:util, :key)
 #
 # Or configure a 3rd-party app:
 #

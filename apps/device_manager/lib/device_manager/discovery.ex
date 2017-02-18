@@ -26,7 +26,7 @@ defmodule DeviceManager.Discovery do
         {:ok, %State{}}
       end
 
-      def handle_info({:EXIT, crashed, reason}, state) do
+      def handle_info({:EXIT, crashed, reason}, state) when reason != :normal do
         Logger.info("Process #{inspect crashed} crashed: #{inspect reason} Current State: #{inspect state}")
         devices =
           Enum.filter(state.devices, fn {pid, device} ->
@@ -39,6 +39,8 @@ defmodule DeviceManager.Discovery do
           end)
         {:noreply, %State{ state | devices: devices} }
       end
+
+      def handle_info({:EXIT, crashed, reason}, state), do: {:noreply, state}
 
       def handle_call({:register, module}, _from, state) do
         module.start_link

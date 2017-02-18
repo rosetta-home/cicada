@@ -1,8 +1,7 @@
 defmodule DataManager do
-  use Application
 
-  def start(_type, _opts) do
-    DataManager.Supervisor.start_link
+  def register do
+    GenServer.call(DataManager.Client, :register)
   end
 
 end
