@@ -12,6 +12,7 @@ defmodule API.Websocket do
 
   def websocket_init(_TransportName, req, _opts) do
     DeviceManager.register
+    CpuMon.register
     {:ok, req, %State{}}
   end
 
@@ -72,7 +73,7 @@ defmodule API.Websocket do
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
-  def websocket_info(%{cpu: cpu} = event, req, state) do
+  def websocket_info(%CpuMon.Cpu{} = event, req, state) do
     ws_event = %{
       type: "cpu",
       state: event,

@@ -37,7 +37,6 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def map_state(state) do
-    #Logger.info "Chromecast State #{inspect state}"
     item = case state.media_status |> Map.get("items") do
       nil -> state.media_status |> Map.get("media", %{})
       items -> items |> Enum.at(0, %{})

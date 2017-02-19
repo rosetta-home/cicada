@@ -22,17 +22,6 @@ defmodule DataManager.Client do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def init(:ok) do
-    DeviceManager.register
-    {:ok, %State{}}
-  end
-
-  def handle_info(%DeviceManager.Device{type: type} = device, state) do
-    {:noreply, %State{state | sensors: device |> send_metric(state)}}
-  end
-
-  def handle_info(%DeviceManager.Device{} = device, state), do: {:noreply, state}
-
   def create_histogram(id, map, state) do
     name = :"Histogram-#{id}"
     case DataManager.Histogram.start_device(name) do
@@ -46,6 +35,17 @@ defmodule DataManager.Client do
     id = device.interface_pid |> Atom.to_string
     create_histogram(id, device.state, state)
   end
+
+  def init(:ok) do
+    DeviceManager.register
+    {:ok, %State{}}
+  end
+
+  def handle_info(%DeviceManager.Device{type: type} = device, state) do
+    {:noreply, %State{state | sensors: device |> send_metric(state)}}
+  end
+
+  def handle_info(%DeviceManager.Device{} = device, state), do: {:noreply, state}
 
   def handle_call(:register, {pid, _ref}, state) do
     Registry.register(EventManager.Registry, DataManager, pid)

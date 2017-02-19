@@ -19,8 +19,8 @@ defmodule CpuMon.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :os_mon],
-      mod: {CpuMon, []}
+      applications: [:logger, :os_mon, :poison],
+      mod: {CpuMon.Application, []}
     ]
   end
 
@@ -38,6 +38,6 @@ defmodule CpuMon.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:poison, "~> 3.0", override: true}]
   end
 end

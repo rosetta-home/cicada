@@ -1,8 +1,16 @@
 defmodule CpuMon do
-  use Application
 
-  def start(_type, _opts) do
-    CpuMon.Supervisor.start_link
+  defmodule State do
+    defstruct cpus: []
+  end
+
+  defmodule Cpu do
+    @derive [Poison.Encoder]
+    defstruct cpu: 0, busy: 0, idle: 0
+  end
+
+  def register do
+    GenServer.call(CpuMon.Client, :register)
   end
 
 end

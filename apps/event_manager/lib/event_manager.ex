@@ -14,5 +14,6 @@ defmodule EventManager do
         end)
     end
     Logger.debug "Dispatched: #{inspect event}"
+    event
   end
 end

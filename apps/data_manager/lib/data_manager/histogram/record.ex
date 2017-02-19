@@ -8,6 +8,11 @@ defmodule DataManager.Histogram.Device.Record do
       current_value: 0
   end
 
+  def start_link(id) do
+    id_a = String.to_atom(id)
+    GenServer.start_link(__MODULE__, id, name: id |> String.to_atom)
+  end
+
   def add(id, value) do
     GenServer.cast(id |> String.to_existing_atom, {:add, value})
   end
@@ -28,14 +33,19 @@ defmodule DataManager.Histogram.Device.Record do
     GenServer.call(id |> String.to_existing_atom, :values)
   end
 
-  def start_link(id) do
-    id_a = String.to_atom(id)
-    GenServer.start_link(__MODULE__, id, name: id |> String.to_atom)
+  def history(id) when id |> is_pid do
+    GenServer.call(id, :history)
+  end
+
+  def history(id) do
+    GenServer.call(id |> String.to_existing_atom, :history)
   end
 
   def init(id) do
     {:ok, %State{id: id}}
   end
+
+  def handle_call(:history, _from, state), do: {:reply, state.values, state}
 
   def handle_call(:values, _from, state) do
     values = state.values

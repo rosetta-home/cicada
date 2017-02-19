@@ -41,12 +41,12 @@ function showHistogram(obj){
                 chart.xAxis.tickFormat(function(d) {
                     return d3.time.format('%H:%M')(new Date(d))
                 });
-                objects[type+"-p999"].color = "red";
-                objects[type+"-p50"].color = "blue";
-                objects[type+"-mean"].color = "green";
+                //objects[type+"-p999"].color = "red";
+                //objects[type+"-p50"].color = "blue";
+                //objects[type+"-mean"].color = "green";
                 objects[type+"-value"].color = "yellow";
                 chart.yAxis.tickFormat(d3.format(',.2f'));
-                var d = [objects[type+"-value"], objects[type+"-mean"], objects[type+"-p75"], objects[type+"-p999"]].reverse();
+                var d = [objects[type+"-value"]]//, objects[type+"-mean"], objects[type+"-p75"], objects[type+"-p999"]].reverse();
                 setTimeout(function(){
                     dom.innerHTML = "<svg></svg>";
                     var foo = dom.offsetHeight;

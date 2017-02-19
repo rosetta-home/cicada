@@ -14,7 +14,11 @@ defmodule API.MetricHistory do
 
     def handle(req, state) do
         Logger.info "Getting Metrics for #{state.device_id} of type #{state.sensor_type}"
-        device = DataManager.MetricHistory.get_metrics(state.device_id, state.sensor_type)
+        id = "#{state.device_id}::#{state.sensor_type}"
+        history = DataManager.Histogram.Device.Record.history(id)
+        device = %{id: "#{state.device_id}::#{state.sensor_type}", history: Enum.map(history, fn val ->
+          %{metric: state.sensor_type, datapoint: "value", values: history}
+        end)}
         headers = [
             {"cache-control", "no-cache"},
             {"connection", "close"},
