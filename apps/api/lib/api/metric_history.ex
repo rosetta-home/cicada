@@ -6,7 +6,7 @@ defmodule API.MetricHistory do
         sensor_type: nil
     end
 
-    def init({:tcp, :http}, req, opts) do
+    def init({:tcp, :http}, req, _opts) do
         {device_id, req} = :cowboy_req.qs_val("device_id", req)
         {sensor_type, req} = :cowboy_req.qs_val("sensor_type", req)
         {:ok, req, %State{:device_id => device_id, :sensor_type => sensor_type }}
@@ -16,9 +16,9 @@ defmodule API.MetricHistory do
         Logger.info "Getting Metrics for #{state.device_id} of type #{state.sensor_type}"
         id = "#{state.device_id}::#{state.sensor_type}"
         history = DataManager.Histogram.Device.Record.history(id)
-        device = %{id: "#{state.device_id}::#{state.sensor_type}", history: Enum.map(history, fn val ->
+        device = %{id: "#{state.device_id}::#{state.sensor_type}", history: [
           %{metric: state.sensor_type, datapoint: "value", values: history}
-        end)}
+        ]}
         headers = [
             {"cache-control", "no-cache"},
             {"connection", "close"},
@@ -32,6 +32,6 @@ defmodule API.MetricHistory do
         {:ok, req2, state}
     end
 
-    def terminate(_reason, req, state), do: :ok
+    def terminate(_reason, _req, _state), do: :ok
 
 end

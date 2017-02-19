@@ -2,7 +2,7 @@ defmodule DataManager.Histogram.Device.Record do
   use GenServer
   require Logger
 
-  @history_length Application.get_env(:data_manager, :history_length)
+  #@history_length Application.get_env(:data_manager, :history_length)
 
   defmodule State do
     defstruct values: [],
@@ -11,7 +11,6 @@ defmodule DataManager.Histogram.Device.Record do
   end
 
   def start_link(id) do
-    id_a = String.to_atom(id)
     GenServer.start_link(__MODULE__, id, name: id |> String.to_atom)
   end
 
@@ -56,23 +55,24 @@ defmodule DataManager.Histogram.Device.Record do
       value: state.current_value,
       count: values |> Enum.count
     }
-    case values do
-      [head | tail] when head |> is_number ->
-        res = %{res |
-          mean: values |> Statistics.mean,
-          min: values |> Statistics.min,
-          max: values |> Statistics.max,
-          median: values |> Statistics.median,
-          std_dev: values |> Statistics.stdev,
-          p50: values |> Statistics.percentile(50),
-          p75: values |> Statistics.percentile(75),
-          p90: values |> Statistics.percentile(90),
-          p95: values |> Statistics.percentile(95),
-          p99: values |> Statistics.percentile(99),
-          p999: values |> Statistics.percentile(99.9)
-        }
-      _ -> res
-    end
+    res =
+      case values do
+        [head | _tail] when head |> is_number ->
+          %{res |
+            mean: values |> Statistics.mean,
+            min: values |> Statistics.min,
+            max: values |> Statistics.max,
+            median: values |> Statistics.median,
+            std_dev: values |> Statistics.stdev,
+            p50: values |> Statistics.percentile(50),
+            p75: values |> Statistics.percentile(75),
+            p90: values |> Statistics.percentile(90),
+            p95: values |> Statistics.percentile(95),
+            p99: values |> Statistics.percentile(99),
+            p999: values |> Statistics.percentile(99.9)
+          }
+        _ -> res
+      end
     {:reply, res, state}
   end
 

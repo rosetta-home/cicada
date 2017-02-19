@@ -11,7 +11,7 @@ defmodule CpuMon.Client do
   end
 
   def init(:ok) do
-    Process.send_after(self, :get_metrics, 5000)
+    Process.send_after(self(), :get_metrics, 5000)
     {:ok, %{}}
   end
 
@@ -23,7 +23,7 @@ defmodule CpuMon.Client do
         i = idle |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
         %CpuMon.Cpu{cpu: cpu, busy: b, idle: i} |> CpuMon.Client.dispatch
       end)
-    Process.send_after(self, :get_metrics, 5000)
+    Process.send_after(self(), :get_metrics, 5000)
     {:noreply, %CpuMon.State{cpus: cpus}}
   end
 

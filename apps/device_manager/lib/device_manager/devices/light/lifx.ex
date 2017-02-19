@@ -4,8 +4,6 @@ defmodule DeviceManager.Device.Light.Lifx do
 
   @behaviour DeviceManager.Behaviour.Light
 
-  alias Lifx.Protocol.HSBK
-
   def start_link(id, %Lifx.Device.State{} = device) do
     GenServer.start_link(__MODULE__, {id, device}, name: id)
   end
@@ -75,7 +73,7 @@ defmodule DeviceManager.Device.Light.Lifx do
   end
 
   def init({id, device}) do
-    Process.send_after(self, :add_voice_controls, 100)
+    Process.send_after(self(), :add_voice_controls, 100)
     {:ok, %DeviceManager.Device{
       module: Lifx.Device,
       type: :light,
@@ -157,7 +155,6 @@ end
 defmodule DeviceManager.Discovery.Light.Lifx do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
   alias DeviceManager.Device.Light
 
   defmodule EventHandler do
@@ -169,7 +166,7 @@ defmodule DeviceManager.Discovery.Light.Lifx do
       {:ok, parent}
     end
 
-    def handle_event(device, parent) do
+    def handle_event(_device, parent) do
       {:ok, parent}
     end
 

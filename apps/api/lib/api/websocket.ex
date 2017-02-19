@@ -6,7 +6,7 @@ defmodule API.Websocket do
     defstruct temp_debounce: %{}
   end
 
-  def init({tcp, http}, _req, _opts) do
+  def init({_tcp, _http}, _req, _opts) do
     {:upgrade, :protocol, :cowboy_websocket}
   end
 
@@ -16,7 +16,7 @@ defmodule API.Websocket do
     {:ok, req, %State{}}
   end
 
-  def websocket_terminate(reason, _req, state) do
+  def websocket_terminate(reason, _req, _state) do
     IO.inspect reason
     :ok
   end
@@ -40,15 +40,15 @@ defmodule API.Websocket do
       "Temperature" ->
         i_pid = String.to_existing_atom(cmd["id"])
         temp = case Float.parse cmd["payload"] do
-          {num, rem} -> num
+          {num, _rem} -> num
           :error -> 72
         end
         case Map.get(state.temp_debounce, i_pid) do
           nil ->
-            Process.send_after(self, {:send_temp, i_pid}, 1000)
+            Process.send_after(self(), {:send_temp, i_pid}, 1000)
             %State{state | temp_debounce: Map.put(state.temp_debounce, i_pid, temp)}
-          val ->
-            db = Map.update!(state.temp_debounce, i_pid, fn(v) -> temp end)
+          _val ->
+            db = Map.update!(state.temp_debounce, i_pid, fn(_v) -> temp end)
             %State{state | temp_debounce: db}
         end
     end

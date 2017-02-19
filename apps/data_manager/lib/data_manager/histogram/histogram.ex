@@ -8,15 +8,15 @@ defmodule DataManager.Histogram do
   end
 
   def snapshot() do
-    Enum.reduce(Supervisor.which_children(__MODULE__), %{}, fn({id, child, type, module}, acc) ->
-      values = Histogram.Record.values(child)
+    Enum.reduce(Supervisor.which_children(__MODULE__), %{}, fn({_id, child, _type, _module}, acc) ->
+      values = Histogram.Device.Record.values(child)
       Map.put(acc, values.id, values)
     end)
   end
 
   def reset do
-    Enum.each(Supervisor.which_children(__MODULE__), fn {id, child, type, module} ->
-      Histogram.Record.reset(child)
+    Enum.each(Supervisor.which_children(__MODULE__), fn {_id, child, _type, _module} ->
+      Histogram.Device.Record.reset(child)
     end)
   end
 

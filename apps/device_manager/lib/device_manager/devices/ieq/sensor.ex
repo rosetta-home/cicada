@@ -83,8 +83,7 @@ end
 defmodule DeviceManager.Discovery.IEQ.Sensor do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
-  alias DeviceManager.Device.HVAC
+  alias DeviceManager.Device.IEQ
 
   defmodule EventHandler do
     use GenEvent
@@ -95,7 +94,7 @@ defmodule DeviceManager.Discovery.IEQ.Sensor do
       {:ok, parent}
     end
 
-    def handle_event(device, parent) do
+    def handle_event(_device, parent) do
       {:ok, parent}
     end
 

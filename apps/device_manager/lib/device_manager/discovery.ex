@@ -35,7 +35,7 @@ defmodule DeviceManager.Discovery do
 
       def init(:ok) do
         Process.flag(:trap_exit, true)
-        register_callbacks
+        register_callbacks()
         {:ok, %State{}}
       end
 

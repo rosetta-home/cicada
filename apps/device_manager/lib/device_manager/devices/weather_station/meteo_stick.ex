@@ -57,7 +57,6 @@ end
 defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
   alias DeviceManager.Device.WeatherStation
 
   defmodule EventHandler do
@@ -69,7 +68,7 @@ defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
       {:ok, parent}
     end
 
-    def handle_event(device, parent) do
+    def handle_event(_device, parent) do
       {:ok, parent}
     end
 
@@ -83,10 +82,6 @@ defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
 
   def handle_info(device, state) do
     {:noreply, handle_device(device, WeatherStation.MeteoStick, state)}
-  end
-
-  def handle_info(_device, state) do
-    {:noreply, state}
   end
 
 end

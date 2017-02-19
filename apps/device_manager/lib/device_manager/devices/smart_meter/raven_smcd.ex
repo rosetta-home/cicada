@@ -51,7 +51,7 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def init({id, device}) do
-    Process.send_after(self, :fake_data, 1000)
+    #Process.send_after(self, :fake_data, 1000)
     {:ok, %DeviceManager.Device{
       module: Raven.Client,
       type: :smart_meter,
@@ -63,7 +63,7 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
   end
 
   def handle_info(:fake_data, device) do
-    Process.send_after(self, :fake_data, 1000)
+    Process.send_after(self(), :fake_data, 1000)
     kw = :rand.uniform()
     kw_r = device.state.kw_received + (kw * 0.0001)
     kw_d = device.state.kw_delivered + (kw * 0.001)
@@ -106,7 +106,6 @@ end
 defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
   alias DeviceManager.Device.SmartMeter
 
   defmodule EventHandler do
@@ -116,10 +115,6 @@ defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
     def handle_event(device, parent) do
         send(parent, device)
         {:ok, parent}
-    end
-
-    def handle_event(device, parent) do
-      {:ok, parent}
     end
 
   end
@@ -157,7 +152,7 @@ defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
     {:noreply, handle_device(device, SmartMeter.RavenSMCD, state)}
   end
 
-  def handle_info(device, state) do
+  def handle_info(_device, state) do
     {:noreply, state}
   end
 

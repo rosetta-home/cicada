@@ -79,7 +79,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 
   def init({id, device}) do
     {:ok, pid} = RadioThermostat.start_link(device.url)
-    Process.send_after(self, :update_state, 0)
+    Process.send_after(self(), :update_state, 0)
     #Process.send_after(self, :broadcast_state, 0)
     r_state = RadioThermostat.state(pid) |> map_state
     {:ok, %DeviceManager.Device{
@@ -96,18 +96,18 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     device = %DeviceManager.Device{device | state:
       RadioThermostat.state(device.device_pid) |> map_state
     }
-    Process.send_after(self, :update_state, 60000)
+    Process.send_after(self(), :update_state, 60000)
     device |> DeviceManager.Client.dispatch
     {:noreply, device}
   end
 
   def handle_info(:broadcast_state, device) do
     device |> DeviceManager.Client.dispatch
-    Process.send_after(self, :broadcast_state, 1000)
+    Process.send_after(self(), :broadcast_state, 1000)
     {:noreply, device}
   end
 
-  def handle_call({:update, state}, _from, device) do
+  def handle_call({:update, _state}, _from, device) do
     {:reply, device.state, device}
   end
 
@@ -119,7 +119,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     {:reply,
       case RadioThermostat.set(device.device_pid, :fan, 1) do
         {:ok, %{"success": 0}} ->
-          Process.send_after(self, :update_state, 0)
+          Process.send_after(self(), :update_state, 0)
           true
         other ->
           IO.inspect other
@@ -131,7 +131,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
     {:reply,
       case RadioThermostat.set(device.device_pid, :fan, 0) do
         {:ok, %{"success": 0}} ->
-          Process.send_after(self, :update_state, 0)
+          Process.send_after(self(), :update_state, 0)
           true
         other ->
           IO.inspect other
@@ -140,7 +140,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
   end
 
   def handle_call({:set_temp, temp}, _from, device) do
-    res = case device.state.mode do
+    case device.state.mode do
       :cool ->
         case temp > device.state.temperature do
           true -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
@@ -152,7 +152,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
           false -> RadioThermostat.set(device.device_pid, :temporary_heat, temp)
         end
     end
-    Process.send_after(self, :update_state, 1000)
+    Process.send_after(self(), :update_state, 1000)
     {:reply, :ok, device}
   end
 
@@ -161,7 +161,6 @@ end
 defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
   alias DeviceManager.Device.HVAC
 
   defmodule EventHandler do
@@ -173,7 +172,7 @@ defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
       {:ok, parent}
     end
 
-    def handle_event(device, parent) do
+    def handle_event(_device, parent) do
       {:ok, parent}
     end
 
@@ -187,10 +186,6 @@ defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
 
   def handle_info(device, state) do
     {:noreply, handle_device(device, HVAC.RadioThermostat, state)}
-  end
-
-  def handle_info(_device, state) do
-    {:noreply, state}
   end
 
 end

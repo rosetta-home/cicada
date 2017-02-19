@@ -78,7 +78,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
 
   def init({id, device}) do
     {:ok, pid} = Chromecast.start_link(device.ip)
-    Process.send_after(self, :update_state, 1000)
+    Process.send_after(self(), :update_state, 1000)
     {:ok, %DeviceManager.Device{
       module: Chromecast,
       type: :media_player,
@@ -90,7 +90,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
   end
 
   def handle_info(:update_state, device) do
-    Process.send_after(self, :update_state, 1000)
+    Process.send_after(self(), :update_state, 1000)
     device = %DeviceManager.Device{device | state:
       Chromecast.state(device.device_pid) |> map_state
     }
@@ -98,7 +98,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
     {:noreply, device}
   end
 
-  def handle_call({:update, state}, _from, device) do
+  def handle_call({:update, _state}, _from, device) do
     {:reply, device.state, device}
   end
 
@@ -131,7 +131,6 @@ end
 defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
   use DeviceManager.Discovery
   require Logger
-  alias DeviceManager.Discovery
   alias DeviceManager.Device.MediaPlayer
   alias NetworkManager.State, as: NM
   alias NetworkManager.Interface, as: NMInterface
@@ -141,14 +140,13 @@ defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
     require Logger
 
     def handle_event({:"_googlecast._tcp.local", device}, parent) do
-        send(parent, device)
-        {:ok, parent}
-
-    end
-    def handle_event(device, parent) do
+      send(parent, device)
       {:ok, parent}
     end
 
+    def handle_event(_device, parent) do
+      {:ok, parent}
+    end
   end
 
   def register_callbacks do
@@ -158,10 +156,10 @@ defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
     {:ok, []}
   end
 
-  def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}, status: %{operstate: :up}}}, state) do
+  def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: _address}, status: %{operstate: :up}}}, state) do
     #wait for mDNS to start, no way to guarantee who gets this event first.
     :timer.sleep(1000)
-    Process.send_after(self, :query_cast, 0)
+    Process.send_after(self(), :query_cast, 0)
     {:noreply, state}
   end
 
@@ -171,16 +169,12 @@ defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
 
   def handle_info(:query_cast, state) do
     Mdns.Client.query("_googlecast._tcp.local")
-    Process.send_after(self, :query_cast, 5000)
+    Process.send_after(self(), :query_cast, 5000)
     {:noreply, state}
   end
 
   def handle_info(device, state) do
     {:noreply, handle_device(device, MediaPlayer.Chromecast, state)}
-  end
-
-  def handle_info(_device, state) do
-    {:noreply, state}
   end
 
 end
