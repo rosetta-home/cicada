@@ -155,7 +155,7 @@ defmodule DeviceManager.Device.Light.Lifx do
 end
 
 defmodule DeviceManager.Discovery.Light.Lifx do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.Light
@@ -175,19 +175,14 @@ defmodule DeviceManager.Discovery.Light.Lifx do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting Lifx Listener"
     Lifx.Client.add_handler(EventHandler)
     {:ok, []}
   end
 
   def handle_info(%Lifx.Device.State{} = device, state) do
-    Discovery.Light.handle_device(device, Light.Lifx)
-    {:noreply, state}
+    {:noreply, handle_device(device, Light.Lifx, state)}
   end
 
   def handle_info(_device, state) do

@@ -130,7 +130,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
 end
 
 defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.MediaPlayer
@@ -152,11 +152,7 @@ defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting Chromecast Listener"
     Mdns.EventManager.add_handler(EventHandler)
     NetworkManager.register
@@ -181,8 +177,7 @@ defmodule DeviceManager.Discovery.MediaPlayer.Chromecast do
   end
 
   def handle_info(device, state) do
-    Discovery.MediaPlayer.handle_device(device, MediaPlayer.Chromecast)
-    {:noreply, state}
+    {:noreply, handle_device(device, MediaPlayer.Chromecast, state)}
   end
 
   def handle_info(_device, state) do

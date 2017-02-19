@@ -1,4 +1,4 @@
-defmodule DataManager.Histogram.Record do
+defmodule DataManager.Histogram.Device.Record do
   use GenServer
   require Logger
 

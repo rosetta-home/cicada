@@ -1,5 +1,5 @@
 defmodule Fw.Application do
-  alias DeviceManager.Discovery
+  alias DeviceManager.{Discovery}
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
@@ -10,11 +10,11 @@ defmodule Fw.Application do
   end
 
   def register_devices do
-    Discovery.Light.register_device(Discovery.Light.Lifx)
-    Discovery.HVAC.register_device(Discovery.HVAC.RadioThermostat)
-    Discovery.MediaPlayer.register_device(Discovery.MediaPlayer.Chromecast)
-    Discovery.WeatherStation.register_device(Discovery.WeatherStation.MeteoStick)
-    Discovery.SmartMeter.register_device(Discovery.SmartMeter.RavenSMCD)
-    Discovery.IEQ.register_device(Discovery.IEQ.Sensor)
+    DeviceManager.Client.register_device(Discovery.Light.Lifx)
+    DeviceManager.Client.register_device(Discovery.HVAC.RadioThermostat)
+    DeviceManager.Client.register_device(Discovery.MediaPlayer.Chromecast)
+    DeviceManager.Client.register_device(Discovery.WeatherStation.MeteoStick)
+    DeviceManager.Client.register_device(Discovery.SmartMeter.RavenSMCD)
+    DeviceManager.Client.register_device(Discovery.IEQ.Sensor)
   end
 end

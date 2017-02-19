@@ -13,16 +13,29 @@ defmodule DeviceManager.Discovery do
         GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
       end
 
-      def handle_device(device_state, module) do
-        GenServer.call(__MODULE__, {:device, device_state, module})
-      end
-
-      def register_device(module) do
-        GenServer.call(__MODULE__, {:register, module})
+      def handle_device(device_state, module, state) do
+        id = module.get_id(device_state)
+        case Enum.any?(state.devices, fn({pid, device}) -> device.interface_pid == id end) do
+          false ->
+            Logger.info("Got Device - #{id} :: #{inspect device_state}")
+            pid =
+              case module.start_link(id, device_state) do
+                {:error, {:already_started, pid}} -> pid
+                {:ok, pid} -> pid
+              end
+            %State{state | devices: [{pid, module.device(pid)} | state.devices]}
+          true ->
+            Logger.debug("Updating State - #{id} #{inspect device_state}")
+            %DeviceManager.Device{
+              module.device(id) | state: module.update_state(id, device_state)
+            } |> DeviceManager.Client.dispatch
+            state
+        end
       end
 
       def init(:ok) do
         Process.flag(:trap_exit, true)
+        register_callbacks
         {:ok, %State{}}
       end
 
@@ -41,33 +54,6 @@ defmodule DeviceManager.Discovery do
       end
 
       def handle_info({:EXIT, crashed, reason}, state), do: {:noreply, state}
-
-      def handle_call({:register, module}, _from, state) do
-        module.start_link
-        {:reply, :ok, state}
-      end
-
-      def handle_call({:device, device_state, module}, _from, state) do
-        id = module.get_id(device_state)
-        state =
-          case Enum.any?(state.devices, fn({pid, device}) -> device.interface_pid == id end) do
-            false ->
-              Logger.info("Got Device - #{id} :: #{inspect device_state}")
-              pid =
-                case module.start_link(id, device_state) do
-                  {:error, {:already_started, pid}} -> pid
-                  {:ok, pid} -> pid
-                end
-              %State{state | devices: [{pid, module.device(pid)} | state.devices]}
-            true ->
-              Logger.debug("Updating State - #{id} #{inspect device_state}")
-              %DeviceManager.Device{
-                module.device(id) | state: module.update_state(id, device_state)
-              } |> DeviceManager.Client.dispatch
-              state
-          end
-        {:reply, :ok, state}
-      end
     end
   end
 end

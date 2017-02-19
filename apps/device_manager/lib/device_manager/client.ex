@@ -8,6 +8,14 @@ defmodule DeviceManager.Client do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  def register_device(module) do
+    GenServer.call(__MODULE__, {:register_device, module})
+  end
+
+  def dispatch(event) do
+    EventManager.dispatch(DeviceManager, event)
+  end
+
   def init(:ok) do
     NetworkManager.register
     {:ok, %{}}
@@ -37,8 +45,9 @@ defmodule DeviceManager.Client do
     {:reply, :ok, state}
   end
 
-  def dispatch(event) do
-    EventManager.dispatch(DeviceManager, event)
+  def handle_call({:register_device, module}, _from, state) do
+    module.start_link
+    {:reply, :ok, state}
   end
 
 end

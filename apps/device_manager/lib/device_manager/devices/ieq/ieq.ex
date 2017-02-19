@@ -20,7 +20,3 @@ defmodule DeviceManager.Device.IEQ do
       voc: 0
   end
 end
-
-defmodule DeviceManager.Discovery.IEQ do
-  use DeviceManager.Discovery
-end

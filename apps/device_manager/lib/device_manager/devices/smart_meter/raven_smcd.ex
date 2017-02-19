@@ -104,7 +104,7 @@ defmodule DeviceManager.Device.SmartMeter.RavenSMCD do
 end
 
 defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.SmartMeter
@@ -124,11 +124,7 @@ defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting Raven"
     Raven.EventManager.add_handler(EventHandler)
     #Hacking raven for demo
@@ -158,15 +154,10 @@ defmodule DeviceManager.Discovery.SmartMeter.RavenSMCD do
   end
 
   def handle_info(%Raven.Meter.State{} = device, state) do
-    Discovery.SmartMeter.handle_device(device, SmartMeter.RavenSMCD)
-    {:noreply, state}
+    {:noreply, handle_device(device, SmartMeter.RavenSMCD, state)}
   end
 
-  def handle_info(%Raven.Client.State{} = _device, state) do
-    {:noreply, state}
-  end
-
-  def handle_info(_device, state) do
+  def handle_info(device, state) do
     {:noreply, state}
   end
 

@@ -55,7 +55,7 @@ defmodule DeviceManager.Device.WeatherStation.MeteoStick do
 end
 
 defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.WeatherStation
@@ -75,19 +75,14 @@ defmodule DeviceManager.Discovery.WeatherStation.MeteoStick do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting MeteoStick Listener"
     MeteoStick.EventManager.add_handler(EventHandler)
     {:ok, []}
   end
 
   def handle_info(device, state) do
-    Discovery.WeatherStation.handle_device(device, WeatherStation.MeteoStick)
-    {:noreply, state}
+    {:noreply, handle_device(device, WeatherStation.MeteoStick, state)}
   end
 
   def handle_info(_device, state) do

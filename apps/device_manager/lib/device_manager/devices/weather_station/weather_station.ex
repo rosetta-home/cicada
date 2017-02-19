@@ -19,7 +19,3 @@ defmodule DeviceManager.Device.WeatherStation do
       }
     end
 end
-
-defmodule DeviceManager.Discovery.WeatherStation do
-  use DeviceManager.Discovery
-end

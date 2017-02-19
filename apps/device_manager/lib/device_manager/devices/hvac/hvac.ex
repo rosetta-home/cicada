@@ -16,10 +16,4 @@ defmodule DeviceManager.Device.HVAC do
       mode: :auto,
       state: :off
   end
-
-
-end
-
-defmodule DeviceManager.Discovery.HVAC do
-  use DeviceManager.Discovery
 end

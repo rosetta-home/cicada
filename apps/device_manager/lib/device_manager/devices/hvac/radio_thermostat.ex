@@ -159,7 +159,7 @@ defmodule DeviceManager.Device.HVAC.RadioThermostat do
 end
 
 defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.HVAC
@@ -179,19 +179,14 @@ defmodule DeviceManager.Discovery.HVAC.RadioThermostat do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting RadioThermostat Listener"
     SSDP.Client.add_handler(EventHandler)
     {:ok, []}
   end
 
   def handle_info(device, state) do
-    Discovery.HVAC.handle_device(device, HVAC.RadioThermostat)
-    {:noreply, state}
+    {:noreply, handle_device(device, HVAC.RadioThermostat, state)}
   end
 
   def handle_info(_device, state) do

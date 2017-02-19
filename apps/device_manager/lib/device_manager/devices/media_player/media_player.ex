@@ -25,7 +25,3 @@ defmodule DeviceManager.Device.MediaPlayer do
       id: ""
   end
 end
-
-defmodule DeviceManager.Discovery.MediaPlayer do
-  use DeviceManager.Discovery
-end

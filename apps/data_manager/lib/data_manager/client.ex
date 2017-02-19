@@ -33,22 +33,13 @@ defmodule DataManager.Client do
 
   def handle_info(%DeviceManager.Device{} = device, state), do: {:noreply, state}
 
-  def create_histogram(id, map, state, keys \\ []) do
-    map |> Map.to_list |> Enum.flat_map(fn({k, v} = metric) ->
-      keys = keys ++ [Atom.to_string(k)]
-      key = "#{id}::#{Enum.join(keys, "-")}"
-      case k do
-        other when other != :__struct__ ->
-          case state.sensors |> Enum.member?(key) do
-            true -> nil
-            false -> Histogram.new(key)
-          end
-          Histogram.Record.add(key, v)
-          [key]
-        other_map when v |> is_map -> create_histogram(id, v, state, keys)
-        _ -> [nil]
-      end
-    end)
+  def create_histogram(id, map, state) do
+    name = :"Histogram-#{id}"
+    case DataManager.Histogram.start_device(name) do
+      :already_started -> :already_started
+      _ -> :ok
+    end
+    DataManager.Histogram.Device.records(name, id, map)
   end
 
   def send_metric(device, state) do

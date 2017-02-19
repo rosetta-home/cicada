@@ -22,7 +22,3 @@ defmodule DeviceManager.Device.Light do
       location: ""
   end
 end
-
-defmodule DeviceManager.Discovery.Light do
-  use DeviceManager.Discovery
-end

@@ -12,8 +12,3 @@ defmodule DeviceManager.Device.SmartMeter do
       kw: 0
   end
 end
-
-
-defmodule DeviceManager.Discovery.SmartMeter do
-  use DeviceManager.Discovery
-end

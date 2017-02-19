@@ -81,7 +81,7 @@ defmodule DeviceManager.Device.IEQ.Sensor do
 end
 
 defmodule DeviceManager.Discovery.IEQ.Sensor do
-  use GenServer
+  use DeviceManager.Discovery
   require Logger
   alias DeviceManager.Discovery
   alias DeviceManager.Device.HVAC
@@ -101,19 +101,14 @@ defmodule DeviceManager.Discovery.IEQ.Sensor do
 
   end
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
-  end
-
-  def init(:ok) do
+  def register_callbacks do
     Logger.info "Starting IEQ Sensor Listener"
     IEQGateway.EventManager.add_handler(EventHandler)
     {:ok, []}
   end
 
   def handle_info(%IEQGateway.IEQStation.State{} = device, state) do
-    Discovery.IEQ.handle_device(device, IEQ.Sensor)
-    {:noreply, state}
+    {:noreply, handle_device(device, IEQ.Sensor, state)}
   end
 
   def handle_info(_device, state) do
