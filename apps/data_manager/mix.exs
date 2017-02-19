@@ -21,7 +21,7 @@ defmodule DataManager.Mixfile do
     [
       applications: [:logger, :device_manager, :statistics],
       mod: {DataManager.Application, []},
-      env: [ history_length: 20 ]
+      env: [ history_length: 1000 ]
     ]
   end
 

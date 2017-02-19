@@ -2,6 +2,8 @@ defmodule DataManager.Histogram.Device.Record do
   use GenServer
   require Logger
 
+  @history_length Application.get_env(:data_manager, :history_length)
+
   defmodule State do
     defstruct values: [],
       id: nil,
@@ -79,6 +81,6 @@ defmodule DataManager.Histogram.Device.Record do
   end
 
   def handle_cast({:add, value}, state) do
-    {:noreply, %State{ state | values: [ value | state.values ], current_value: value }}
+    {:noreply, %State{ state | values: [ value | state.values ] |> Enum.slice(0..1000), current_value: value }}
   end
 end
