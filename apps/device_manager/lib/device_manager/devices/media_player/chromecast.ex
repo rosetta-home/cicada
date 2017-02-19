@@ -69,7 +69,7 @@ defmodule DeviceManager.Device.MediaPlayer.Chromecast do
       image: %MediaPlayer.State.Image{ url: Map.get(image, "url", Map.get(image, :url, "")) },
       title: metadata |> Map.get("title", ""),
       subtitle: metadata |> Map.get("subtitle", ""),
-      volume: state.media_status["volume"]["level"],
+      volume: state.media_status |> Map.get("volume", %{}) |> Map.get("level", 0),
       status: app |> Map.get("statusText", ""),
       idle: app |> Map.get("isIdleScreen", ""),
       app_name: app |> Map.get("displayName", ""),

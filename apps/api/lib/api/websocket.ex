@@ -11,7 +11,7 @@ defmodule API.Websocket do
   end
 
   def websocket_init(_TransportName, req, _opts) do
-    API.Consumer.start_link(self)
+    DeviceManager.register
     {:ok, req, %State{}}
   end
 
