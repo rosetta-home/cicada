@@ -1,3 +1,0 @@
-defmodule Fw do
-
-end

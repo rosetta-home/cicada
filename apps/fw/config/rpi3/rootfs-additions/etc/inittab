@@ -1,1 +1,0 @@
-::sysinit:/sbin/modprobe ftdi_sio

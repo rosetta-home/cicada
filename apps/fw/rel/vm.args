@@ -1,6 +1,0 @@
-## Start the Elixir shell
--sname node
--setcookie rosetta
--noshell
--user Elixir.IEx.CLI
--extra --no-halt
