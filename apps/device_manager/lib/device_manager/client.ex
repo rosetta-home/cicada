@@ -23,8 +23,6 @@ defmodule DeviceManager.Client do
 
   def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}, status: %{operstate: :up}}}, state) do
     Logger.info "Device Manager IP: #{inspect address}"
-    Logger.info "Starting Lifx"
-    Lifx.Client.start
     Logger.info "Starting SSDP"
     SSDP.Client.start
     Logger.info "Starting mDNS"
