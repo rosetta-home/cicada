@@ -140,7 +140,7 @@ defmodule Cicada.NetworkManager.Client do
     interfaces |> Enum.find(fn interface -> interface |> ifup end)
   end
 
-  def ifup(%Interface{status: %{operstate: :up}, settings: %{ipv4_address: ip}}) do
+  def ifup(%Interface{status: %{operstate: :up}, settings: %{ipv4_address: ip}}) when ip != @ap_ip do
     true
   end
   def ifup(_), do: false
