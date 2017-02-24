@@ -7,40 +7,18 @@ defmodule Cicada.NetworkManager.Client do
 
   @ap_ip "192.168.24.1"
 
-  defmodule NetworkEventHandler do
-    use GenEvent
-    def init(parent) do
-      {:ok, parent}
-    end
-
-    def handle_event({:nerves_network_interface, _, type, msg} = ev, parent) do
-      Logger.info "Network Message: #{inspect ev}"
-      send(parent, {type, msg})
-      {:ok, parent}
-    end
-
-    def handle_event({:udhcpc, _, :bound, msg}, parent) do
-      Logger.info "Bound: #{inspect msg}"
-      send(parent, {:bound, msg})
-      {:ok, parent}
-    end
-
-    def handle_event(_msg, state) do
-      {:ok, state}
-    end
-
-  end
-
   def start_link() do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def init(:ok) do
     Logger.info "Starting Network Manager"
-    GenEvent.add_handler(NetworkInterface.event_manager, NetworkEventHandler, self())
+    Registry.register(Nerves.Udhcpc, "wlan0", [])
     interfaces = NetworkInterface.interfaces
     |> Enum.map(fn i ->
       NetworkInterface.setup(i, %{})
+      Registry.register(Nerves.NetworkInterface, i, [])
+      Registry.register(Nerves.Udhcpc, i, [])
       %Interface{
         ifname: i,
         settings: settings(i),
@@ -72,34 +50,51 @@ defmodule Cicada.NetworkManager.Client do
     {:noreply, state}
   end
 
-  def handle_info({:ifchanged, msg}, state) do
+  def handle_info({Nerves.NetworkInterface, :ifchanged, msg}, state) do
+    Logger.info "ifchanged: #{inspect msg}"
+    state = handle_interface(msg, state)
     {:noreply, interface_changed(msg, state)}
   end
 
-  def handle_info({:ifadded, msg}, state) do
+  def handle_info({Nerves.NetworkInterface, :ifadded, msg}, state) do
+    Logger.info "ifadded: #{inspect msg}"
+    state = handle_interface(msg, state)
+    {:noreply, interface_changed(msg, state)}
+  end
+
+  def handle_info({Nerves.NetworkInterface, :ifremoved, _msg}, state), do: {:noreply, state}
+
+  def handle_info({Nerves.NetworkInterface, :ifrenamed, _msg}, state), do: {:noreply, state}
+
+  def handle_info({Nerves.Udhcpc, :bound, msg}, state) do
+    :timer.sleep 1000
+    Logger.info "WiFi Connected"
+    state = handle_interface(msg, state)
+    {:noreply, interface_changed(msg, state)}
+  end
+  def handle_info({Nerves.Udhcpc, type, msg}, state) do
+    Logger.info "Udhcpc: #{inspect type} - #{inspect msg}"
+    {:noreply, state}
+  end
+
+  def handle_call(:register, {pid, _ref}, state) do
+    Registry.register(EventManager.Registry, NetworkManager, pid)
+    {:reply, :ok, state}
+  end
+
+  def handle_interface(msg, state) do
     NetworkInterface.setup(msg.ifname, %{})
+    Registry.register(Nerves.NetworkInterface, msg.ifname, [])
+    Registry.register(Nerves.Udhcpc, msg.ifname, [])
     i = %Interface{
       ifname: msg.ifname,
       settings: settings(msg.ifname),
       status: status(msg.ifname),
     }
     interfaces = [i] ++ state.interfaces
-    interface = interfaces |> active_interface
+    #interface = interfaces |> active_interface
     Logger.info "Added Interface: #{inspect interfaces}"
-    {:noreply, %NetworkManager.State{state | interfaces: interfaces, interface: interface}}
-  end
-
-  def handle_info({:ifrenamed, _msg}, state), do: {:noreply, state}
-  def handle_info({:ifremoved, _msg}, state), do: {:noreply, state}
-
-  def handle_info({:bound, msg}, state) do
-    :timer.sleep 1000
-    {:noreply, interface_changed(msg, state)}
-  end
-
-  def handle_call(:register, {pid, _ref}, state) do
-    Registry.register(EventManager.Registry, NetworkManager, pid)
-    {:reply, :ok, state}
+    %NetworkManager.State{state | interfaces: interfaces}
   end
 
   def dispatch(event) do

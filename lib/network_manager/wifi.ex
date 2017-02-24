@@ -25,12 +25,13 @@ defmodule Cicada.NetworkManager.WiFi do
   #Callbacks
 
   def init(:ok) do
-    case File.exists?("/usr/sbin/wpa_supplicant") do
+    System.cmd("modprobe", ["brcmfmac"])
+    {_, pid} = case File.exists?("/usr/sbin/wpa_supplicant") do
       true ->
-        System.cmd("modprobe", ["brcmfmac"])
         System.cmd("/usr/sbin/wpa_supplicant",  ["-i", "wlan0", "-C", "/var/run/wpa_supplicant", "-B"])
-        {:ok, pid} = Nerves.WpaSupplicant.start_link("/var/run/wpa_supplicant/wlan0")
-      _ -> :not_raspi
+        Logger.debug "WpaSupplicant Started"
+        {:ok, wpa} = Nerves.WpaSupplicant.start_link("wlan0", "/var/run/wpa_supplicant/wlan0")
+      _ -> {:noop, :noop}
     end
     case creds? do
       true -> Process.send_after(__MODULE__, :join, 0)
@@ -43,6 +44,8 @@ defmodule Cicada.NetworkManager.WiFi do
     join_network(state.wpa_pid)
     {:noreply, state}
   end
+
+  def handle_info({Nerves.WpaSupplicant, _type, _msg}, state), do: {:noreply, state}
 
   def handle_call(:scan, _from, state) do
     ssids = Nerves.WpaSupplicant.scan(state.wpa_pid)

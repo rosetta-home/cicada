@@ -34,9 +34,9 @@ defmodule Cicada.Mixfile do
 
   defp deps do
     [
-      {:nerves_interim_wifi, "~> 0.1.0"},
-      {:nerves_network_interface, "~> 0.3.2"},
-      {:nerves_wpa_supplicant, "~> 0.2.2"},
+      {:nerves_interim_wifi, github: "rosetta-home/nerves_interim_wifi"},
+      {:nerves_network_interface, "~> 0.4.0"},
+      {:nerves_wpa_supplicant, github: "rosetta-home/nerves_wpa_supplicant", override: true}, #{}"~> 0.3.0"},
       {:poison, "~> 3.0", override: true},
       {:cipher, ">= 1.3.0"},
       {:cowboy, "~> 1.0"},
