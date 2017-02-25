@@ -1,14 +1,14 @@
-defmodule Cicada.CpuMon.Client do
+defmodule Cicada.SysMon.Client do
   use GenServer
   require Logger
-  alias Cicada.{EventManager, CpuMon}
+  alias Cicada.{EventManager, SysMon}
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
   def dispatch(event) do
-    EventManager.dispatch(CpuMon, event)
+    EventManager.dispatch(SysMon, event)
   end
 
   def init(:ok) do
@@ -22,14 +22,16 @@ defmodule Cicada.CpuMon.Client do
       |> Enum.map(fn({cpu, busy, idle, _misc}) ->
         b = busy |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
         i = idle |> Enum.reduce(0, fn({_k, v}, acc) -> acc+v end)
-        %CpuMon.Cpu{cpu: cpu, busy: b, idle: i} |> CpuMon.Client.dispatch
+        %SysMon.Cpu{cpu: cpu, busy: b, idle: i} |> SysMon.Client.dispatch
       end)
+    {total, allocated, _worst} = :memsup.get_memory_data()
+    mem = %SysMon.Memory{total: total, allocated: allocated} |> SysMon.Client.dispatch
     Process.send_after(self(), :get_metrics, 5000)
-    {:noreply, %CpuMon.State{cpus: cpus}}
+    {:noreply, %SysMon.State{cpus: cpus, memory: mem}}
   end
 
   def handle_call(:register, {pid, _ref}, state) do
-    Registry.register(EventManager.Registry, CpuMon, pid)
+    Registry.register(EventManager.Registry, SysMon, pid)
     {:reply, :ok, state}
   end
 end

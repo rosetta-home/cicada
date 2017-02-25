@@ -1,4 +1,4 @@
-defmodule Cicada.CpuMon.Supervisor do
+defmodule Cicada.SysMon.Supervisor do
   use Supervisor
 
   def start_link do
@@ -7,9 +7,9 @@ defmodule Cicada.CpuMon.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Cicada.CpuMon.Client, [])
+      worker(Cicada.SysMon.Client, [])
     ]
     supervise(children, strategy: :one_for_one)
   end
-  
+
 end

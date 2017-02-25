@@ -94,6 +94,11 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
   end
 
   def handle_cast({:add, value}, state) do
-    {:noreply, %State{ state | values: [ value | state.values ] |> Enum.slice(0..1000), current_value: value }}
+    values =
+      case state.values do
+        [head | _tail] when head |> is_number -> [ value | state.values ] |> Enum.slice(0..1000)
+        _ -> [value]
+      end
+    {:noreply, %State{ state | values: values, current_value: value }}
   end
 end

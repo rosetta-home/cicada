@@ -1,6 +1,6 @@
 defmodule Cicada.API.Controller.Websocket do
   @behaviour :cowboy_websocket_handler
-  alias Cicada.{DeviceManager, CpuMon}
+  alias Cicada.{DeviceManager, SysMon}
   require Logger
 
   defmodule State do
@@ -13,7 +13,7 @@ defmodule Cicada.API.Controller.Websocket do
 
   def websocket_init(_TransportName, req, _opts) do
     DeviceManager.register
-    CpuMon.register
+    SysMon.register
     {:ok, req, %State{}}
   end
 
@@ -74,13 +74,26 @@ defmodule Cicada.API.Controller.Websocket do
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 
-  def websocket_info(%CpuMon.Cpu{} = event, req, state) do
+  def websocket_info(%SysMon.Cpu{} = event, req, state) do
     ws_event = %{
       type: "cpu",
       state: event,
       name: "CPU #{event.cpu}",
-      module: "CpuMon.Cpu",
-      interface_pid: "cpu_mon-cpu-#{event.cpu}",
+      module: "SysMon.Cpu",
+      interface_pid: "sys_mon-cpu-#{event.cpu}",
+      device_pid: ""
+    }
+    {:ok, data} = Poison.encode(ws_event)
+    {:reply, {:text, data}, req, state}
+  end
+
+  def websocket_info(%SysMon.Memory{} = event, req, state) do
+    ws_event = %{
+      type: "memory",
+      state: event,
+      name: "Memory",
+      module: "SysMon.Memory",
+      interface_pid: "sys_mon-memory",
       device_pid: ""
     }
     {:ok, data} = Poison.encode(ws_event)

@@ -1,6 +1,6 @@
 defmodule Cicada.Application do
   use Application
-  alias Cicada.{API, NetworkManager, CpuMon, DataManager, DeviceManager, EventManager, Util, VoiceControl}
+  alias Cicada.{API, NetworkManager, SysMon, DataManager, DeviceManager, EventManager, Util, VoiceControl}
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
@@ -9,7 +9,7 @@ defmodule Cicada.Application do
       supervisor(EventManager.Supervisor, []),
       supervisor(NetworkManager.Supervisor, []),
       supervisor(DeviceManager.Supervisor, []),
-      supervisor(CpuMon.Supervisor, []),
+      supervisor(SysMon.Supervisor, []),
       supervisor(DataManager.Supervisor, []),
       supervisor(API.Supervisor, []),
       supervisor(VoiceControl.Supervisor, []),
