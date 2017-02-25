@@ -83,6 +83,13 @@ defmodule Cicada.NetworkManager.Client do
   end
 
   def handle_interface(msg, state) do
+    case state.interfaces |> Enum.member?(fn intf -> msg.ifname == intf.ifname end) do
+      false -> msg |> add_interface(state)
+      _ -> state
+    end
+  end
+
+  def add_interface(msg, state) do
     NetworkInterface.setup(msg.ifname, %{})
     Registry.register(Nerves.NetworkInterface, msg.ifname, [])
     Registry.register(Nerves.Udhcpc, msg.ifname, [])
@@ -91,7 +98,7 @@ defmodule Cicada.NetworkManager.Client do
       settings: settings(msg.ifname),
       status: status(msg.ifname),
     }
-    interfaces = [i] ++ state.interfaces |> Enum.uniq_by(fn intf -> intf.ifname end) 
+    interfaces = [i] ++ state.interfaces |> Enum.uniq_by(fn intf -> intf.ifname end)
     #interface = interfaces |> active_interface
     Logger.info "Added Interface: #{inspect interfaces}"
     %NetworkManager.State{state | interfaces: interfaces}
