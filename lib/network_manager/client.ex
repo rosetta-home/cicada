@@ -11,6 +11,10 @@ defmodule Cicada.NetworkManager.Client do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
+  def dispatch(event) do
+    EventManager.dispatch(NetworkManager, event)
+  end
+
   def init(:ok) do
     Logger.info "Starting Network Manager"
     Registry.register(Nerves.Udhcpc, "wlan0", [])
@@ -51,13 +55,11 @@ defmodule Cicada.NetworkManager.Client do
   end
 
   def handle_info({Nerves.NetworkInterface, :ifchanged, msg}, state) do
-    Logger.info "ifchanged: #{inspect msg}"
     state = handle_interface(msg, state)
     {:noreply, interface_changed(msg, state)}
   end
 
   def handle_info({Nerves.NetworkInterface, :ifadded, msg}, state) do
-    Logger.info "ifadded: #{inspect msg}"
     state = handle_interface(msg, state)
     {:noreply, interface_changed(msg, state)}
   end
@@ -82,14 +84,16 @@ defmodule Cicada.NetworkManager.Client do
     {:reply, :ok, state}
   end
 
-  def handle_interface(msg, state) do
-    case state.interfaces |> Enum.member?(fn intf -> msg.ifname == intf.ifname end) do
-      false -> msg |> add_interface(state)
+  defp handle_interface(msg, state) do
+    Logger.debug "Got Interface: #{inspect msg}"
+    Logger.debug "Existing Interfaces: #{inspect state.interfaces}"
+    case state.interfaces |> Enum.find(fn intf -> msg.ifname === intf.ifname end) do
+      nil -> msg |> add_interface(state)
       _ -> state
     end
   end
 
-  def add_interface(msg, state) do
+  defp add_interface(msg, state) do
     NetworkInterface.setup(msg.ifname, %{})
     Registry.register(Nerves.NetworkInterface, msg.ifname, [])
     Registry.register(Nerves.Udhcpc, msg.ifname, [])
@@ -99,32 +103,31 @@ defmodule Cicada.NetworkManager.Client do
       status: status(msg.ifname),
     }
     interfaces = [i] ++ state.interfaces |> Enum.uniq_by(fn intf -> intf.ifname end)
-    #interface = interfaces |> active_interface
     Logger.info "Added Interface: #{inspect interfaces}"
     %NetworkManager.State{state | interfaces: interfaces}
   end
 
-  def dispatch(event) do
-    EventManager.dispatch(NetworkManager, event)
-  end
-
-  def interface_changed(ifchanged, state) do
+  defp interface_changed(ifchanged, state) do
     old_interface = state.interface
     interfaces = state.interfaces |> update_interface(ifchanged.ifname)
     interface = interfaces |> active_interface
     state = %NetworkManager.State{state | interfaces: interfaces, interface: interface}
-    Logger.info "Network State: #{inspect state}"
-    Logger.info "Old Interface: #{inspect old_interface}"
     #Only broadcast on network status change, up or down.
     case interface |> ifup do
-      true when old_interface == nil -> state |> dispatch
-      false when not old_interface |> is_nil -> state |> dispatch
+      true when old_interface == nil ->
+        Logger.info "Network State: #{inspect state}"
+        Logger.info "Old Interface: #{inspect old_interface}"
+        state |> dispatch
+      false when not old_interface |> is_nil ->
+        Logger.info "Network State: #{inspect state}"
+        Logger.info "Old Interface: #{inspect old_interface}"
+        state |> dispatch
       _ -> :ok
     end
     state
   end
 
-  def update_interface(interfaces, ifname) do
+  defp update_interface(interfaces, ifname) do
     interfaces
     |> Enum.map(fn interface ->
       case ifname == interface.ifname do
@@ -138,17 +141,17 @@ defmodule Cicada.NetworkManager.Client do
     end)
   end
 
-  def active_interface(interfaces) do
+  defp active_interface(interfaces) do
     interfaces |> Enum.find(fn interface -> interface |> ifup end)
   end
 
-  def ifup(%Interface{status: %{operstate: :up}, settings: %{ipv4_address: ip}}) when ip != @ap_ip do
+  defp ifup(%Interface{status: %{operstate: :up}, settings: %{ipv4_address: ip}}) when ip != @ap_ip do
     true
   end
-  def ifup(_), do: false
+  defp ifup(_), do: false
 
-  def settings(ifname), do: NetworkInterface.settings(ifname) |> elem(1)
+  defp settings(ifname), do: NetworkInterface.settings(ifname) |> elem(1)
 
-  def status(ifname), do: NetworkInterface.status(ifname) |> elem(1)
+  defp status(ifname), do: NetworkInterface.status(ifname) |> elem(1)
 
 end
