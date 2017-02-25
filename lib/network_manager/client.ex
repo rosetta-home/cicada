@@ -91,7 +91,7 @@ defmodule Cicada.NetworkManager.Client do
       settings: settings(msg.ifname),
       status: status(msg.ifname),
     }
-    interfaces = [i] ++ state.interfaces
+    interfaces = [i] ++ state.interfaces |> Enum.uniq_by(fn intf -> intf.ifname end) 
     #interface = interfaces |> active_interface
     Logger.info "Added Interface: #{inspect interfaces}"
     %NetworkManager.State{state | interfaces: interfaces}

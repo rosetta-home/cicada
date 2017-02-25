@@ -26,16 +26,16 @@ defmodule Cicada.DataManager.Client do
 
   def create_histogram(id, map, _state) do
     name = :"Histogram-#{id}"
-    case Histogram.start_device(name) do
+    case Histogram.start_device(name, map) do
       :already_started -> :already_started
       _ -> :ok
     end
-    Histogram.Device.records(name, id, map)
+    Histogram.Device.records(name, id, map.state)
   end
 
   def send_metric(device, state) do
     id = device.interface_pid |> Atom.to_string
-    create_histogram(id, device.state, state)
+    create_histogram(id, device, state)
   end
 
   def init(:ok) do

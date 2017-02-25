@@ -17,7 +17,7 @@ defmodule Cicada.DataManager.Histogram.Device do
       key = "#{id}::#{Enum.join(keys, "-")}"
       case k do
         other when other != :__struct__ ->
-          case Histogram.Device.start_record(name, key) do
+          case Histogram.Device.start_record(name, {key, k}) do
             :already_started -> :already_started
             _ -> :ok
           end
@@ -29,22 +29,22 @@ defmodule Cicada.DataManager.Histogram.Device do
     end)
   end
 
-  def snapshot() do
-    Enum.reduce(Supervisor.which_children(__MODULE__), %{}, fn({id, child, type, module}, acc) ->
+  def snapshot(device) do
+    Enum.reduce(Supervisor.which_children(device), %{}, fn({id, child, type, module}, acc) ->
       values = Histogram.Device.Record.values(child)
-      Map.put(acc, values.id, values)
+      Map.put(acc, values.key, values)
     end)
   end
 
-  def reset do
-    Enum.each(Supervisor.which_children(__MODULE__), fn {id, child, type, module} ->
+  def reset(device) do
+    Enum.each(Supervisor.which_children(device), fn {id, child, type, module} ->
       Histogram.Device.Record.reset(child)
     end)
   end
 
-  def start_record(name, id) do
+  def start_record(name, {id, key}) do
     Logger.debug "Starting record: #{id}"
-    Supervisor.start_child(name, [id])
+    Supervisor.start_child(name, [id, key])
   end
 
   def init(:ok) do
@@ -55,8 +55,7 @@ defmodule Cicada.DataManager.Histogram.Device do
     supervise(children, strategy: :simple_one_for_one)
   end
 
-  def handle_call({:records, id, map, keys}, _from, state) do
-
+  def handle_call(:snapshot, _from, state) do
     {:reply, :ok, state}
   end
 

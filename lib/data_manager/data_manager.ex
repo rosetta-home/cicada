@@ -4,8 +4,4 @@ defmodule Cicada.DataManager do
     GenServer.call(Cicada.DataManager.Client, :register)
   end
 
-  def history(device, metric) do
-
-  end
-
 end

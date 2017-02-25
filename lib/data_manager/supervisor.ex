@@ -9,6 +9,7 @@ defmodule Cicada.DataManager.Supervisor do
     children = [
       worker(Cicada.DataManager.Client, []),
       supervisor(Cicada.DataManager.Histogram, []),
+      supervisor(Registry, [:unique, Cicada.DataManager.Registry, []]),
     ]
     supervise(children, strategy: :one_for_one)
   end

@@ -7,11 +7,12 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
   defmodule State do
     defstruct values: [],
       id: nil,
+      key: nil,
       current_value: 0
   end
 
-  def start_link(id) do
-    GenServer.start_link(__MODULE__, id, name: id |> String.to_atom)
+  def start_link(id, key) do
+    GenServer.start_link(__MODULE__, {id, key}, name: id |> String.to_atom)
   end
 
   def add(id, value) do
@@ -42,8 +43,8 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
     GenServer.call(id |> String.to_existing_atom, :history)
   end
 
-  def init(id) do
-    {:ok, %State{id: id}}
+  def init({id, key}) do
+    {:ok, %State{id: id, key: key}}
   end
 
   def handle_call(:history, _from, state), do: {:reply, state.values, state}
@@ -51,9 +52,21 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
   def handle_call(:values, _from, state) do
     values = state.values
     res = %{
-      id: state.id,
+      key: state.key,
       value: state.current_value,
-      count: values |> Enum.count
+      count: values |> Enum.count,
+      values: values,
+      mean: 0,
+      min: 0,
+      max: 0,
+      median: 0,
+      std_dev: 0,
+      p50: 0,
+      p75: 0,
+      p90: 0,
+      p95: 0,
+      p99: 0,
+      p999: 0
     }
     res =
       case values do
