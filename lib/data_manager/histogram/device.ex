@@ -17,10 +17,7 @@ defmodule Cicada.DataManager.Histogram.Device do
       key = "#{id}::#{Enum.join(keys, "-")}"
       case k do
         other when other != :__struct__ ->
-          case Histogram.Device.start_record(name, {key, k}) do
-            :already_started -> :already_started
-            _ -> :ok
-          end
+          Histogram.Device.start_record(name, {key, k})
           Histogram.Device.Record.add(key, v)
           [key]
         other_map when v |> is_map -> records(id, v, keys)
@@ -43,8 +40,12 @@ defmodule Cicada.DataManager.Histogram.Device do
   end
 
   def start_record(name, {id, key}) do
-    Logger.debug "Starting record: #{id}"
-    Supervisor.start_child(name, [id, key])
+    case Supervisor.start_child(name, [id, key]) do
+      {:error, {:already_started, _}} -> :already_started
+      _ ->
+        Logger.debug "Record Started: #{id}"
+        :ok
+    end
   end
 
   def init(:ok) do
