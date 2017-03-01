@@ -26,7 +26,7 @@ defmodule Cicada.DataManager.Histogram do
   def start_device(id, %DeviceManager.Device{} = device) do
     case Supervisor.start_child(__MODULE__, [id]) do
       {:error, {:already_started, _}} -> :already_started
-      [] ->
+      _ ->
         Registry.register(Cicada.DataManager.Registry, id, device)
         Logger.debug "Device #{id} Started"
     end
