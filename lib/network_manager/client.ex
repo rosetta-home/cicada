@@ -37,8 +37,7 @@ defmodule Cicada.NetworkManager.Client do
 
   def handle_info(:init_network, state) do
     interface = state.interfaces |> active_interface
-    state = %NetworkManager.State{state | interface: interface}
-    state |> dispatch
+    state = interface |> interface_changed(state)
     {:noreply, state}
   end
 
@@ -111,7 +110,12 @@ defmodule Cicada.NetworkManager.Client do
     old_interface = state.interface
     interfaces = state.interfaces |> update_interface(ifchanged.ifname)
     interface = interfaces |> active_interface
-    state = %NetworkManager.State{state | interfaces: interfaces, interface: interface}
+    bound =
+      case interface do
+        %Interface{status: %{operstate: :up}} -> true
+        _ -> false
+      end
+    state = %NetworkManager.State{state | interfaces: interfaces, interface: interface, bound: bound}
     #Only broadcast on network status change, up or down.
     case interface |> ifup do
       true when old_interface == nil ->

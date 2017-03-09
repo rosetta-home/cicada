@@ -7,7 +7,7 @@ defmodule Cicada.EventManager.Supervisor do
 
   def init(:ok) do
     children = [
-      supervisor(Registry, [:duplicate, Cicada.EventManager.Registry, [partitions: System.schedulers_online]]),
+      supervisor(Registry, [:duplicate, Cicada.EventManager.Registry, []]),
     ]
     supervise(children, strategy: :one_for_one)
   end

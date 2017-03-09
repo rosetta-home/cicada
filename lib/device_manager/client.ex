@@ -19,16 +19,16 @@ defmodule Cicada.DeviceManager.Client do
 
   def init(:ok) do
     NetworkManager.register
-    {:ok, %{}}
+    {:ok, %{started: false}}
   end
 
-  def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}, status: %{operstate: :up}}}, state) do
-    Logger.info "Device Manager IP: #{inspect address}"
+  def handle_info(%NM{bound: true}, %{started: started} = state)
+  when started == false do
     Logger.info "Starting SSDP"
     SSDP.Client.start
     Logger.info "Starting mDNS"
     Mdns.Client.start
-    {:noreply, state}
+    {:noreply, %{state | started: true}}
   end
 
   def handle_info(%NM{}, state) do

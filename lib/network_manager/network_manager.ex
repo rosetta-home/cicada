@@ -2,7 +2,7 @@ defmodule Cicada.NetworkManager do
   require Logger
 
   defmodule State do
-    defstruct interfaces: [], interface: nil
+    defstruct interfaces: [], interface: nil, bound: false
   end
 
   defmodule Interface do
