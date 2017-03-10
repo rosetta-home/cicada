@@ -16,11 +16,11 @@ defmodule Cicada.DataManager.Histogram.Device do
       keys = keys ++ [Atom.to_string(k)]
       key = "#{id}::#{Enum.join(keys, "-")}"
       case k do
-        other when other != :__struct__ ->
+        other when v |> is_number ->
           Histogram.Device.start_record(name, {key, k})
           Histogram.Device.Record.add(key, v)
           [key]
-        other_map when v |> is_map -> records(id, v, keys)
+        other_map when v |> is_map -> records(name, id, v, keys)
         _ -> [nil]
       end
     end)
