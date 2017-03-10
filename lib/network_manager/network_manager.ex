@@ -13,4 +13,8 @@ defmodule Cicada.NetworkManager do
     GenServer.call(Cicada.NetworkManager.Client, :register)
   end
 
+  def up do
+    GenServer.call(Cicada.NetworkManager.Client, :up)
+  end
+
 end

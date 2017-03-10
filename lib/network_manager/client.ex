@@ -36,8 +36,11 @@ defmodule Cicada.NetworkManager.Client do
   end
 
   def handle_info(:init_network, state) do
-    interface = state.interfaces |> active_interface
-    state = interface |> interface_changed(state)
+    state =
+      case state.interfaces |> active_interface do
+        nil -> state
+        interface -> interface |> interface_changed(state)
+    end
     {:noreply, state}
   end
 
@@ -82,6 +85,8 @@ defmodule Cicada.NetworkManager.Client do
     Registry.register(EventManager.Registry, NetworkManager, pid)
     {:reply, :ok, state}
   end
+
+  def handle_call(:up, _from, state), do: {:reply, state.bound, state}
 
   defp handle_interface(msg, state) do
     Logger.debug "Got Interface: #{inspect msg}"

@@ -22,9 +22,7 @@ defmodule Cicada.DeviceManager.Discovery do
             pid =
               case module.start_link(id, device_state) do
                 {:error, {:already_started, pid}} -> pid
-                {:error, error} ->
-                  Logger.debug "#{inspect error}"
-                  nil
+                {:error, error} -> nil
                 {:ok, pid} -> pid
               end
             case pid do

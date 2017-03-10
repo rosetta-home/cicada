@@ -1,14 +1,14 @@
 defmodule Cicada.Application do
   use Application
-  alias Cicada.{API, NetworkManager, SysMon, DataManager, DeviceManager, EventManager, Util, VoiceControl}
+  alias Cicada.{API, NetworkManager, SysMon, DataManager, DeviceManager, EventManager, DistributionManager, Util, VoiceControl}
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    # Define workers and child supervisors to be supervised
     children = [
       supervisor(EventManager.Supervisor, []),
       supervisor(NetworkManager.Supervisor, []),
       supervisor(DeviceManager.Supervisor, []),
+      supervisor(DistributionManager.Supervisor, []),
       supervisor(SysMon.Supervisor, []),
       supervisor(DataManager.Supervisor, []),
       supervisor(API.Supervisor, []),
