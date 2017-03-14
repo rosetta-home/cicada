@@ -17,7 +17,7 @@ defmodule Cicada.DataManager.Histogram.Device do
       key = "#{id}::#{Enum.join(keys, "-")}"
       case k do
         other when v |> is_number ->
-          Histogram.Device.start_record(name, {key, k})
+          Histogram.Device.start_record(name, {key, keys})
           Histogram.Device.Record.add(key, v)
           [key]
         other_map when v |> is_map -> records(name, id, v, keys)
