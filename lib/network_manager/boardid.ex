@@ -8,7 +8,7 @@ defmodule Cicada.NetworkManager.BoardId do
 
   def init(:ok) do
     id = try do
-      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "macaddr"])
+      {id, 0} = System.cmd("/usr/bin/boardid", ["-b", "rpi"])
       id |> String.split("\n") |> List.first
     rescue
       e in ErlangError ->
