@@ -12,8 +12,10 @@ defmodule Cicada.DataManager.Histogram do
     Enum.reduce(Supervisor.which_children(__MODULE__), [], fn({_id, child, _type, _module}, acc) ->
       values = Histogram.Device.snapshot(child)
       name = Process.info(child)[:registered_name]
-      [{_pid, device} | tail] = Registry.lookup(Cicada.DataManager.Registry, name)
-      [%{device: device,  values: values}] ++ acc
+      case Registry.lookup(Cicada.DataManager.Registry, name) do
+        [{_pid, {device, pid}} | tail] -> [%{device: device,  values: values}] ++ acc
+        [] -> []
+      end
     end)
   end
 
@@ -26,17 +28,17 @@ defmodule Cicada.DataManager.Histogram do
   def start_device(id, %DeviceManager.Device{} = device) do
     case Supervisor.start_child(__MODULE__, [id]) do
       {:error, {:already_started, _}} -> :already_started
-      _ ->
-        Registry.register(Cicada.DataManager.Registry, id, device)
+      {:ok, pid} ->
+        Registry.register(Cicada.DataManager.Registry, id, {device, pid})
         Logger.debug "Device #{id} Started"
+        {:ok, pid}
     end
-
   end
 
   def init(:ok) do
     Logger.info "Starting Histogram Device"
     children = [
-      worker(Histogram.Device, [], restart: :transient)
+      worker(Histogram.Device, [], restart: :temporary)
     ]
     supervise(children, strategy: :simple_one_for_one)
   end

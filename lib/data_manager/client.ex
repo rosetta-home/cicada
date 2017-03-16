@@ -26,11 +26,14 @@ defmodule Cicada.DataManager.Client do
 
   def create_histogram(id, map, _state) do
     name = :"Histogram-#{id}"
-    case Histogram.start_device(name, map) do
+    res = case Histogram.start_device(name, map) do
       :already_started -> :already_started
-      _ -> :ok
+      {:ok, pid} ->
+        Process.monitor(map.interface_pid)
+        :ok
     end
     Histogram.Device.records(name, id, map.state)
+    res
   end
 
   def send_metric(device, state) do
@@ -41,6 +44,19 @@ defmodule Cicada.DataManager.Client do
   def init(:ok) do
     DeviceManager.register
     {:ok, %State{}}
+  end
+
+  def handle_info({:DOWN, ref, :process, {id, node}, reason}, state) do
+    Logger.info "DataManager Client: Process down #{inspect ref}: #{inspect id} : #{inspect reason}"
+    id = :"Histogram-#{id}"
+    case Registry.lookup(Cicada.DataManager.Registry, id) do
+      [{_pid, {device, pid}}| tail] ->
+        Logger.info "Lookup PID: #{inspect pid} #{inspect device}"
+        pid |> Process.exit(:kill)
+        Registry.unregister(Cicada.DataManager.Registry, id)
+      [] -> nil
+    end
+    {:noreply, state}
   end
 
   def handle_info(%DeviceManager.Device{} = device, state) do
