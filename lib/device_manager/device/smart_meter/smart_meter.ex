@@ -1,4 +1,6 @@
 defmodule Cicada.DeviceManager.Device.SmartMeter do
+  use Cicada.DeviceManager.DeviceHistogram
+
   defmodule State do
     @derive [Poison.Encoder]
     defstruct connection_status: "",

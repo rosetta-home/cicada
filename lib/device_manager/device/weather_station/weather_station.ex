@@ -1,4 +1,6 @@
 defmodule Cicada.DeviceManager.Device.WeatherStation do
+  use Cicada.DeviceManager.DeviceHistogram
+
   defmodule State do
     @derive [Poison.Encoder]
     defstruct id: 0,

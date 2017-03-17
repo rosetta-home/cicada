@@ -1,4 +1,5 @@
 defmodule Cicada.DeviceManager.Device.Light do
+  use Cicada.DeviceManager.DeviceHistogram
 
   defmodule State.HSBK do
     @derive [Poison.Encoder]

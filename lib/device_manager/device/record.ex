@@ -1,4 +1,4 @@
-defmodule Cicada.DataManager.Histogram.Device.Record do
+defmodule Cicada.DeviceManager.Device.Histogram.Record do
   use GenServer
   require Logger
 
@@ -11,8 +11,8 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
       current_value: 0
   end
 
-  def start_link(id, key) do
-    GenServer.start_link(__MODULE__, {id, key}, name: id |> String.to_atom)
+  def start_link(id, key, value) do
+    GenServer.start_link(__MODULE__, {id, key, value}, name: id |> String.to_atom)
   end
 
   def add(id, value) do
@@ -43,8 +43,8 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
     GenServer.call(id |> String.to_existing_atom, :history)
   end
 
-  def init({id, key}) do
-    {:ok, %State{id: id, key: key}}
+  def init({id, key, value}) do
+    {:ok, %State{id: id, key: key, values: [value], current_value: value}}
   end
 
   def handle_call(:history, _from, state), do: {:reply, state.values, state}
@@ -71,19 +71,23 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
     res =
       case values do
         [head | _tail] when head |> is_number ->
-          %{res |
-            mean: values |> Statistics.mean,
-            min: values |> Statistics.min,
-            max: values |> Statistics.max,
-            median: values |> Statistics.median,
-            std_dev: values |> Statistics.stdev,
-            p50: values |> Statistics.percentile(50),
-            p75: values |> Statistics.percentile(75),
-            p90: values |> Statistics.percentile(90),
-            p95: values |> Statistics.percentile(95),
-            p99: values |> Statistics.percentile(99),
-            p999: values |> Statistics.percentile(99.9)
-          }
+          try do
+            %{res |
+              mean: values |> Statistics.mean,
+              min: values |> Statistics.min,
+              max: values |> Statistics.max,
+              median: values |> Statistics.median,
+              std_dev: values |> Statistics.stdev,
+              p50: values |> Statistics.percentile(50),
+              p75: values |> Statistics.percentile(75),
+              p90: values |> Statistics.percentile(90),
+              p95: values |> Statistics.percentile(95),
+              p99: values |> Statistics.percentile(99),
+              p999: values |> Statistics.percentile(99.9)
+            }
+          catch
+            _ -> res
+          end
         _ -> res
       end
     {:reply, res, state}
@@ -94,11 +98,8 @@ defmodule Cicada.DataManager.Histogram.Device.Record do
   end
 
   def handle_cast({:add, value}, state) do
-    values =
-      case state.values do
-        [head | _tail] when head |> is_number -> [ value | state.values ] |> Enum.slice(0..1000)
-        _ -> [value]
-      end
-    {:noreply, %State{ state | values: values, current_value: value }}
+    {:noreply,
+      %State{ state | values: [ value | state.values ] |> Enum.slice(0..100), current_value: value }
+    }
   end
 end

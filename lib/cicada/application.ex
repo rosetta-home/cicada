@@ -10,7 +10,6 @@ defmodule Cicada.Application do
       supervisor(DeviceManager.Supervisor, []),
       supervisor(DistributionManager.Supervisor, []),
       supervisor(SysMon.Supervisor, []),
-      supervisor(DataManager.Supervisor, []),
       supervisor(API.Supervisor, []),
       supervisor(VoiceControl.Supervisor, []),
     ]
