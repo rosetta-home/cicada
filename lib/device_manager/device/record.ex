@@ -43,6 +43,14 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
     GenServer.call(id |> String.to_existing_atom, :history)
   end
 
+  def get_value(values, func) do
+    try do
+      func.(values)
+    rescue
+      _ -> 0
+    end
+  end
+
   def init({id, key, value}) do
     {:ok, %State{id: id, key: key, values: [value], current_value: value}}
   end
@@ -51,6 +59,7 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
 
   def handle_call(:values, _from, state) do
     values = state.values
+    Logger.info "Values: #{inspect values}"
     res = %{
       key: state.key,
       value: state.current_value,
@@ -69,26 +78,22 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
       p999: 0
     }
     res =
-      case values do
-        [head | _tail] when head |> is_number ->
-          try do
-            %{res |
-              mean: values |> Statistics.mean,
-              min: values |> Statistics.min,
-              max: values |> Statistics.max,
-              median: values |> Statistics.median,
-              std_dev: values |> Statistics.stdev,
-              p50: values |> Statistics.percentile(50),
-              p75: values |> Statistics.percentile(75),
-              p90: values |> Statistics.percentile(90),
-              p95: values |> Statistics.percentile(95),
-              p99: values |> Statistics.percentile(99),
-              p999: values |> Statistics.percentile(99.9)
-            }
-          catch
-            _ -> res
-          end
-        _ -> res
+      case values |> Enum.all?(fn v -> v |> is_number end) && values |> length > 3 do
+        true ->
+          %{res |
+            mean: values |> Statistics.mean,
+            min: values |> Statistics.min,
+            max: values |> Statistics.max,
+            median: values |> Statistics.median,
+            std_dev: values |> Statistics.stdev,
+            p50: values |> Statistics.percentile(50),
+            p75: values |> Statistics.percentile(75),
+            p90: values |> Statistics.percentile(90),
+            p95: values |> Statistics.percentile(95),
+            p99: values |> Statistics.percentile(99),
+            p999: values |> Statistics.percentile(99.9)
+          }
+        false -> res
       end
     {:reply, res, state}
   end
