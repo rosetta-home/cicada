@@ -59,7 +59,6 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
 
   def handle_call(:values, _from, state) do
     values = state.values
-    Logger.info "Values: #{inspect values}"
     res = %{
       key: state.key,
       value: state.current_value,
