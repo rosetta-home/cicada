@@ -1,5 +1,4 @@
 defmodule Cicada.DeviceManager.Device.HVAC do
-  use Cicada.DeviceManager.DeviceHistogram
 
   @on_off %{:on => 2, :off => 1}
   @hold %{:on => 1, :off => 0}

@@ -20,7 +20,9 @@ defmodule Cicada.DeviceManager.Discovery do
 
       def handle_device(device_state, module, state) do
         id = module.get_id(device_state)
-        case Enum.any?(state.devices, fn({pid, module, device}) -> device.interface_pid == id end) do
+        case Enum.any?(state.devices,
+          fn({pid, module, device}) -> device.interface_pid == id end)
+        do
           false ->
             Logger.info("Got Device - #{id} :: #{inspect device_state}")
             pid =

@@ -1,5 +1,4 @@
 defmodule Cicada.DeviceManager.Device.MediaPlayer do
-  use Cicada.DeviceManager.DeviceHistogram
 
   defmodule State.Image do
     @derive [Poison.Encoder]

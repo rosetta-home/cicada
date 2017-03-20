@@ -1,5 +1,4 @@
 defmodule Cicada.DeviceManager.Device.IEQ do
-  use Cicada.DeviceManager.DeviceHistogram
 
   defmodule State do
     @derive [Poison.Encoder]
