@@ -18,6 +18,10 @@ defmodule Cicada.DeviceManager.Discovery do
         GenServer.call(id, :snapshot)
       end
 
+      def reset_histogram(id) do
+        GenServer.call(id, :reset_histogram)
+      end
+
       def handle_device(device_state, module, state) do
         id = module.get_id(device_state)
         case Enum.any?(state.devices,
@@ -57,6 +61,12 @@ defmodule Cicada.DeviceManager.Discovery do
       def handle_call(:snapshot, _from, state) do
         {:reply, state.devices |> Enum.flat_map(fn {pid, module, device} ->
           module.snapshot(device.interface_pid)
+        end), state}
+      end
+
+      def handle_call(:reset_histogram, _from, state) do
+        {:reply, state.devices |> Enum.flat_map(fn {pid, module, device} ->
+          module.reset_histogram(device.interface_pid)
         end), state}
       end
 

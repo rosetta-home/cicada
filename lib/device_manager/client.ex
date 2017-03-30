@@ -21,6 +21,10 @@ defmodule Cicada.DeviceManager.Client do
     GenServer.call(__MODULE__, :snapshot)
   end
 
+  def reset_histogram do
+    GenServer.call(__MODULE__, :reset_histogram)
+  end
+
   def init(:ok) do
     Process.flag(:trap_exit, true)
     NetworkManager.register
@@ -61,6 +65,12 @@ defmodule Cicada.DeviceManager.Client do
   def handle_call(:snapshot, _from, state) do
     {:reply, state.discover |> Enum.flat_map(fn {pid, module} ->
       module.snapshot(pid)
+    end), state}
+  end
+
+  def handle_call(:reset_histogram, _from, state) do
+    {:reply, state.discover |> Enum.flat_map(fn {pid, module} ->
+      module.reset_histogram(pid)
     end), state}
   end
 

@@ -18,9 +18,19 @@ defmodule Cicada.DeviceManager.DeviceHistogram do
         GenServer.call(id, {:snapshot, id})
       end
 
+      def reset_histogram(id) do
+        GenServer.call(id, {:reset_histogram, id})
+      end
+
       def handle_call({:snapshot, id}, _from, state) do
         id = :"Histogram-#{id}"
         {:reply, [%{device: state, values: Histogram.snapshot(id)}], state}
+      end
+
+      def handle_call({:reset_histogram, id}, _from, state) do
+        id = :"Histogram-#{id}"
+        Histogram.reset(id)
+        {:reply, :ok, state}
       end
 
       def handle_call({:start_histogram, id, %Device{} = device}, _from, state) do

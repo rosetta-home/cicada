@@ -16,7 +16,7 @@ defmodule Cicada.DeviceManager.Device.Histogram do
   end
 
   def reset(id) do
-    Enum.each(Supervisor.which_children(id), fn {_id, child, _type, _module} ->
+    Supervisor.which_children(id) |> Enum.each(fn {_id, child, _type, _module} ->
       Histogram.Record.reset(child)
     end)
   end
