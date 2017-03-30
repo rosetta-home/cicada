@@ -100,7 +100,8 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
   def handle_cast(:reset, state) do
     v =
       case state.current_value do
-        a when a |> is_number -> 0
+        n when n |> is_number -> 0
+        b when b |> is_boolean -> false
         _ -> ""
       end
     {:noreply, %State{state | values: [], current_value: v}}
