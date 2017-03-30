@@ -98,7 +98,12 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
   end
 
   def handle_cast(:reset, state) do
-    {:noreply, %State{state | values: [], current_value: 0}}
+    v =
+      case state.current_value do
+        a when a |> is_number -> 0
+        _ -> ""
+      end
+    {:noreply, %State{state | values: [], current_value: v}}
   end
 
   def handle_cast({:add, value}, state) do
