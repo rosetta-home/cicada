@@ -65,9 +65,10 @@ defmodule Cicada.DeviceManager.Discovery do
       end
 
       def handle_call(:reset_histogram, _from, state) do
-        {:reply, state.devices |> Enum.flat_map(fn {pid, module, device} ->
+        state.devices |> Enum.each(fn {pid, module, device} ->
           module.reset_histogram(device.interface_pid)
-        end), state}
+        end)
+        {:reply, :ok, state}
       end
 
       def handle_info({:EXIT, crashed, reason}, state) when reason != :normal do
