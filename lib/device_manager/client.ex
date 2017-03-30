@@ -69,7 +69,7 @@ defmodule Cicada.DeviceManager.Client do
   end
 
   def handle_call(:reset_histogram, _from, state) do
-    {:reply, state.discover |> Enum.flat_map(fn {pid, module} ->
+    {:reply, state.discover |> Enum.each(fn {pid, module} ->
       module.reset_histogram(pid)
     end), state}
   end
