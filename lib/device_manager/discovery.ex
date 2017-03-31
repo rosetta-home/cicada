@@ -14,12 +14,8 @@ defmodule Cicada.DeviceManager.Discovery do
         GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
       end
 
-      def snapshot(id) do
-        GenServer.call(id, :snapshot)
-      end
-
-      def reset_histogram(id) do
-        GenServer.call(id, :reset_histogram)
+      def devices(id) do
+        GenServer.call(id, :devices)
       end
 
       def handle_device(device_state, module, state) do
@@ -39,7 +35,9 @@ defmodule Cicada.DeviceManager.Discovery do
               nil -> state
               _ ->
                 device = module.device(pid)
-                module.start_histogram(id, device)
+                hist = module.start_histogram(id, device)
+                device  = %DeviceManager.Device{device | histogram: hist}
+                Logger.info("Histogram - #{id} :: #{inspect device}")
                 %State{state | devices: [{pid, module, device} | state.devices]}
             end
           true ->
@@ -58,17 +56,8 @@ defmodule Cicada.DeviceManager.Discovery do
         {:ok, %State{}}
       end
 
-      def handle_call(:snapshot, _from, state) do
-        {:reply, state.devices |> Enum.flat_map(fn {pid, module, device} ->
-          module.snapshot(device.interface_pid)
-        end), state}
-      end
-
-      def handle_call(:reset_histogram, _from, state) do
-        state.devices |> Enum.each(fn {pid, module, device} ->
-          module.reset_histogram(device.interface_pid)
-        end)
-        {:reply, :ok, state}
+      def handle_call(:devices, _from, state) do
+        {:reply, state.devices, state}
       end
 
       def handle_info({:EXIT, crashed, reason}, state) when reason != :normal do

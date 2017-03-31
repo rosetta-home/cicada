@@ -17,12 +17,8 @@ defmodule Cicada.DeviceManager.Client do
     EventManager.dispatch(DeviceManager, event)
   end
 
-  def snapshot do
-    GenServer.call(__MODULE__, :snapshot)
-  end
-
-  def reset_histogram do
-    GenServer.call(__MODULE__, :reset_histogram)
+  def devices do
+    GenServer.call(__MODULE__, :devices)
   end
 
   def init(:ok) do
@@ -62,17 +58,14 @@ defmodule Cicada.DeviceManager.Client do
     {:noreply, state}
   end
 
-  def handle_call(:snapshot, _from, state) do
-    {:reply, state.discover |> Enum.flat_map(fn {pid, module} ->
-      module.snapshot(pid)
-    end), state}
+  def handle_call(:devices, _from, state) do
+    devices =
+      state.discover |> Enum.flat_map(fn {pid, module} ->
+        module.devices(pid)
+      end)
+    {:reply, devices, state}
   end
 
-  def handle_call(:reset_histogram, _from, state) do
-    {:reply, state.discover |> Enum.each(fn {pid, module} ->
-      module.reset_histogram(pid)
-    end), state}
-  end
 
   def handle_call(:register, {pid, _ref}, state) do
     Registry.register(EventManager.Registry, DeviceManager, pid)

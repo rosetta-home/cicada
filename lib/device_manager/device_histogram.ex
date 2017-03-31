@@ -23,19 +23,18 @@ defmodule Cicada.DeviceManager.DeviceHistogram do
       end
 
       def handle_call({:snapshot, id}, _from, state) do
-        id = :"Histogram-#{id}"
         {:reply, [%{device: state, values: Histogram.snapshot(id)}], state}
       end
 
       def handle_call({:reset_histogram, id}, _from, state) do
-        id = :"Histogram-#{id}"
         Histogram.reset(id)
         {:reply, :ok, state}
       end
 
       def handle_call({:start_histogram, id, %Device{} = device}, _from, state) do
         id = :"Histogram-#{id}"
-        {:reply, Histogram.start_link(id, device), state}
+        {:ok, hist} = Histogram.start_link(id, device)
+        {:reply, hist, %Device{state | histogram: hist}}
       end
 
       def handle_call({:update_histogram, id, device}, _from, state) do
