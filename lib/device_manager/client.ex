@@ -13,16 +13,15 @@ defmodule Cicada.DeviceManager.Client do
     GenServer.call(__MODULE__, {:register_device, module})
   end
 
+  def start_discovery do
+    GenServer.cast(__MODULE__, :start_discovery)
+  end
+
   def dispatch(event) do
     EventManager.dispatch(DeviceManager, event)
   end
 
-  def devices do
-    GenServer.call(__MODULE__, :devices)
-  end
-
   def init(:ok) do
-    Process.flag(:trap_exit, true)
     NetworkManager.register
     {:ok, %{started: false, discover: []}}
   end
@@ -40,32 +39,9 @@ defmodule Cicada.DeviceManager.Client do
     {:noreply, state}
   end
 
-  def handle_info({:EXIT, crashed, reason}, state) do
-    Logger.info("Process #{inspect crashed} crashed: #{inspect reason} Current State: #{inspect state}")
-    discover = state.discover |> Enum.map(fn {pid, module} ->
-      case pid do
-        ^crashed ->
-          Logger.info "Restarting: #{inspect module}"
-          {:ok, p} = module.start_link
-          {p, module}
-        _ -> {pid, module}
-      end
-    end)
-    {:noreply, %{ state | discover: discover }}
-  end
-
   def handle_info(mes, state) do
     {:noreply, state}
   end
-
-  def handle_call(:devices, _from, state) do
-    devices =
-      state.discover |> Enum.flat_map(fn {pid, module} ->
-        module.devices(pid)
-      end)
-    {:reply, devices, state}
-  end
-
 
   def handle_call(:register, {pid, _ref}, state) do
     Registry.register(EventManager.Registry, DeviceManager, pid)
@@ -73,8 +49,12 @@ defmodule Cicada.DeviceManager.Client do
   end
 
   def handle_call({:register_device, module}, _from, state) do
-    {:ok, pid} = module.start_link
-    {:reply, :ok, %{ state | discover: [{pid, module}] ++ state.discover }}
+    {:reply, :ok, %{ state | discover: [module] ++ state.discover }}
+  end
+
+  def handle_cast(:start_discovery, state) do
+    DeviceManager.DiscoverySupervisor.start_link(state.discover)
+    {:noreply, state}
   end
 
 end
