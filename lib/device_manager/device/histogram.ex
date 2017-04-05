@@ -27,7 +27,7 @@ defmodule Cicada.DeviceManager.Device.Histogram do
       key = "#{id}::#{Enum.join(keys, "-")}"
       case v do
         map when map |> is_map -> update_records(id, map, keys)
-        value when k != :__struct__ ->
+        value when k != :__struct__ and k != :id ->
           Logger.debug "Updating #{key}: #{value}"
           Histogram.Record.add(key, value)
         _ -> nil
@@ -42,7 +42,7 @@ defmodule Cicada.DeviceManager.Device.Histogram do
       key = "#{id}::#{Enum.join(keys, "-")}"
       case v do
         map when map |> is_map -> records(id, map, keys)
-        value when k != :__struct__ ->
+        value when k != :__struct__ and k != :id->
           Logger.info "#{inspect k}: #{inspect value}"
           [worker(Histogram.Record, [key, keys, value], id: key)]
         _ -> []

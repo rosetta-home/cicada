@@ -18,7 +18,7 @@ defmodule Cicada.DeviceManager do
   def devices do
     Cicada.DeviceManager.DiscoverySupervisor
     |> Supervisor.which_children
-    |> Enum.flat_map(fn {_id, child, _type, [module | _ta] = modules} ->
+    |> Enum.flat_map(fn {_id, child, _type, [module | _ta] = _modules} ->
       module.devices(child)
     end)
   end
