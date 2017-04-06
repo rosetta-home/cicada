@@ -7,7 +7,7 @@ defmodule Cicada.DeviceManager.Discovery do
       alias Cicada.DeviceManager.Discovery
 
       defmodule State do
-        defstruct devices: []
+        defstruct supervisor: nil, module: nil
       end
 
       def start_link() do
@@ -18,63 +18,39 @@ defmodule Cicada.DeviceManager.Discovery do
         GenServer.call(id, :devices)
       end
 
-      def handle_device(device_state, module, state) do
-        id = module.get_id(device_state)
-        case Enum.any?(state.devices,
-          fn({pid, module, device}) -> device.interface_pid == id end)
-        do
-          false ->
-            Logger.info("Got Device - #{id} :: #{inspect device_state}")
-            pid =
-              case module.start_link(id, device_state) do
-                {:error, {:already_started, pid}} -> pid
-                {:ok, pid} -> pid
-                {:error, error} -> nil
-              end
-            case pid do
-              nil -> state
-              _ ->
-                device = module.device(pid)
-                hist = module.start_histogram(id, device)
-                device  = %DeviceManager.Device{device | histogram: hist}
-                Logger.info("Histogram - #{id} :: #{inspect device}")
-                %State{state | devices: [{pid, module, device} | state.devices]}
-            end
-          true ->
-            Logger.debug("Updating State - #{id} #{inspect device_state}")
-            device = %DeviceManager.Device{
-              module.device(id) | state: module.update_state(id, device_state)
-            } |> DeviceManager.Client.dispatch
-            module.update_histogram(id, device)
-            state
+      def handle_device(device_state, state) do
+        id = state.module.get_id(device_state)
+        case Supervisor.start_child(state.supervisor, [id, device_state]) do
+          {:ok, pid} ->
+            Logger.info "Device Started: #{id} - #{inspect device_state}"
+            device = state.module.device(pid)
+            state.module.start_histogram(id, device)
+          {:error, {:already_started, pid}} ->
+            device =
+              %DeviceManager.Device{
+                state.module.device(pid) | state: state.module.update_state(id, device_state)
+              } |> DeviceManager.Client.dispatch
+            state.module.update_histogram(id, device)
         end
+        state
       end
 
       def init(:ok) do
-        Process.flag(:trap_exit, true)
-        register_callbacks()
-        {:ok, %State{}}
+        module = register_callbacks()
+        {:ok, sup} = DeviceManager.DeviceSupervisor.start_link(module)
+        {:ok, %State{module: module, supervisor: sup}}
       end
 
       def handle_call(:devices, _from, state) do
-        {:reply, state.devices, state}
-      end
-
-      def handle_info({:EXIT, crashed, reason}, state) when reason != :normal do
-        Logger.info("Process #{inspect crashed} crashed: #{inspect reason} Current State: #{inspect state}")
         devices =
-          Enum.filter(state.devices, fn {pid, module, device} ->
-            case pid do
-              ^crashed ->
-                Logger.info "Removing #{inspect crashed} = #{inspect pid}"
-                false
-              _ -> true
-            end
+          state.supervisor
+          |> Supervisor.which_children
+          |> Enum.map(fn {_id, child, _type, [module | _ta] = _modules} ->
+            module.device(child)
           end)
-        {:noreply, %State{ state | devices: devices} }
+        {:reply, devices, state}
       end
 
-      def handle_info({:EXIT, crashed, reason}, state), do: {:noreply, state}
     end
   end
 end
