@@ -7,7 +7,7 @@ defmodule Cicada.DeviceManager.Supervisor do
 
   def init(:ok) do
     children = [
-      worker(Cicada.DeviceManager.Client, [])
+      supervisor(Cicada.DeviceManager.ClientSupervisor, []),
     ]
     supervise(children, strategy: :one_for_one)
   end
