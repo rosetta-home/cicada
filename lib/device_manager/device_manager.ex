@@ -12,7 +12,11 @@ defmodule Cicada.DeviceManager do
   end
 
   def register do
-    GenServer.call(Cicada.DeviceManager.Client, :register)
+    Cicada.DeviceManager.Client |> GenServer.call(:register)
+  end
+
+  def dispatch(event) do
+    DeviceManager |> Cicada.EventManager.dispatch(event)
   end
 
   def devices do
@@ -21,6 +25,11 @@ defmodule Cicada.DeviceManager do
     |> Enum.flat_map(fn {_id, child, _type, [module | _ta] = _modules} ->
       module.devices(child)
     end)
+  end
+
+  def handle_call(:register, {pid, _ref}, state) do
+    Registry.register(EventManager.Registry, DeviceManager, pid)
+    {:reply, :ok, state}
   end
 
 end

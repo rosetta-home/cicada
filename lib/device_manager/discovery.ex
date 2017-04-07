@@ -29,7 +29,7 @@ defmodule Cicada.DeviceManager.Discovery do
             device =
               %DeviceManager.Device{
                 state.module.device(pid) | state: state.module.update_state(id, device_state)
-              } |> DeviceManager.Client.dispatch
+              } |> DeviceManager.dispatch
             state.module.update_histogram(id, device)
         end
         state

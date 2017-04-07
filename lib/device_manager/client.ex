@@ -9,18 +9,6 @@ defmodule Cicada.DeviceManager.Client do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  def register_device(module) do
-    GenServer.call(__MODULE__, {:register_device, module})
-  end
-
-  def start_discovery do
-    GenServer.cast(__MODULE__, :start_discovery)
-  end
-
-  def dispatch(event) do
-    EventManager.dispatch(DeviceManager, event)
-  end
-
   def init(:ok) do
     NetworkManager.register
     Process.send_after(__MODULE__, :discover, 0)
