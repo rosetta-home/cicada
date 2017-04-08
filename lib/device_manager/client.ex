@@ -3,7 +3,7 @@ defmodule Cicada.DeviceManager.Client do
   require Logger
   alias Cicada.NetworkManager.State, as: NM
   alias Cicada.NetworkManager.Interface, as: NMInterface
-  alias Cicada.{EventManager, NetworkManager, DeviceManager}
+  alias Cicada.{EventManager, NetworkManager}
 
   def start_link do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -33,12 +33,13 @@ defmodule Cicada.DeviceManager.Client do
       [] -> Process.send_after(__MODULE__, :discover, 10)
       discovery ->
         Logger.info "Launching DeviceManager.Client: #{inspect discovery}"
-        {:ok, pid} = DeviceManager.DiscoverySupervisor.start_link(discovery)
+        {:ok, pid} = Cicada.DeviceManager.DiscoverySupervisor.start_link(discovery)
     end
     {:noreply, state}
   end
 
   def handle_call(:register, {pid, _ref}, state) do
+    Logger.info "Registering: #{inspect pid}"
     Registry.register(EventManager.Registry, DeviceManager, pid)
     {:reply, :ok, state}
   end
