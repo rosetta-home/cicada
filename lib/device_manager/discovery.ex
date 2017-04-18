@@ -1,14 +1,12 @@
 defmodule Cicada.DeviceManager.Discovery do
-  defmacro __using__(_opts) do
-    quote do
+  defmacro __using__(module: module) do
+    quote bind_quoted: [module: module] do
       use GenServer
       require Logger
       alias Cicada.DeviceManager
       alias Cicada.DeviceManager.Discovery
 
-      defmodule State do
-        defstruct supervisor: nil, module: nil
-      end
+      @device_module module
 
       def start_link() do
         GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
@@ -19,38 +17,35 @@ defmodule Cicada.DeviceManager.Discovery do
       end
 
       def handle_device(device_state, state) do
-        id = state.module.get_id(device_state)
-        case Supervisor.start_child(state.supervisor, [id, device_state]) do
+        id = @device_module.get_id(device_state)
+        case Supervisor.start_child(:"#{@device_module}.Supervisor", [id, device_state]) do
           {:ok, pid} ->
             Logger.info "Device Started: #{id} - #{inspect device_state}"
-            device = state.module.device(pid)
-            state.module.start_histogram(id, device)
+            device = @device_module.device(pid)
+            @device_module.start_histogram(id, device)
           {:error, {:already_started, pid}} ->
             device =
               %DeviceManager.Device{
-                state.module.device(pid) | state: state.module.update_state(id, device_state)
+                @device_module.device(pid) | state: @device_module.update_state(id, device_state)
               } |> DeviceManager.dispatch
-            state.module.update_histogram(id, device)
+            @device_module.update_histogram(id, device)
         end
         state
       end
 
       def init(:ok) do
-        module = register_callbacks()
-        {:ok, sup} = DeviceManager.DeviceSupervisor.start_link(module)
-        {:ok, %State{module: module, supervisor: sup}}
+        {:ok, sup} = DeviceManager.DeviceSupervisor.start_link(@device_module)
+        {:ok, register_callbacks()}
       end
 
       def handle_call(:devices, _from, state) do
-        devices =
-          state.supervisor
+        {:reply, :"#{@device_module}.Supervisor"
           |> Supervisor.which_children
           |> Enum.map(fn {_id, child, _type, [module | _ta] = _modules} ->
             module.device(child)
-          end)
-        {:reply, devices, state}
+          end),
+        state}
       end
-
     end
   end
 end
