@@ -11,16 +11,20 @@ defmodule Cicada.DeviceManager.Client do
 
   def init(plugins) do
     NetworkManager.register
+    state =
+      case NetworkManager.up() do
+        true ->
+          start_services()
+          %{started: true}
+        false ->
+          %{started: false}
+      end
     {:ok, pid} = Cicada.DeviceManager.DiscoverySupervisor.start_link(plugins)
-    {:ok, %{started: false}}
+    {:ok, state}
   end
 
-  def handle_info(%NM{bound: true}, %{started: started} = state)
-  when started == false do
-    Logger.info "Starting SSDP"
-    SSDP.Client.start
-    Logger.info "Starting mDNS"
-    Mdns.Client.start
+  def handle_info(%NM{bound: true}, %{started: false} = state) do
+    start_services()
     {:noreply, %{state | started: true}}
   end
 
@@ -32,6 +36,13 @@ defmodule Cicada.DeviceManager.Client do
     Logger.info "Registering: #{inspect pid}"
     Registry.register(EventManager.Registry, DeviceManager, pid)
     {:reply, :ok, state}
+  end
+
+  def start_services() do
+    Logger.info "Starting SSDP"
+    SSDP.Client.start
+    Logger.info "Starting mDNS"
+    Mdns.Client.start
   end
 
 end
