@@ -32,4 +32,8 @@ defmodule Cicada.DeviceManager do
     {:reply, :ok, state}
   end
 
+  def register_plugins(plugins) do
+    Cicada.DeviceManager.Supervisor |> Supervisor.start_child([plugins])
+  end
+
 end

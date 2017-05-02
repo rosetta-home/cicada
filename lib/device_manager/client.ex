@@ -5,13 +5,13 @@ defmodule Cicada.DeviceManager.Client do
   alias Cicada.NetworkManager.Interface, as: NMInterface
   alias Cicada.{EventManager, NetworkManager}
 
-  def start_link do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(plugins) do
+    GenServer.start_link(__MODULE__, plugins, name: __MODULE__)
   end
 
-  def init(:ok) do
+  def init(plugins) do
     NetworkManager.register
-    Process.send_after(__MODULE__, :discover, 0)
+    {:ok, pid} = Cicada.DeviceManager.DiscoverySupervisor.start_link(plugins)
     {:ok, %{started: false}}
   end
 
@@ -25,16 +25,6 @@ defmodule Cicada.DeviceManager.Client do
   end
 
   def handle_info(%NM{}, state) do
-    {:noreply, state}
-  end
-
-  def handle_info(:discover, state) do
-    case Cicada.DeviceManager.Registry.get do
-      [] -> Process.send_after(__MODULE__, :discover, 10)
-      discovery ->
-        Logger.info "Launching DeviceManager.Client: #{inspect discovery}"
-        {:ok, pid} = Cicada.DeviceManager.DiscoverySupervisor.start_link(discovery)
-    end
     {:noreply, state}
   end
 
