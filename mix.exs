@@ -42,7 +42,7 @@ defmodule Cicada.Mixfile do
       {:cowboy, "~> 1.0"},
       {:mdns, "~> 0.1.5"},
       {:ssdp, "~> 0.1.2"},
-      {:movi, "~> 0.1.1"},
+      #{:movi, "~> 0.1.1"},
       {:statistics, "~> 0.4.1"},
     ]
   end
