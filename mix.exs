@@ -19,7 +19,7 @@ defmodule Cicada.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :nerves_interim_wifi, :nerves_network_interface, :nerves_wpa_supplicant, :cowboy, :mdns, :ssdp, :cipher, :statistics, :os_mon, #:movi],
+      applications: [:logger, :nerves_interim_wifi, :nerves_network_interface, :nerves_wpa_supplicant, :cowboy, :mdns, :ssdp, :cipher, :statistics, :os_mon,], #:movi],
       mod: {Cicada.Application, []},
       env: [
         cipher: [
