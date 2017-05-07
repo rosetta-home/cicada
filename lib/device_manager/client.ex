@@ -11,13 +11,15 @@ defmodule Cicada.DeviceManager.Client do
 
   def init(plugins) do
     NetworkManager.register
+    ssdp_mon = Process.monitor(SSDP.Client)
+    mdns_mon = Process.monitor(Mdns.Client)
+    state = %{started: false, ssdp_mon: ssdp_mon, mdns_mon: mdns_mon}
     state =
       case NetworkManager.up() do
         true ->
           start_services()
-          %{started: true}
-        false ->
-          %{started: false}
+          %{state | started: true}
+        false -> state
       end
     {:ok, pid} = Cicada.DeviceManager.DiscoverySupervisor.start_link(plugins)
     {:ok, state}
@@ -30,6 +32,22 @@ defmodule Cicada.DeviceManager.Client do
 
   def handle_info(%NM{}, state) do
     {:noreply, state}
+  end
+
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, %{ssdp_mon: ref} = state) do
+    Logger.info "Starting SSDP Client"
+    :timer.sleep(1000)
+    ssdp_mon = Process.monitor(SSDP.Client)
+    SSDP.Client.start()
+    {:noreply, %{state | ssdp_mon: ssdp_mon}}
+  end
+
+  def handle_info({:DOWN, ref, :process, _pid, _reason}, %{mdns_mon: ref} = state) do
+    Logger.info "Starting mDNS Client"
+    :timer.sleep(1000)
+    mdns_mon = Process.monitor(Mdns.Client)
+    Mdns.Client.start()
+    {:noreply, %{state | mdns_mon: mdns_mon}}
   end
 
   def handle_call(:register, {pid, _ref}, state) do
