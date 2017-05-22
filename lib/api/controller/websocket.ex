@@ -70,7 +70,7 @@ defmodule Cicada.API.Controller.Websocket do
 
   def websocket_info(%DeviceManager.Device{} = event, req, state) do
     #Logger.info "Process: #{inspect Process.info(self, :message_queue_len)}"
-    event = %DeviceManager.Device{event | device_pid: "", histogram: ""}
+    event = %DeviceManager.Device{event | device_pid: "", histogram: "", timer: ""}
     {:reply, {:text, Poison.encode!(event)}, req, state}
   end
 

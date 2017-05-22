@@ -8,7 +8,8 @@ defmodule Cicada.DeviceManager do
       interface_pid: nil,
       histogram: nil,
       name: "",
-      state: %{}
+      state: %{},
+      timer: nil
   end
 
   def register do
