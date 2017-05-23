@@ -14,6 +14,8 @@ defmodule Cicada.DeviceManager.Device.HVAC do
       temporary_target_cool: 0,
       temporary_target_heat: 0,
       mode: :auto,
-      state: :off
+      state: :off,
+      last_update: 0,
+      elapsed: 0
   end
 end
