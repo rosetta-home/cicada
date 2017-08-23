@@ -8,7 +8,7 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
     defstruct values: [],
       id: nil,
       key: nil,
-      current_value: 0
+      current_value: nil
   end
 
   def start_link(id, key, value) do
@@ -23,25 +23,19 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
     GenServer.cast(id, :reset)
   end
 
-  def reset(id) do
-    GenServer.cast(id |> String.to_existing_atom, :reset)
-  end
+  def reset(id), do: reset(id |> String.to_existing_atom)
 
   def values(id) when id |> is_pid do
     GenServer.call(id, :values)
   end
 
-  def values(id) do
-    GenServer.call(id |> String.to_existing_atom, :values)
-  end
+  def values(id), do: values(id |> String.to_existing_atom)
 
   def history(id) when id |> is_pid do
     GenServer.call(id, :history)
   end
 
-  def history(id) do
-    GenServer.call(id |> String.to_existing_atom, :history)
-  end
+  def history(id), do: history(id |> String.to_existing_atom)
 
   def get_value(values, func) do
     try do
@@ -64,17 +58,17 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
       value: state.current_value,
       count: values |> Enum.count,
       values: values,
-      mean: 0,
-      min: 0,
-      max: 0,
-      median: 0,
-      std_dev: 0,
-      p50: 0,
-      p75: 0,
-      p90: 0,
-      p95: 0,
-      p99: 0,
-      p999: 0
+      mean: nil,
+      min: nil,
+      max: nil,
+      median: nil,
+      std_dev: nil,
+      p50: nil,
+      p75: nil,
+      p90: nil,
+      p95: nil,
+      p99: nil,
+      p999: nil
     }
     res =
       case values |> Enum.all?(fn v -> v |> is_number end) && values |> length > 3 do
@@ -98,13 +92,7 @@ defmodule Cicada.DeviceManager.Device.Histogram.Record do
   end
 
   def handle_cast(:reset, state) do
-    v =
-      case state.current_value do
-        n when n |> is_number -> 0
-        b when b |> is_boolean -> false
-        _ -> ""
-      end
-    {:noreply, %State{state | values: [], current_value: v}}
+    {:noreply, %State{state | values: [], current_value: nil}}
   end
 
   def handle_cast({:add, value}, state) do
