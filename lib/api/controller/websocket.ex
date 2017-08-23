@@ -28,7 +28,7 @@ defmodule Cicada.API.Controller.Websocket do
       "LightColor" ->
         Logger.info "Got LightColor"
         i_pid = String.to_existing_atom(cmd["payload"]["id"])
-        DeviceManager.Device.Light.Lifx.color(i_pid, cmd["payload"]["h"], cmd["payload"]["s"], cmd["payload"]["v"])
+        DeviceManager.Device.Light.Lifx.color(i_pid, cmd["payload"]["h"], cmd["payload"]["s"], 30)
         state
       "LightPower" ->
         Logger.info "Got LightPower"
