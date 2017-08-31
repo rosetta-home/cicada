@@ -10,7 +10,7 @@ defmodule Cicada.API.TCPServer do
         ]}
     ])
     {:ok, _} = :cowboy.start_http(:api_http,
-      100,
+      10,
       [{:port, port}],
       [{:env, [{:dispatch, dispatch}]}]
     )
