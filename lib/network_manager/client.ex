@@ -1,83 +1,45 @@
 defmodule Cicada.NetworkManager.Client do
   use GenServer
   require Logger
+  alias Nerves.Network
   alias Nerves.NetworkInterface
   alias Cicada.NetworkManager.Interface
   alias Cicada.{NetworkManager, EventManager}
 
   @ap_ip "192.168.24.1"
+  @wifi_creds "/root/creds"
+  @scope [:state, :network_interface]
+  @target System.get_env("MIX_TARGET") || "host"
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
+  def start_link(iface \\ "wlan0") do
+    GenServer.start_link(__MODULE__, iface, name: __MODULE__)
   end
 
   def dispatch(event) do
     EventManager.dispatch(NetworkManager, event)
   end
 
-  def init(:ok) do
-    Logger.info "Starting Network Manager"
-    Registry.register(Nerves.Udhcpc, "wlan0", [])
-    interfaces = NetworkInterface.interfaces
-    |> Enum.map(fn i ->
-      NetworkInterface.setup(i, %{})
-      Registry.register(Nerves.NetworkInterface, i, [])
-      Registry.register(Nerves.Udhcpc, i, [])
-      %Interface{
-        ifname: i,
-        settings: settings(i),
-        status: status(i),
-      }
-    end)
-    Logger.info "Network Interfaces: #{inspect interfaces}"
-    Process.send_after(self(), :init_network, 1000)
-    Process.send_after(self(), :ifup, 5_000)
-    {:ok, %NetworkManager.State{interfaces: interfaces}}
+  def init(iface) do
+    Logger.info "Starting Network Manager: #{iface}"
+    wait_until_iface_up(iface)
+    case @target do
+      "host" -> SystemRegistry.register()
+      _ -> init_wifi(iface)
+    end
+    {:ok, %NetworkManager.State{iface: iface}}
   end
 
-  def handle_info(:init_network, state) do
+  def handle_info({:system_registry, :global, registry}, %NetworkManager.State{iface: iface, current_address: current} = state) do
+    scope = scope(iface, [:ipv4_address])
+    ip = get_in(registry, scope)
     state =
-      case state.interfaces |> active_interface do
-        nil -> state
-        interface -> interface |> interface_changed(state)
-    end
-    {:noreply, state}
-  end
-
-  def handle_info(:ifup, state) do
-    case active_interface(state.interfaces) do
-      nil ->
-        case NetworkManager.WiFi.creds? do
-          false -> NetworkManager.AP.start
-          true -> :ok #Do not reset creds.
-        end
-      %Interface{} -> :ok
-    end
-    {:noreply, state}
-  end
-
-  def handle_info({Nerves.NetworkInterface, :ifchanged, msg}, state) do
-    state = handle_interface(msg, state)
-    {:noreply, interface_changed(msg, state)}
-  end
-
-  def handle_info({Nerves.NetworkInterface, :ifadded, msg}, state) do
-    state = handle_interface(msg, state)
-    {:noreply, interface_changed(msg, state)}
-  end
-
-  def handle_info({Nerves.NetworkInterface, :ifremoved, _msg}, state), do: {:noreply, state}
-
-  def handle_info({Nerves.NetworkInterface, :ifrenamed, _msg}, state), do: {:noreply, state}
-
-  def handle_info({Nerves.Udhcpc, :bound, msg}, state) do
-    :timer.sleep 1000
-    Logger.info "WiFi Connected"
-    state = handle_interface(msg, state)
-    {:noreply, interface_changed(msg, state)}
-  end
-  def handle_info({Nerves.Udhcpc, type, msg}, state) do
-    Logger.info "Udhcpc: #{inspect type} - #{inspect msg}"
+      case ip != current do
+        true ->
+          Logger.debug "IP Address Changed to #{ip}"
+          state = %NetworkManager.State{current_address: ip, bound: true}
+          dispatch(state)
+        false -> state
+      end
     {:noreply, state}
   end
 
@@ -88,79 +50,51 @@ defmodule Cicada.NetworkManager.Client do
 
   def handle_call(:up, _from, state), do: {:reply, state.bound, state}
 
-  defp handle_interface(msg, state) do
-    Logger.debug "Got Interface: #{inspect msg}"
-    Logger.debug "Existing Interfaces: #{inspect state.interfaces}"
-    case state.interfaces |> Enum.find(fn intf -> msg.ifname === intf.ifname end) do
-      nil -> msg |> add_interface(state)
-      _ -> state
+  def init_wifi(iface) do
+    case creds? do
+      false -> NetworkManager.AP.start
+      true ->
+        SystemRegistry.register()
+        join_network(iface)
     end
   end
 
-  defp add_interface(msg, state) do
-    NetworkInterface.setup(msg.ifname, %{})
-    Registry.register(Nerves.NetworkInterface, msg.ifname, [])
-    Registry.register(Nerves.Udhcpc, msg.ifname, [])
-    i = %Interface{
-      ifname: msg.ifname,
-      settings: settings(msg.ifname),
-      status: status(msg.ifname),
-    }
-    interfaces = [i] ++ state.interfaces |> Enum.uniq_by(fn intf -> intf.ifname end)
-    Logger.info "Added Interface: #{inspect interfaces}"
-    %NetworkManager.State{state | interfaces: interfaces}
-  end
-
-  defp interface_changed(ifchanged, state) do
-    old_interface = state.interface
-    interfaces = state.interfaces |> update_interface(ifchanged.ifname)
-    interface = interfaces |> active_interface
-    bound =
-      case interface do
-        %Interface{status: %{operstate: :up}} -> true
-        _ -> false
-      end
-    state = %NetworkManager.State{state | interfaces: interfaces, interface: interface, bound: bound}
-    #Only broadcast on network status change, up or down.
-    case interface |> ifup do
-      true when old_interface == nil ->
-        Logger.info "Network State: #{inspect state}"
-        Logger.info "Old Interface: #{inspect old_interface}"
-        state |> dispatch
-      false when not old_interface |> is_nil ->
-        Logger.info "Network State: #{inspect state}"
-        Logger.info "Old Interface: #{inspect old_interface}"
-        state |> dispatch
-      _ -> :ok
+  defp wait_until_iface_up(iface) do
+    unless iface in NetworkInterface.interfaces() do
+      Process.sleep(500)
+      wait_until_iface_up(iface)
     end
-    state
   end
 
-  defp update_interface(interfaces, ifname) do
-    interfaces
-    |> Enum.map(fn interface ->
-      case ifname == interface.ifname do
-        true ->
-          %Interface{interface |
-            settings: settings(ifname),
-            status: status(ifname),
-          }
-        false -> interface
-      end
-    end)
+  def creds? do
+    File.exists?(@wifi_creds)
   end
 
-  defp active_interface(interfaces) do
-    interfaces |> Enum.find(fn interface -> interface |> ifup end)
+  def delete_creds do
+    :ok = File.rm(@wifi_creds)
   end
 
-  defp ifup(%Interface{status: %{operstate: :up}, settings: %{ipv4_address: ip}}) when ip != @ap_ip do
-    true
+  def get_creds do
+    {:ok, creds} = File.read(@wifi_creds)
+    String.split(creds |> Cipher.decrypt, "\n\n", parts: 2, trim: true)
   end
-  defp ifup(_), do: false
 
-  defp settings(ifname), do: NetworkInterface.settings(ifname) |> elem(1)
+  def write_creds(ssid, psk) do
+    st = ssid <> "\n\n" <> psk |> Cipher.encrypt
+    File.write(@wifi_creds, st)
+    :ok
+  end
 
-  defp status(ifname), do: NetworkInterface.status(ifname) |> elem(1)
+  defp scope(iface, append) do
+    @scope ++ [iface] ++ append
+  end
 
+  def join_network(iface) do
+    case get_creds() do
+      [ssid, psk] -> Nerves.Network.setup(iface, ssid: ssid, key_mgmt: :"WPA-PSK", psk: psk)
+      _other ->
+        delete_creds
+        :error
+    end
+  end
 end

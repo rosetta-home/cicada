@@ -2,7 +2,6 @@ defmodule Cicada.DeviceManager.Client do
   use GenServer
   require Logger
   alias Cicada.NetworkManager.State, as: NM
-  alias Cicada.NetworkManager.Interface, as: NMInterface
   alias Cicada.{EventManager, NetworkManager}
 
   def start_link(plugins) do
@@ -25,7 +24,7 @@ defmodule Cicada.DeviceManager.Client do
     {:ok, state}
   end
 
-  def handle_info(%NM{bound: true}, %{started: false} = state) do
+  def handle_info(%NM{current_address: ip}, %{started: false} = state) when ip != nil do
     start_services()
     {:noreply, %{state | started: true}}
   end

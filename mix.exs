@@ -19,7 +19,7 @@ defmodule Cicada.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     [
-      applications: [:logger, :nerves_interim_wifi, :nerves_network_interface, :nerves_wpa_supplicant, :cowboy, :mdns, :ssdp, :cipher, :statistics, :os_mon,], #:movi],
+      applications: [:logger, :nerves_network, :nerves_wpa_supplicant, :cowboy, :mdns, :ssdp, :cipher, :statistics, :os_mon,], #:movi],
       mod: {Cicada.Application, []},
       env: [
         cipher: [
@@ -34,9 +34,7 @@ defmodule Cicada.Mixfile do
 
   defp deps do
     [
-      {:nerves_interim_wifi, github: "rosetta-home/nerves_interim_wifi"},
-      {:nerves_network_interface, "~> 0.4.0"},
-      {:nerves_wpa_supplicant, github: "rosetta-home/nerves_wpa_supplicant", override: true}, #{}"~> 0.3.0"},
+      {:nerves_network, "~> 0.3.6"},
       {:poison, "~> 3.0", override: true},
       {:cipher, ">= 1.3.0"},
       {:cowboy, "~> 1.0"},

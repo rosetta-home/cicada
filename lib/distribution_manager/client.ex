@@ -17,7 +17,7 @@ defmodule Cicada.DistributionManager.Client do
     {:ok, %{}}
   end
 
-  def handle_info(%NM{interface: %NMInterface{settings: %{ipv4_address: address}}, bound: true}, state) do
+  def handle_info(%NM{current_address: address}, state) when address != nil do
     Logger.info "Distribution Manager IP: #{inspect address}"
     :net_kernel.stop()
     :net_kernel.start([:"#{@app}@#{address}"])
