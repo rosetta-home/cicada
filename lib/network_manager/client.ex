@@ -19,12 +19,18 @@ defmodule Cicada.NetworkManager.Client do
     EventManager.dispatch(NetworkManager, event)
   end
 
+  def scan() do
+    GenServer.call(__MODULE__, :scan)
+  end
+
   def init(iface) do
     Logger.info "Starting Network Manager: #{iface}"
-    wait_until_iface_up(iface)
     case @target do
-      "host" -> SystemRegistry.register()
-      _ -> init_wifi(iface)
+      "host" ->
+        SystemRegistry.register()
+        Process.send_after(self(), :broadcast_address, 1000)
+      _ ->
+        init_wifi(iface)
     end
     {:ok, %NetworkManager.State{iface: iface}}
   end
@@ -34,14 +40,22 @@ defmodule Cicada.NetworkManager.Client do
     ip = get_in(registry, scope)
     state =
       case ip != current do
-        true ->
-          Logger.debug "IP Address Changed to #{ip}"
-          state = %NetworkManager.State{current_address: ip, bound: true}
-          dispatch(state)
+        true when ip != nil ->
+          Logger.info "IP Address Changed to #{ip}"
+          dispatch(%NetworkManager.State{current_address: ip, bound: true})
         false -> state
+        _ -> state
       end
     {:noreply, state}
   end
+
+  def handle_info(:broadcast_address, state) do
+    a = Cicada.Util.IPAddress.get_address() |> Tuple.to_list() |> Enum.join(".")
+    Process.send_after(self(), :broadcast_address, 10_000)
+    {:noreply, dispatch(%NetworkManager.State{state | current_address: a, bound: true})}
+  end
+
+  def handle_info({Nerves.WpaSupplicant, _, _}, state), do: {:noreply, state}
 
   def handle_call(:register, {pid, _ref}, state) do
     Registry.register(EventManager.Registry, NetworkManager, pid)
@@ -50,19 +64,23 @@ defmodule Cicada.NetworkManager.Client do
 
   def handle_call(:up, _from, state), do: {:reply, state.bound, state}
 
+  def handle_call(:scan, _from, state) do
+    System.cmd("/usr/sbin/wpa_supplicant",  ["-i", state.iface, "-C", "/var/run/wpa_supplicant", "-B"])
+    Logger.debug "WpaSupplicant Started"
+    {:ok, wpa} = Nerves.WpaSupplicant.start_link(state.iface, "/var/run/wpa_supplicant/#{state.iface}")
+    ssids =
+      Nerves.WpaSupplicant.scan(wpa)
+      |> Enum.uniq_by(fn network -> network.ssid end)
+    Logger.info "SSIDS: #{inspect ssids}"
+    {:reply, ssids, state}
+  end
+
   def init_wifi(iface) do
     case creds? do
       false -> NetworkManager.AP.start
       true ->
         SystemRegistry.register()
         join_network(iface)
-    end
-  end
-
-  defp wait_until_iface_up(iface) do
-    unless iface in NetworkInterface.interfaces() do
-      Process.sleep(500)
-      wait_until_iface_up(iface)
     end
   end
 
@@ -91,7 +109,7 @@ defmodule Cicada.NetworkManager.Client do
 
   def join_network(iface) do
     case get_creds() do
-      [ssid, psk] -> Nerves.Network.setup(iface, ssid: ssid, key_mgmt: :"WPA-PSK", psk: psk)
+      [ssid, psk] -> Network.setup(iface, ssid: ssid, key_mgmt: :"WPA-PSK", psk: psk)
       _other ->
         delete_creds
         :error
