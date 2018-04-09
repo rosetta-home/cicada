@@ -39,7 +39,7 @@ defmodule Cicada.Mixfile do
       {:cipher, ">= 1.3.0"},
       {:cowboy, "~> 1.0"},
       {:mdns, "~> 0.1.5"},
-      {:ssdp, "~> 0.2.1"},
+      {:ssdp, "~> 0.2.1", override: true},
       #{:movi, "~> 0.1.1"},
       {:statistics, "~> 0.4.1"}
     ]
